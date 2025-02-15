@@ -1,0 +1,45 @@
+{
+    "SUPPORTED_FOLDERS_RATIOS" : {
+        "user": [
+            "400x400"
+        ],
+        "company": [
+            "400x400",
+            "900x900"
+        ],
+        "content": [
+            "400x400",
+            "600x450",
+            "800x450"
+        ],
+        "editor": [],
+        "category_image": [
+            "400x400",
+            "600x450"
+        ],
+        "category_icon": [
+            "400x400"
+        ],
+        "category_wide_image": [
+            "400x400",
+            "800x650"
+        ],
+        "product_image": [
+            "400x400",
+            "765x850"
+        ]
+    },
+    "DEFAULT_FOLDERS_FILES" : {
+        "user"    : "user/base.png",
+        "company" : "user/base.png",
+        "content" : "content/empty.png",
+        "editor"  : "editor/empty.png",
+        "category_image"      : "category_image/empty.png",
+        "category_icon"       : "category_icon/empty.png",
+        "category_wide_image" : "category_wide_image/empty.png",
+        "product_image"       : "product_image/empty.png"
+    },
+    "SUPPORTED_RATIOS" : [
+
+    ]
+}

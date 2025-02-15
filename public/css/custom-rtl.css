@@ -1,0 +1,101 @@
+@font-face {
+    font-family: 'Regular';
+    src: url('../fonts/new/ar/a-jannat-lt.ttf');
+}
+@font-face {
+    font-family: 'Bold';
+    src: url('../fonts/new/ar/a-jannat-lt-bold.ttf');
+}
+*:not(i){
+    font-family: 'Regular' !important;
+}
+.dir-ltr{
+    direction: ltr;
+}
+.ec-slide-item{
+    -webkit-transform: unset;
+    transform: unset;
+}
+.ec-about-sec .ec-about-detail h4::before, .ec-about-sec .ec-about-detail .h4::before{
+    right: -20px;
+    left: unset;
+}
+.ec-cat-slider .owl-stage-outer, .ec-product-slider .owl-stage-outer, #ec-ach-slider .owl-stage-outer, #ec-brands-slider .owl-stage-outer{
+    direction: ltr;
+}
+.ec-service-sec .left .service-img{
+    margin-left: unset;
+    margin-right: 25px;
+}
+.ec-service-sec .right .service-img{
+    margin-left: 25px;
+    margin-right: unset;
+}
+.ec-pro-tab-nav .nav-item:not(:last-child){
+    margin-right: unset;
+}
+.accordion-button::after{
+    margin-right: auto;
+    margin-left: unset;
+}
+.ec-footer .footer-top .footer-logo{
+    text-align: right;
+}
+.ec-cms-block .ec-cms-block-title, .ec-cms-block p{
+    text-align: right;
+}
+.ec-pro-pagination{
+    float: right;
+}
+.ec-about-detail .float-image{
+    right: 0;
+}
+.ec-about-sec .ec-about-detail p::after{
+    left: 0;
+    right: unset
+}
+.ec-grocery-sec .float-image{
+    left: 0;
+}
+.ec-grocery-sec .float-image2{
+    right: 0;
+}
+.noUi-txt-dir-rtl.noUi-horizontal .noUi-handle {
+    right: -13px;
+    left: auto;
+}
+.noUi-txt-dir-rtl.noUi-horizontal .noUi-origin {
+    right: 0;
+    left: auto;
+}
+.ec-main-menu ul li .mega-menu{
+    right: 0;
+    left: unset;
+}
+.ec-product-inner .ec-pro-content .ec-price{
+    margin-right: 20px;
+}
+#scrollUp:hover{
+    background: #FF0000;
+}
+.ec-faq-wrapper{
+    margin-bottom: 25px;
+}
+.bottom-banner-txt p {
+    font-size: 14px;
+    color:#fff
+}
+.ec-bottom-banner-sec .bottom-banner-img{
+    padding-right: 100px;
+    padding-left: 0px;
+}
+.product-list-side .ec-sidebar-wrap .ec-sidebar-block .ec-sb-block-content li a{
+    margin-right: unset;
+}
+@media only screen and (min-width: 767px){
+
+    .ec-content-right .ec-contact-form{
+        margin-right: -135px;
+        margin-left: 0px;
+    }
+}

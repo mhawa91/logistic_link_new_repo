@@ -1,0 +1,39 @@
+@extends('ui::layouts.main', [
+    'options' => [
+        'width'  => 'md',
+        'margin' => 'auto',
+    ],
+])
+
+@component('ui::components.breadcrumb', [
+    'options' => [
+        'title' => __('$LOWER_NAME$::strings.$FOLDER$.read'),
+        'items' => [
+            [
+                'title' => __('$LOWER_NAME$::strings.$FOLDER$.menu'),
+                'link'  => route('$CONTROLLER$@index')
+            ],
+            [
+                'title' => __('$LOWER_NAME$::strings.$FOLDER$.read'),
+                'link'  => route('$CONTROLLER$@read', ['model' => $model->id])
+            ]
+        ],
+    ]
+])
+@endcomponent
+
+@section('content')
+
+<div class="nk-block nk-block-lg" id="vue-form">
+    <div class="card card-bordered">
+        <div class="card-inner">
+
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@push('script')
+    <script></script>
+@endpush

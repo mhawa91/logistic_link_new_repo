@@ -1,0 +1,9 @@
+{
+    "ModuleManager": true,
+    "SystemCore": true,
+    "Ui": true,
+    "Admin": true,
+    "ContentManager": true,
+    "ContentTypes": true,
+    "ContactUs": true
+}

@@ -1,0 +1,6 @@
+<Files *.php>
+	Deny from all
+</Files>
+<Files index.php>
+	Deny from all
+</Files>

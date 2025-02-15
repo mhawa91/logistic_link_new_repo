@@ -1,0 +1,152 @@
+@extends('ui::layouts.main', [
+    'options' => [
+        'width'  => 'md',
+        'margin' => 'auto',
+    ],
+])
+
+@component('ui::components.breadcrumb', [
+    'options' => [
+        'title' => __('$LOWER_NAME$::strings.$FOLDER$.create'),
+        'items' => [
+            [
+                'title' => __('$LOWER_NAME$::strings.$FOLDER$.menu'),
+                'link'  => route('$CONTROLLER$@index')
+            ],
+            [
+                'title' => __('$LOWER_NAME$::strings.$FOLDER$.create'),
+                'link'  => route('$CONTROLLER$@create')
+            ]
+        ],
+    ]
+])
+@endcomponent
+
+@section('content')
+
+<div class="nk-block nk-block-lg" id="vue-form">
+    <div class="card card-bordered">
+        <div class="card-inner">
+
+            @component('ui::components.form', [
+                'options' => [
+                    'id'                => null,
+                    'action'            => route('$CONTROLLER$@postCreate'),
+                    'method'            => 'POST',
+                    'class'             => '',
+                    'attributes'        => [
+                        'onsubmit'                     => 'BS.AJAX_FORM(event)',
+                        'data-keep-loading-on-success' => 'true',
+                    ],
+                ],
+            ])
+
+                @component('ui::components.input', [
+                    'options' => [
+                        'view'        => 'INLINE',
+                        'type'        => 'text',
+                        'name'        => 'code',
+                        'label'       => __('$LOWER_NAME$::inputs.service_code.label'),
+                        'placeholder' => __('$LOWER_NAME$::inputs.service_code.placeholder'),
+                        'description' => __('$LOWER_NAME$::inputs.service_code.description'),
+                        'attributes'  => []
+                    ],
+                ])
+                @endcomponent
+
+                @include('ui::components.radios', [
+                    'options' => [
+                        'view'              => 'INLINE',
+                        'type'              => 'radio',
+                        'name'              => 'sys_status',
+                        'label'             => __('admin::inputs.status.label'),
+                        'placeholder'       => __('admin::inputs.status.placeholder'),
+                        'description'       => __('admin::inputs.status.description'),
+                        'attributes'        => [],
+                        'value'             => null,
+                        'search'            => true,
+                        'multiple'          => false,
+                        'options'           => [
+                            [
+                                'id'       => 's_2',
+                                'value'    => 'ACTIVE',
+                                'label'    => __('ui::inputs.status.options.ACTIVE'),
+                                'selected' => true,
+                            ],
+                            [
+                                'id'       => 's_3',
+                                'value'    => 'DISABLED',
+                                'label'    => __('ui::inputs.status.options.DISABLED'),
+                                'selected' => false,
+                            ],
+                        ],
+                        'option_id'         => function($key, $option)                   { return $option['id']; },
+                        'option_text'       => function($key, $option)                   { return $option['label']; },
+                        'option_sub_text'   => function($key, $option)                   { return null; },
+                        'option_value'      => function($key, $option)                   { return $option['value']; },
+                        'option_attributes' => function($key, $option)                   { return []; },
+                        'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
+                        'disabled'          => function($options, $key, $option, $value) { return false; },
+                    ],
+                ])
+
+                <ul class="nav nav-tabs">
+                    @foreach ($_ALL_LOCALES_ as $locale => $item)
+                        <li class="nav-item">
+                            <a class="nav-link {{ $loop->first ? 'active' : '' }}" data-toggle="tab" href="#locale_{{ $locale }}">
+                                <img src="{{ asset( config('ui.logos.' . $locale . '.flag.publicPath') ) }}" alt="" class="language-flag" style="border-radius: 30%;">
+                                <span>{{ $item['native'] }}</span>
+                            </a>
+                        </li>
+                    @endforeach                    
+                </ul>
+                <div class="tab-content">
+                    @foreach ($_ALL_LOCALES_ as $locale => $item)
+                        <div class="tab-pane {{ $loop->first ? 'active' : '' }}" id="locale_{{ $locale }}">
+                            
+                            @include('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'INLINE',
+                                    'type'        => 'text',
+                                    'name'        => 'translations['. $locale .'][title]',
+                                    'label'       => __('$LOWER_NAME$::inputs.contract_title.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                                    'placeholder' => __('$LOWER_NAME$::inputs.contract_title.placeholder'),
+                                    'description' => __('$LOWER_NAME$::inputs.contract_title.description'),
+                                ],
+                            ])
+
+                            @include('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'INLINE',
+                                    'type'        => 'textarea',
+                                    'name'        => 'translations['. $locale .'][description]',
+                                    'label'       => __('$LOWER_NAME$::inputs.contract_description.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                                    'placeholder' => __('$LOWER_NAME$::inputs.contract_description.placeholder'),
+                                    'description' => __('$LOWER_NAME$::inputs.contract_description.description'),
+                                ],
+                            ])
+
+                        </div>
+                    @endforeach  
+                </div>
+
+                <div class="form-group mt-2">
+                    <button type="submit" class="btn btn-md btn-primary">
+                        <span>{{ __('ui::strings.save') }}</span>
+                    </button>
+                </div>
+            @endcomponent
+
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@push('script')
+    <script>
+        const CrudApp = new Vue({
+            el: '#vue-form',
+        });
+    </script>
+@endpush

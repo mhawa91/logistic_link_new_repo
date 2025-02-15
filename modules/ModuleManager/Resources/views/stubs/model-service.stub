@@ -1,0 +1,288 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+use Validator;
+use DB;
+use Modules\SystemCore\Entities\Role;
+use Modules\SystemCore\Entities\AbilityGroup;
+use Modules\SystemCore\Entities\Ability;
+use Modules\SystemCore\System\Services\ModelService;
+use Modules\SystemCore\System\Services\ExportService;
+
+class $CLASS$ extends ModelService
+{
+    public function register() 
+    {
+        $this->modelNamespace = $MODEL_CLASS$::class;
+        $this->guard();
+        if ($this->can('update')) {
+            $this->registerDataTableAction('update', function($Row) {
+                return [
+                    'label'  => __('ui::strings.update'),
+                    'action' => 'javascript:;',
+                ];
+            });
+        }
+        if ($this->can('delete')) {
+            $this->registerDataTableAction('delete', function($Row) {
+                return $Row->trashed() ? null : [
+                    'label'  => __('ui::strings.delete'),
+                    'action' => 'javascript:;',
+                ];
+            });
+        }
+        if ($this->can('restore')) {
+            $this->registerDataTableAction('restore', function($Row) {
+                return ! $Row->trashed() ? null : [
+                    'label'  => __('ui::strings.restore'),
+                    'action' => 'javascript:;',
+                ];
+            });
+        }
+        if ($this->can('permaDelete')) {
+            $this->registerDataTableAction('permaDelete', function($Row) {
+                return [
+                    'label'  => __('ui::strings.perma_delete'),
+                    'action' => 'javascript:;',
+                ];
+            });
+        }
+        $this->registerAjaxSelectCallback(function($Row) {
+            return [
+                'id'   => ! $Row ? '0'            : $Row->id,
+                'text' => ! $Row ? '-- Select --' : $Row->code . ' - [' . $Row->symbol . ']',
+                'data' => ! $Row ? []             : $Row->toArray(),
+            ];
+        });
+    }
+
+    public function validator($type = 'create', array $data = [])
+    {
+        if ($type == 'create') {
+            return Validator::make($data, []);
+        }
+        if ($type == 'update') {
+            return Validator::make($data, []);
+        }
+    }
+
+    protected function keywordFilter($query, string $keyword = null)
+    {
+        $query->where(function($Model) use($keyword) {
+            $Model->whereHas('translations', function($Rel) use($keyword) {
+                $Rel->where('title', 'like', "%{$keyword}%");
+            });
+        });
+    }
+
+    protected function advancedFilter($query, array $filter = [])
+    {
+        if (! empty($filter['title'])) {
+            $query->whereHas('translations', function($Rel) use($filter) {
+                $Rel->where('title', 'like', "%{$filter['title']}%");
+            });
+        }
+    }
+
+    public function dataTable($Filter = null)
+    {
+        $this->model()->select([
+            '*',
+            DB::raw('
+                DATE_FORMAT(created_at, "%Y-%m-%d") AS new_created_at,
+                DATE_FORMAT(updated_at, "%Y-%m-%d") AS new_updated_at
+            '),
+            // DB::raw('(CASE 
+            //     WHEN status = "ACTIVE"   THEN "'. __('admin::strings.active') .'"
+            //     WHEN status = "DISABLED" THEN "'. __('admin::strings.disabled') .'"
+            //     ELSE "-----"
+            // END) AS new_status')
+        ])
+        ->with([
+            'translations' => fn($Rel) => $Rel,
+        ]);
+
+        return parent::dataTable($Filter);
+    }
+
+    public function export($filter = null)
+    {
+        if (! $this->can('read')) {
+            $this->throwPermissionException('read');
+        }
+
+        $query    = $this->model();
+        $this->filter($query, $filter);
+
+        $exporter = app(ExportService::class)->of($query)->name('Data.csv');
+
+        $exporter->addColumn('id', function($row) {
+            return $row->id;
+        });
+
+        return $exporter;
+    }
+
+    public function create(array $data = [])
+    {
+        $translations = collect($data['translations'] ?? [])->mapWithKeys(function($data, $locale) {
+            return [
+                $locale => [
+                    'title'       => $data['title']       ?? null,
+                    'icon'        => $data['icon']        ?? null,
+                    'image'       => $data['image']       ?? null,
+                    'description' => $data['description'] ?? null,
+                ],
+            ];
+        })->toArray();
+
+        $ModelData = [
+            'created_by_user_id' => auth()->id(),
+            'updated_by_user_id' => null,
+            'sys_status'         => $data['sys_status']  ?? 'ACTIVE',
+        ] + $translations;
+
+        foreach ($translations as $locale => $value) {
+            if (! empty($ModelData[ $locale ]['icon'])) {
+                $ModelData[ $locale ]['icon'] = app('GraphManager')->process('content', $ModelData[ $locale ]['icon']);
+            }
+        }
+
+        return parent::create( $ModelData )->data();
+    }
+
+    public function update(array $data = [])
+    {
+        $translations = collect($data['translations'] ?? [])->mapWithKeys(function($data, $locale) {
+            return [
+                $locale => [
+                    'title'       => $data['title']       ?? null,
+                    'icon'        => $data['icon']        ?? null,
+                    'image'       => $data['image']       ?? null,
+                    'description' => $data['description'] ?? null,
+                ],
+            ];
+        })->toArray();
+
+        $ModelData = [
+            'updated_by_user_id' => auth()->id(),
+            'open_status'        => $data['open_status'] ?? $this->data->open_status,
+            'sys_status'         => $data['sys_status']  ?? $this->data->sys_status,
+        ] + $translations;
+        
+        foreach ($translations as $locale => $value) {
+            if (! empty($ModelData[ $locale ]['image'])) {
+                app('GraphManager')->remove($this->data->__f('image'));
+                $ModelData[ $locale ]['image'] = app('GraphManager')->process('content', $ModelData[ $locale ]['image']);
+            }
+        }
+        if (! empty($data['remove_translations'] )) {
+            foreach ($data['remove_translations'] as $locale => $value) {
+                if (! empty($data['remove_translations'][ $locale ]['logo']) && $data['remove_translations'][ $locale ]['logo'] == 'Y') {
+                    app('GraphManager')->remove($this->data->__f('logo'));
+                    $ModelData[ $locale ]['logo'] = null;
+                }
+            }
+        }
+        return parent::update( $ModelData )->data();
+    }
+
+    public function ajaxSelect($filter = null, array $Options = [], int $page = 1, int $limit = 30)
+    {
+        // $this->model()->whereNull('id');
+        // $this->model()->with([
+        //    'translations' => fn($rel) => $rel,
+        // ]);
+        return parent::ajaxSelect($filter, $Options, $page, $limit);
+    }
+
+    public function install() : bool
+    {
+        $Group = AbilityGroup::firstOrNew([
+            'code' => $this->getPermissionGroupName()
+        ]);
+        $Group->icon               = null;
+        $Group->{'default:ar'}      = 'Y';
+        $Group->{'title:ar'}       = '$MODEL_CLASS$';
+        $Group->{'description:ar'} = null;
+        $Group->save();
+
+        $read = Ability::firstOrNew([
+            'name' => $this->getPermissionName('read')
+        ]);
+        $read->group_id           = $Group->id;
+        $read->{'default:ar'}      = 'Y';
+        $read->{'title:ar'}       = 'read';
+        $read->{'description:ar'} = null;
+        $read->save();
+
+        $create = Ability::firstOrNew([
+            'name' => $this->getPermissionName('create')
+        ]);
+        $create->group_id           = $Group->id;
+        $create->{'default:ar'}      = 'Y';
+        $create->{'title:ar'}       = 'create';
+        $create->{'description:ar'} = null;
+        $create->save();
+
+        $update = Ability::firstOrNew([
+            'name' => $this->getPermissionName('update')
+        ]);
+        $update->group_id           = $Group->id;
+        $update->{'default:ar'}      = 'Y';
+        $update->{'title:ar'}       = 'update';
+        $update->{'description:ar'} = null;
+        $update->save();
+
+        $delete = Ability::firstOrNew([
+            'name' => $this->getPermissionName('delete')
+        ]);
+        $delete->group_id           = $Group->id;
+        $delete->{'default:ar'}      = 'Y';
+        $delete->{'title:ar'}       = 'delete';
+        $delete->{'description:ar'} = null;
+        $delete->save();
+
+        $restore = Ability::firstOrNew([
+            'name' => $this->getPermissionName('restore')
+        ]);
+        $restore->group_id           = $Group->id;
+        $restore->{'default:ar'}      = 'Y';
+        $restore->{'title:ar'}       = 'restore';
+        $restore->{'description:ar'} = null;
+        $restore->save();
+
+        $permaDelete = Ability::firstOrNew([
+            'name' => $this->getPermissionName('permaDelete')
+        ]);
+        $permaDelete->group_id           = $Group->id;
+        $permaDelete->{'default:ar'}      = 'Y';
+        $permaDelete->{'title:ar'}       = 'permaDelete';
+        $permaDelete->{'description:ar'} = null;
+        $permaDelete->save();
+
+        $statusUpdate = Ability::firstOrNew([
+            'name' => $this->getPermissionName('statusUpdate')
+        ]);
+        $statusUpdate->group_id           = $Group->id;
+        $statusUpdate->{'default:ar'}      = 'Y';
+        $statusUpdate->{'title:ar'}       = 'statusUpdate';
+        $statusUpdate->{'description:ar'} = null;
+        $statusUpdate->save();
+
+        $ADMIN_Role = Role::where('name', 'SYSTEM_ADMIN')->first();
+        if ($ADMIN_Role) {
+            $ADMIN_Role->abilities()->syncWithoutDetaching([
+                $read->id,
+                $create->id,
+                $update->id,
+                $delete->id,
+                // $permaDelete->id,
+                $statusUpdate->id,
+            ]);
+        }
+
+        return true;
+    }
+}

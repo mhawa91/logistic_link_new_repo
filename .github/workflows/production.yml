@@ -1,0 +1,99 @@
+name: Deploy To Production
+
+on: 
+  push: 
+    branches: [ main ]
+
+jobs: 
+  create-deployments-artifacts: 
+    name: Create deployments artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure PHP 8.1
+        uses: shivammathur/setup-php@master
+        with: 
+          php-version: 8.1
+          extensions: mbstring, ctype, fileinfo, openssl, PDO, bcmath, json, tokenizer, xml
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist
+
+      - name: Configure Laravel main .env
+        run: |
+          echo "${{ vars.PRODUCTION_ADMIN_LARAVEL_ENV }}" > .env
+
+      - name: Create deployment artifact
+        run: shopt -s dotglob && tar -zcvf admin-production-application.tar.gz --exclude=storage --exclude=public/graph/uploads --exclude=.git --exclude=node_modules *
+
+      - name: Store artifact for destribution
+        uses: actions/upload-artifact@v3
+        with: 
+          name: app-build
+          path: admin-production-application.tar.gz
+          
+  prepare-release-on-server: 
+    name: Prepare release on server
+    runs-on: ubuntu-latest
+    needs: create-deployments-artifacts
+    steps: 
+      - uses: actions/download-artifact@v3
+        with: 
+          name: app-build
+
+      - name: Upload
+        uses: appleboy/scp-action@master
+        with: 
+          host: ${{ vars.PRODUCTION_ADMIN_DOMAIN }}
+          username: ${{ vars.PRODUCTION_ADMIN_USERNAME }}
+          password: ${{ vars.PRODUCTION_ADMIN_PASSWORD }}
+          port: ${{ vars.PRODUCTION_ADMIN_PORT }}
+          source: admin-production-application.tar.gz
+          target: deployments/artifacts/production
+
+      - name: Extract archive and create directories
+        uses: garygrossgarten/github-action-ssh@release
+        with: 
+          host: ${{ vars.PRODUCTION_ADMIN_DOMAIN }}
+          username: ${{ vars.PRODUCTION_ADMIN_USERNAME }}
+          password: ${{ vars.PRODUCTION_ADMIN_PASSWORD }}
+          port: ${{ vars.PRODUCTION_ADMIN_PORT }}
+          command: |
+            mkdir -p deployments/releases/admin-production
+            find ~/deployments/releases/admin-production -type d -exec chmod 755 {} \;
+            find ~/deployments/releases/admin-production -type f -exec chmod 644 {} \;
+            rm -rf deployments/releases/admin-production/vendor
+            cd deployments/releases/admin-production && git clean --force
+            cd ~
+            tar xzf deployments/artifacts/production/admin-production-application.tar.gz -C "deployments/releases/admin-production"
+            rm -f deployments/artifacts/production/admin-production-application.tar.gz
+            mkdir -p deployments/releases/admin-production/storage/{app,framework,logs}
+            mkdir -p deployments/releases/admin-production/storage/app/public
+            mkdir -p deployments/releases/admin-production/storage/framework/{cache,sessions,testing,views}
+            mkdir -p deployments/releases/admin-production/storage/framework/cache/data
+  
+  activate-release: 
+    name: Activate release
+    runs-on: ubuntu-latest
+    needs: [ create-deployments-artifacts, prepare-release-on-server ]
+    steps:
+      - name: Activating release
+        uses: garygrossgarten/github-action-ssh@release
+        env: 
+          LARAVEL_ENV: ${{ vars.PRODUCTION_ADMIN_LARAVEL_ENV }}
+        with: 
+          host: ${{ vars.PRODUCTION_ADMIN_DOMAIN }}
+          username: ${{ vars.PRODUCTION_ADMIN_USERNAME }}
+          password: ${{ vars.PRODUCTION_ADMIN_PASSWORD }}
+          port: ${{ vars.PRODUCTION_ADMIN_PORT }}
+          command: |
+            rm ~/public_html/admin-production
+            ln -s ~/deployments/releases/admin-production/public ~/public_html/admin-production
+            rm -f ~/deployments/releases/admin-production/public/graph/uploads/.htaccess
+            cp ~/deployments/releases/admin-production/.github/workflows/htaccesses/prevent-file-execution.htaccess ~/deployments/releases/admin-production/public/graph/uploads/.htaccess
+            cd ~/deployments/releases/admin-production
+            /usr/local/bin/ea-php81 artisan migrate --force
+            /usr/local/bin/ea-php81 artisan db:seed --force
+            /usr/local/bin/ea-php81 artisan module:seed --force
+            cd ~

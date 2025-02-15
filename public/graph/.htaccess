@@ -1,0 +1,7 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([^/]+)/([^/]+)x([^/]+)/(.*)$ App.php?disk=$1&width=$2&height=$3&file=$4 [L]
+</IfModule>

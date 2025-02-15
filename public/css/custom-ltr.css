@@ -1,0 +1,42 @@
+@font-face {
+    font-family: 'Regular';
+    src: url('../fonts/new/en/Poppins-Regular.ttf');
+}
+@font-face {
+    font-family: 'Bold';
+    src: url('../fonts/new/en/Poppins-Bold.ttf');
+}
+*:not(i){
+    font-family: 'Regular' !important;
+}
+.ec-about-detail .float-image,.ec-grocery-sec .float-image2{
+    left: 0;
+}
+.ec-grocery-sec .float-image{
+    right: 0;
+}
+.ec-main-menu ul li .mega-menu{
+    left: -30%;
+}
+.ec-product-inner .ec-pro-content .ec-price{
+    margin-left: 20px;
+}
+.list-inline-item:not(:last-child){
+    margin-right: 15px;
+}
+#scrollUp:hover{
+    background: #FF0000;
+}
+.ec-faq-wrapper{
+    margin-bottom: 25px;
+}
+.bottom-banner-txt p {
+    font-size: 14px;
+    color:#fff
+}
+.product-list-side .ec-sidebar-wrap .ec-sidebar-block .ec-sb-block-content li a{
+    margin-left: unset;
+}
+.ec_cat_inner{
+    padding: 30px 5px;
+}

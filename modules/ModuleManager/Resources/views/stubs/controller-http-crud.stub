@@ -1,0 +1,163 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+use DB;
+use Illuminate\Http\Request;
+use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
+use Modules\SystemCore\Http\Responses\ActionResponse;
+use Modules\$MODULE$\Entities\$SERVICE_CLASS$;
+
+class $CLASS$ extends SystemCoreHttpController
+{
+    public $viewsFolderPath  = '$LOWER_NAME$::$FOLDER_NAME$';
+
+    public function __construct($SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
+        $this->middleware($$SERVICE_CLASS$->getPermissionMiddlewareName('HTTP', 'read'))->only(['index', 'postIndex', 'read', 'postRead']);
+        $this->middleware($$SERVICE_CLASS$->getPermissionMiddlewareName('HTTP', 'create'))->only(['create', 'postCreate']);
+        $this->middleware($$SERVICE_CLASS$->getPermissionMiddlewareName('HTTP', 'update'))->only(['update', 'postUpdate']);
+        $this->middleware($$SERVICE_CLASS$->getPermissionMiddlewareName('HTTP', 'statusUpdate'))->only(['postStatus']);
+        $this->middleware($$SERVICE_CLASS$->getPermissionMiddlewareName('HTTP', 'delete'))->only(['postDelete']);
+        $this->middleware($$SERVICE_CLASS$->getPermissionMiddlewareName('HTTP', 'restore'))->only(['postRestore']);
+        $this->middleware($$SERVICE_CLASS$->getPermissionMiddlewareName('HTTP', 'permaDelete'))->only(['postPermaDelete']);
+    }
+
+    public function index(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        $this->data['Service'] = $$SERVICE_CLASS$;
+        return view($this->viewsFolderPath . '.index', $this->data);
+    }
+
+    public function create(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        return view($this->viewsFolderPath . '.create', $this->data);
+    }
+
+    public function update(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        $this->data['model'] = $$SERVICE_CLASS$->withTrashed()->findOrFail($Request->model)->data();
+        return view($this->viewsFolderPath . '.update', $this->data);
+    }
+
+    public function read(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        $this->data['model'] = $$SERVICE_CLASS$->withTrashed()->findOrFail($Request->model)->data();
+        return view($this->viewsFolderPath . '.read', $this->data);
+    }
+
+    public function postIndex(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        return $$SERVICE_CLASS$->when($Request->records_type == 'TRASHED', function($service) {
+            $service->onlyTrashed();
+        })->dataTable($Request->search['value'] ?? $Request->advanced_search ?? null)->toJson();
+    }
+
+    public function postCreate(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        $this->data['Validator'] = $$SERVICE_CLASS$->validator('create', $Request->all());
+        $this->data['Validator']->validate();
+        DB::transaction(function() use($Request, $$SERVICE_CLASS$) {
+            $$SERVICE_CLASS$->create($Request->all());
+        });
+        return $Response->module('$MODULE$')->code('200')->success()->withOnlyToAjaxWeb([
+            'redirect' => route('$CLASS$@index')
+        ]);
+    }
+
+    public function postUpdate(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        $this->data['model']     = $$SERVICE_CLASS$->withTrashed()->findOrFail($Request->model)->data();
+        $this->data['Validator'] = $$SERVICE_CLASS$->validator('update', $Request->all());
+        $this->data['Validator']->validate();
+        DB::transaction(function() use($Request, $$SERVICE_CLASS$) {
+            $$SERVICE_CLASS$->update($Request->all());
+        });
+        return $Response->module('$MODULE$')->code('200')->success()->withOnlyToAjaxWeb([
+            'toastr' => [
+                'type'        => 'success',
+                'title'       => __('ui::strings.messages.saved.title'),
+                'description' => __('ui::strings.messages.saved.description'),
+            ],
+        ]);
+    }
+
+    public function postRead(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+    }
+
+    public function select(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        return $$SERVICE_CLASS$->ajaxSelect($Request->search ?? null, [
+            'nullable' => $Request->nullable ?? true,
+        ], $Request->page);
+    }
+
+    public function postStatus(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        $this->data['model'] = $$SERVICE_CLASS$->withTrashed()->findOrFail($Request->model)->data();
+        DB::transaction(function() use($Request, $$SERVICE_CLASS$) {
+            $$SERVICE_CLASS$->statusUpdate($Request->status);
+        });
+        return $Response->module('$MODULE$')->code('200')->success()->withOnlyToAjaxWeb([
+            'toastr' => [
+                'type'        => 'success',
+                'title'       => __('ui::strings.messages.status_updated.title'),
+                'description' => __('ui::strings.messages.status_updated.description'),
+            ],
+        ]);
+    }
+
+    public function postDelete(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        $this->data['model'] = $$SERVICE_CLASS$->findOrFail($Request->model)->data();
+        DB::transaction(function() use($Request, $$SERVICE_CLASS$) {
+            $$SERVICE_CLASS$->delete();
+        });
+        return $Response->module('$MODULE$')->code('200')->success()->withOnlyToAjaxWeb([
+            'toastr' => [
+                'type'        => 'success',
+                'title'       => __('ui::strings.messages.deleted.title'),
+                'description' => __('ui::strings.messages.deleted.description'),
+            ],
+        ]);
+    }
+
+    public function postRestore(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        $this->data['model'] = $$SERVICE_CLASS$->withTrashed()->findOrFail($Request->model)->data();
+        DB::transaction(function() use($Request, $$SERVICE_CLASS$) {
+            $$SERVICE_CLASS$->restore();
+        });
+        return $Response->module('$MODULE$')->code('200')->success()->withOnlyToAjaxWeb([
+            'toastr' => [
+                'type'        => 'success',
+                'title'       => __('ui::strings.messages.restored.title'),
+                'description' => __('ui::strings.messages.restored.description'),
+            ],
+        ]);
+    }
+
+    public function postPermaDelete(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS$)
+    {
+        $this->data['model'] = $$SERVICE_CLASS$->withTrashed()->findOrFail($Request->model)->data();
+        DB::transaction(function() use($Request, $$SERVICE_CLASS$) {
+            $$SERVICE_CLASS$->permaDelete();
+        });
+        return $Response->module('$MODULE$')->code('200')->success()->withOnlyToAjaxWeb([
+            'toastr' => [
+                'type'        => 'success',
+                'title'       => __('ui::strings.messages.permaDeleted.title'),
+                'description' => __('ui::strings.messages.permaDeleted.description'),
+            ],
+        ]);
+    }
+
+    public function postExport(Request $Request, ActionResponse $Response, $SERVICE_CLASS$ $$SERVICE_CLASS)
+    {
+        return $$SERVICE_CLASS$->when($Request->records_type == 'TRASHED', function($service) {
+            $service->onlyTrashed();
+        })->export($Request->search['value'] ?? $Request->advanced_search ?? null)->toCsv();
+    }
+}

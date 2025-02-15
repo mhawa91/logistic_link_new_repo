@@ -1,0 +1,13 @@
+{
+    "name": "SystemCore",
+    "alias": "systemcore",
+    "description": "",
+    "keywords": [],
+    "priority": -9999999999999,
+    "providers": [
+        "Modules\\SystemCore\\Providers\\SystemCoreServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

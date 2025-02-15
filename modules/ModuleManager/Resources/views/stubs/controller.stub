@@ -1,0 +1,15 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+use Illuminate\Http\Request;
+use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
+use Modules\SystemCore\Http\Responses\ActionResponse;
+
+class $CLASS$ extends SystemCoreHttpController
+{
+    public function __construct()
+    {
+        $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
+    }
+}

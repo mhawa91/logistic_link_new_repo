@@ -1,0 +1,23 @@
+{
+    "name": "develop-chain/contentmanager",
+    "description": "",
+    "authors": [
+        {
+            "name": "Develop Chain",
+            "email": "services@develop-chain.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\ContentManager\\": ""
+        }
+    }
+}

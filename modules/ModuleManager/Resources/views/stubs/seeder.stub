@@ -1,0 +1,66 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Model;
+
+use DB;
+use Hash;
+use Bouncer;
+use Exception;
+use Carbon\Carbon;
+use Modules\SystemCore\Entities\AbilityGroup;
+use Modules\SystemCore\Entities\Ability;
+use Modules\SystemCore\Entities\Role;
+
+class $NAME$ extends Seeder
+{
+    public $data = [];
+
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        Model::unguard();
+
+        // $this->call("OthersTableSeeder");
+
+        DB::transaction(function(){
+            $this->Install();
+            $this->Roles();
+            $this->Users();
+        });
+    }
+
+    /**
+     * Post Module Installation.
+     *
+     * @return void
+     */
+    public function Install()
+    {
+    }
+
+    /**
+     * Create Module Roles.
+     *
+     * @return void
+     */
+    public function Roles()
+    {
+    }
+
+    /**
+     * Create Module Needed Users.
+     *
+     * @return void
+     */
+    public function Users()
+    {
+        // $this->data['User'] = app(config('systemcore.models.User'));
+    }
+}

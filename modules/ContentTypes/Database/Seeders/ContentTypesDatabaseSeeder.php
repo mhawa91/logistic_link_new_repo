@@ -1,0 +1,77 @@
+<?php
+
+namespace Modules\ContentTypes\Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Model;
+
+use DB;
+use Hash;
+use Bouncer;
+use Exception;
+use Carbon\Carbon;
+use Modules\SystemCore\Entities\AbilityGroup;
+use Modules\SystemCore\Entities\Ability;
+use Modules\SystemCore\Entities\Role;
+
+class ContentTypesDatabaseSeeder extends Seeder
+{
+    public $data = [];
+
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        Model::unguard();
+
+        // $this->call("OthersTableSeeder");
+
+        DB::transaction(function(){
+            $this->Install();
+            $this->Roles();
+            $this->Users();
+        });
+    }
+
+    /**
+     * Post Module Installation.
+     *
+     * @return void
+     */
+    public function Install()
+    {
+    }
+
+    /**
+     * Create Module Roles.
+     *
+     * @return void
+     */
+    public function Roles()
+    {
+        $this->data['TRANSPORTER_Role']                     = Role::firstOrNew(['name' => 'TRANSPORTER']);
+        $this->data['TRANSPORTER_Role']->name               = 'TRANSPORTER';
+        $this->data['TRANSPORTER_Role']->suspendable        = 'N';
+        $this->data['TRANSPORTER_Role']->updatable          = 'Y';
+        $this->data['TRANSPORTER_Role']->{'default:en'}     = 'N';
+        $this->data['TRANSPORTER_Role']->{'title:en'}       = 'Transporter';
+        $this->data['TRANSPORTER_Role']->{'description:en'} = 'Transporter Group.';
+        $this->data['TRANSPORTER_Role']->{'default:ar'}     = 'Y';
+        $this->data['TRANSPORTER_Role']->{'title:ar'}       = 'ناقل';
+        $this->data['TRANSPORTER_Role']->{'description:ar'} = 'مجموعة الناقلين.';
+        $this->data['TRANSPORTER_Role']->save();
+    }
+
+    /**
+     * Create Module Needed Users.
+     *
+     * @return void
+     */
+    public function Users()
+    {
+        // $this->data['User'] = app(config('systemcore.models.User'));
+    }
+}

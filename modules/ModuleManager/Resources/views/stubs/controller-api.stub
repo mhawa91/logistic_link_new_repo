@@ -1,0 +1,17 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+use Exception;
+use Validator;
+use Illuminate\Http\Request;
+use Modules\SystemCore\Http\Controllers\SystemCoreApiController;
+use Modules\SystemCore\Http\Responses\ActionResponse;
+
+class $CLASS$ extends SystemCoreApiController
+{
+    public function __construct()
+    {
+        $this->middleware(config('systemcore.auth.API_AUTH_MIDDLEWARE'));
+    }
+}
