@@ -45,6 +45,7 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::post('update'        , 'UsersController@postUpdate')->name('UsersController@postUpdate');
         Route::get('profile'        , 'UsersController@profile')->name('UsersController@profile');
         Route::post('profile'       , 'UsersController@postProfile')->name('UsersController@postProfile');
+        Route::post('company'       , 'UsersController@postCompany')->name('UsersController@postCompany');
         Route::post('delete'        , 'UsersController@postDelete')->name('UsersController@postDelete');
         Route::post('restore'       , 'UsersController@postRestore')->name('UsersController@postRestore');
         Route::post('perma-delete'  , 'UsersController@postPermaDelete')->name('UsersController@postPermaDelete');

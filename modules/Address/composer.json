@@ -1,0 +1,23 @@
+{
+    "name": "namaa-solutions/address",
+    "description": "",
+    "authors": [
+        {
+            "name": "Babel Solutions",
+            "email": "services@babel-solutions.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Address\\": ""
+        }
+    }
+}

@@ -191,7 +191,11 @@ class AdminServiceProvider extends ServiceProvider
                 'type'      => 'MENU', //MENU | HEADER
                 'link'      => route('AdminDashboardController@index'),
                 'text'      => __('admin::strings.global.main_dashboard'),
-                'icon'      => app('Ui')->defaultIcon(),
+                'icon'      => [
+                    'name' => 'DEFAULT',
+                    'type' => 'em', //em | i | svg | span
+                    'data' => 'icon ni ni-layout1',
+                ],
                 'show'      => function() { return true; },
             ]);
 

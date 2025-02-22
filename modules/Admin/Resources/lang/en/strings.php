@@ -21,4 +21,18 @@ return [
         'menu'    => 'General Settings',
         'update'  => 'Edit General Settings',
     ],
+    'company' => [
+        'header'  => 'Users and Permissions',
+        'menu'    => 'Companies',
+        'list'    => 'All Companies',
+        'create'  => 'Add New Company',
+        'update'  => 'Company Information',
+        'profile' => 'Company Information',
+        'personal_info' => 'Personal Information',
+        'personal_info_desc' => 'Personal information related to the account',
+        'company_info'       => 'Company Information',
+        'company_info_desc'  => 'Company information related to the account',
+        'address'            => 'Address',
+        'address_desc'       => 'Company address related to the account',
+    ],
 ];

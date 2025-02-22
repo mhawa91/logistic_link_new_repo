@@ -16,6 +16,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Crypt;
 use Modules\Admin\Jobs\SendRegisterConfirmationEmail;
 use Modules\Admin\Jobs\SendWelcomeEmail;
+use Bouncer;
 
 class AuthController extends SystemCoreHttpController
 {
@@ -260,6 +261,7 @@ class AuthController extends SystemCoreHttpController
             'locale'     => app()->getLocale(),
             'sys_status' => 'ACTIVE',
         ]);
+        Bouncer::assign($userData['type'])->to($this->data['user']);
 
         SendWelcomeEmail::dispatch($this->data['user']);
 
