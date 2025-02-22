@@ -160,12 +160,16 @@ class ContactUsServiceProvider extends ServiceProvider
     {
         $this->app->booted(function() {
 
+            $isRootOrAdmin = function() {
+                return auth()->check() && (auth()->user()->isAn('ROOT') || auth()->user()->isAn('SYSTEM_ADMIN'));
+            };
+
             app('Ui')->registerMainMenuItem([
                 'id'        => 'ContactUs',
                 'ordering'  => 8000,
                 'type'      => 'HEADER', //MENU | HEADER
                 'text'      => __('contactus::strings.contact_us.header'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             app('Ui')->registerMainMenuItem([
@@ -176,7 +180,7 @@ class ContactUsServiceProvider extends ServiceProvider
                 'link'      => route('ContactUsController@index'),
                 'text'      => __('contactus::strings.contact_us.menu'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
         });
     }

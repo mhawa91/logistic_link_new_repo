@@ -47,4 +47,13 @@ return [
         'placeholder' => 'أدخل المحتوى',
         'description' => 'نص المحتوى الكامل',
     ],
+    'account-type' => [
+        'label'       => 'نوع الحساب',
+        'placeholder' => 'حدد نوع الحساب',
+        'description' => 'نوع الحساب',
+        'options'     => [
+            'DEFAULT'     => 'شركة بحاجة شركات شحن',
+            'TRANSPORTER' => 'شركة شحن',
+        ],
+    ],
 ];

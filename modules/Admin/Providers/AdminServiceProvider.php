@@ -172,6 +172,10 @@ class AdminServiceProvider extends ServiceProvider
     private function registerEvents(): void
     {
         $this->app->booted(function() {
+
+            $isRootOrAdmin = function() {
+                return auth()->check() && (auth()->user()->isAn('ROOT') || auth()->user()->isAn('SYSTEM_ADMIN'));
+            };
             
             app('Ui')->registerMainMenuItem([
                 'id'        => 'AdminDashboardController',
@@ -196,7 +200,7 @@ class AdminServiceProvider extends ServiceProvider
                 'ordering'  => 8000,
                 'type'      => 'HEADER', //MENU | HEADER
                 'text'      => __('admin::strings.users.header'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             app('Ui')->registerMainMenuItem([
@@ -207,7 +211,7 @@ class AdminServiceProvider extends ServiceProvider
                 'link'      => route('UsersController@index'),
                 'text'      => __('admin::strings.users.menu'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ])
             ->registerMainMenuItem([
                 'id'        => 'UsersController@index',
@@ -217,7 +221,7 @@ class AdminServiceProvider extends ServiceProvider
                 'link'      => route('UsersController@index'),
                 'text'      => __('admin::strings.global.list_all'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ])
             ->registerMainMenuItem([
                 'id'        => 'UsersController@create',
@@ -227,7 +231,7 @@ class AdminServiceProvider extends ServiceProvider
                 'link'      => route('UsersController@create'),
                 'text'      => __('admin::strings.global.add_new'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
 
@@ -236,7 +240,7 @@ class AdminServiceProvider extends ServiceProvider
                 'ordering'  => 9000,
                 'type'      => 'HEADER', //MENU | HEADER
                 'text'      => __('admin::strings.global.settings'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
             app('Ui')->registerMainMenuItem([
                 'id'        => 'ConfigController@general',
@@ -246,7 +250,7 @@ class AdminServiceProvider extends ServiceProvider
                 'link'      => route('ConfigController@update'),
                 'text'      => __('admin::strings.config.menu'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
         });
     }

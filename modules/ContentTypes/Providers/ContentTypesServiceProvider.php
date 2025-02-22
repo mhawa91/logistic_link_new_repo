@@ -160,6 +160,10 @@ class ContentTypesServiceProvider extends ServiceProvider
     {
         $this->app->booted(function() {
 
+            $isRootOrAdmin = function() {
+                return auth()->check() && (auth()->user()->isAn('ROOT') || auth()->user()->isAn('SYSTEM_ADMIN'));
+            };
+
             app(\Modules\SystemCore\Entities\Contracts\SystemConfigInterface::class)->register([
                 'ordering'  => 0,
                 'key'       => 'phone_number',
@@ -183,7 +187,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                     ]);
                     return true; 
                 },
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
             app(\Modules\SystemCore\Entities\Contracts\SystemConfigInterface::class)->register([
                 'ordering'  => 0,
@@ -208,7 +212,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                     ]);
                     return true; 
                 },
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
             app(\Modules\SystemCore\Entities\Contracts\SystemConfigInterface::class)->register([
                 'ordering'  => 0,
@@ -233,7 +237,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                     ]);
                     return true; 
                 },
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
             app(\Modules\SystemCore\Entities\Contracts\SystemConfigInterface::class)->register([
                 'ordering'  => 0,
@@ -258,7 +262,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                     ]);
                     return true; 
                 },
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
             app(\Modules\SystemCore\Entities\Contracts\SystemConfigInterface::class)->register([
                 'ordering'  => 0,
@@ -283,7 +287,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                     ]);
                     return true; 
                 },
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
             app(\Modules\SystemCore\Entities\Contracts\SystemConfigInterface::class)->register([
                 'ordering'  => 0,
@@ -308,7 +312,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                     ]);
                     return true; 
                 },
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
             app(\Modules\SystemCore\Entities\Contracts\SystemConfigInterface::class)->register([
                 'ordering'  => 0,
@@ -333,7 +337,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                     ]);
                     return true; 
                 },
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             // privacy-policy
@@ -371,7 +375,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'update'    => function($oldValues, $valueFromRequest) { 
                     app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->insert('privacy-policy', $valueFromRequest);
                 },
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             // terms-conditions
@@ -409,7 +413,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'update'    => function($oldValues, $valueFromRequest) { 
                     app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->insert('terms-conditions', $valueFromRequest);
                 },
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             app('Ui')->registerMainMenuItem([
@@ -417,7 +421,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'ordering'  => 8000,
                 'type'      => 'HEADER', //MENU | HEADER
                 'text'      => __('contenttypes::strings.global.Pre Defined Lists'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
             
             // profile-type
@@ -429,7 +433,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'list'      => __('contenttypes::strings.profile-type.list'),
                 'create'    => __('contenttypes::strings.profile-type.create'),
                 'update'    => __('contenttypes::strings.profile-type.update'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
                 'inputs'    => [],
             ]);
             app('Ui')->registerMainMenuItem([
@@ -440,7 +444,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'link'      => route('CategoryController@index', ['type' => 'profile-type']),
                 'text'      => __('contenttypes::strings.profile-type.menu'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             // registration-type
@@ -452,7 +456,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'list'      => __('contenttypes::strings.registration-type.list'),
                 'create'    => __('contenttypes::strings.registration-type.create'),
                 'update'    => __('contenttypes::strings.registration-type.update'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
                 'inputs'    => [],
             ]);
             app('Ui')->registerMainMenuItem([
@@ -463,7 +467,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'link'      => route('CategoryController@index', ['type' => 'registration-type']),
                 'text'      => __('contenttypes::strings.registration-type.menu'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             // payment-term
@@ -475,7 +479,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'list'      => __('contenttypes::strings.payment-term.list'),
                 'create'    => __('contenttypes::strings.payment-term.create'),
                 'update'    => __('contenttypes::strings.payment-term.update'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
                 'inputs'    => [],
             ]);
             app('Ui')->registerMainMenuItem([
@@ -486,7 +490,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'link'      => route('CategoryController@index', ['type' => 'payment-term']),
                 'text'      => __('contenttypes::strings.payment-term.menu'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             // commodity
@@ -498,7 +502,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'list'      => __('contenttypes::strings.commodity.list'),
                 'create'    => __('contenttypes::strings.commodity.create'),
                 'update'    => __('contenttypes::strings.commodity.update'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
                 'inputs'    => [],
             ]);
             app('Ui')->registerMainMenuItem([
@@ -509,7 +513,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'link'      => route('CategoryController@index', ['type' => 'commodity']),
                 'text'      => __('contenttypes::strings.commodity.menu'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             // truck-type
@@ -521,7 +525,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'list'      => __('contenttypes::strings.truck-type.list'),
                 'create'    => __('contenttypes::strings.truck-type.create'),
                 'update'    => __('contenttypes::strings.truck-type.update'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
                 'inputs'    => [],
             ]);
             app('Ui')->registerMainMenuItem([
@@ -532,7 +536,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'link'      => route('CategoryController@index', ['type' => 'truck-type']),
                 'text'      => __('contenttypes::strings.truck-type.menu'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             // load-size
@@ -544,7 +548,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'list'      => __('contenttypes::strings.load-size.list'),
                 'create'    => __('contenttypes::strings.load-size.create'),
                 'update'    => __('contenttypes::strings.load-size.update'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
                 'inputs'    => [],
             ]);
             app('Ui')->registerMainMenuItem([
@@ -555,7 +559,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'link'      => route('CategoryController@index', ['type' => 'load-size']),
                 'text'      => __('contenttypes::strings.load-size.menu'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
 
             // load-type
@@ -567,7 +571,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'list'      => __('contenttypes::strings.load-type.list'),
                 'create'    => __('contenttypes::strings.load-type.create'),
                 'update'    => __('contenttypes::strings.load-type.update'),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
                 'inputs'    => [],
             ]);
             app('Ui')->registerMainMenuItem([
@@ -578,7 +582,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'link'      => route('CategoryController@index', ['type' => 'load-type']),
                 'text'      => __('contenttypes::strings.load-type.menu'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
         });
     }

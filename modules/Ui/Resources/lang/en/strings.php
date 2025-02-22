@@ -111,4 +111,8 @@ return [
     'from'      => 'FROM',
     'to'        => 'TO',
     'export'    => 'Export',
+    'invalid_code' => 'The code you entered is invalid or expired',
+    'signup_confirm' => 'Confirm your account',
+    'signup_confirm_note' => 'Enter the code sent to your email to confirm your account',
+    'confirm' => 'Confirm',
 ];

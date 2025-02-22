@@ -7,6 +7,8 @@ return [
         'ROOT',
         'SYSTEM_ADMIN',
         'EMPLOYEE',
+        'DEFAULT',
+        'TRANSPORTER',
     ],
 
     'controll-panel-users-list-filter' => true,

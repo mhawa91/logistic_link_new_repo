@@ -19,7 +19,7 @@ class RestrictAccessToControlPanel
         if ($request->isMethod('post')) {
             return $next($request);
         }
-        if ($request->is(config('systemcore.adminPanelRoutePath') . '/register') || $request->is(config('systemcore.adminPanelRoutePath') . '/login') || $request->is(config('systemcore.adminPanelRoutePath') . '/reset') || $request->is(config('systemcore.adminPanelRoutePath') . '/reset/*') || $request->is(config('systemcore.adminPanelRoutePath') . '/logout')) {
+        if ($request->is(config('systemcore.adminPanelRoutePath') . '/confirm-register') || $request->is(config('systemcore.adminPanelRoutePath') . '/register') || $request->is(config('systemcore.adminPanelRoutePath') . '/login') || $request->is(config('systemcore.adminPanelRoutePath') . '/reset') || $request->is(config('systemcore.adminPanelRoutePath') . '/reset/*') || $request->is(config('systemcore.adminPanelRoutePath') . '/logout')) {
             return $next($request);
         }
         if ($request->is(config('systemcore.adminPanelRoutePath')) || $request->is(config('systemcore.adminPanelRoutePath') . '/*')) {

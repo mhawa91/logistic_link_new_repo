@@ -63,4 +63,8 @@ return [
         'label'       => 'تاريخ النشر',
         'placeholder' => '',
     ],
+    'otp_code' => [
+        'label'       => 'كود التحقق',
+        'placeholder' => 'أدخل كود التحقق',
+    ],
 ];

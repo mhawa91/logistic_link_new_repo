@@ -13,6 +13,9 @@ use Illuminate\Http\Request;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Crypt;
+use Modules\Admin\Jobs\SendRegisterConfirmationEmail;
+use Modules\Admin\Jobs\SendWelcomeEmail;
 
 class AuthController extends SystemCoreHttpController
 {
@@ -194,9 +197,82 @@ class AuthController extends SystemCoreHttpController
         return view('ui::auth.register', $this->data);
     }
 
-    public function postRegister(Request $Request)
+    public function postRegister(Request $Request, ActionResponse $Response)
     {
-        dd($Request->all());
+        $this->data['Validator'] = Validator::make($Request->all(), [
+            'full_name' => 'required',
+            'email'     => 'required|email|unique:users,email',
+            'password'  => 'required|confirmed',
+            'type'      => 'required|in:DEFAULT,TRANSPORTER',
+        ]);
+        $this->data['Validator']->validate();
+
+        $data = [
+            'full_name' => $Request->full_name,
+            'email'     => $Request->email,
+            'password'  => $Request->password,
+            'type'      => $Request->type,
+            'code'      => config('app.env', 'production') == 'production' ? rand(1000, 9999) : 1111,
+        ];
+
+        $userHash = Crypt::encryptString(json_encode($data));
+
+        SendRegisterConfirmationEmail::dispatch($data, $userHash);
+
+        return $Response->module('Admin')->code('500')->success()->withOnlyToAjaxWeb([
+            'redirect' => route('AuthController@confirmRegister', ['hash' => $userHash]),
+        ]);
+    }
+
+    public function confirmRegister(Request $Request, ActionResponse $Response)
+    {
+        $this->data['hash'] = $Request->hash;
+        return view('ui::auth.registerConfirm', $this->data);
+    }
+
+    public function postConfirmRegister(Request $Request, ActionResponse $Response)
+    {
+        $this->data['Validator'] = Validator::make($Request->all(), [
+            'hash'      => 'required',
+            'code'      => 'required',
+        ]);
+        $this->data['Validator']->validate();
+
+        $userData = Crypt::decryptString($Request->hash);
+        $userData = json_decode($userData, true);
+
+        if ($Request->code != $userData['code']) {
+            $this->data['Validator'] = Validator::make($Request->all(), [
+                'hash'      => 'required',
+                'code'      => 'required',
+            ]);
+            $this->data['Validator']->after(function($Validator) use($Request) {
+                $Validator->errors()->add('code', __('ui::strings.invalid_code'));
+            });
+            $this->data['Validator']->validate();
+        }
+
+        $this->data['user'] = app(config('systemcore.models.User'))->create([
+            'name'       => $userData['full_name'],
+            'email'      => $userData['email'],
+            'password'   => Hash::make($userData['password']),
+            'type'       => $userData['type'],
+            'locale'     => app()->getLocale(),
+            'sys_status' => 'ACTIVE',
+        ]);
+
+        SendWelcomeEmail::dispatch($this->data['user']);
+
+        try {
+            Auth::loginUsingId($this->data['user']->id, true);
+        } 
+        catch (Exception $e) {
+            throw $e;
+        }
+
+        return $Response->module('Admin')->code('200')->success()->withOnlyToAjaxWeb([
+            'redirect' => route(config('systemcore.auth.REDIRECT_TO_ROUTE_NAME'))
+        ]);
     }
 
     public function postLogout(Request $Request)

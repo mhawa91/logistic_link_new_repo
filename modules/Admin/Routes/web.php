@@ -11,8 +11,6 @@
 |
 */
 
-Route::get('crawling/dubizzle/list'      , 'CrawlingController@dubizzleList')->name('CrawlingController@dubizzleList');
-
 Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
     Route::get('dashboard'          , 'AdminDashboardController@index')->name('AdminDashboardController@index');
     Route::post('editor-upload'     , 'AdminDashboardController@editorUpload')->name('AdminDashboardController@editorUpload');
@@ -30,12 +28,12 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::post('reset'         , 'AuthController@postReset')->name('AuthController@postReset');
         Route::get('reset/{hash}'   , 'AuthController@newPassword')->name('AuthController@newPassword');
         Route::post('reset/{hash}'  , 'AuthController@postNewPassword')->name('AuthController@postNewPassword');
-        Route::get('register'       , 'AuthController@register')->name('AuthController@register');
-        Route::post('register'      , 'AuthController@postRegister')->name('AuthController@postRegister');
         Route::post('logout'        , 'AuthController@postLogout')->name('AuthController@postLogout');
 
-
-        
+        Route::get('register'          , 'AuthController@register')->name('AuthController@register');
+        Route::post('register'         , 'AuthController@postRegister')->name('AuthController@postRegister');
+        Route::get('confirm-register'  , 'AuthController@confirmRegister')->name('AuthController@confirmRegister');
+        Route::post('confirm-register' , 'AuthController@postConfirmRegister')->name('AuthController@postConfirmRegister');
     });
 
     Route::prefix('users')->group(function() {
