@@ -6,5 +6,6 @@
     "ContentManager": true,
     "ContentTypes": true,
     "Address": true,
+    "Clients": true,
     "ContactUs": true
 }

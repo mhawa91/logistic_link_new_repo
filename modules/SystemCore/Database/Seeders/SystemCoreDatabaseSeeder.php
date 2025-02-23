@@ -83,8 +83,8 @@ class SystemCoreDatabaseSeeder extends Seeder
         $this->data['Default_Role']->{'title:en'}       = 'Customer';
         $this->data['Default_Role']->{'description:en'} = 'Customers / Clients Default Group.';
         $this->data['Default_Role']->{'default:ar'}     = 'Y';
-        $this->data['Default_Role']->{'title:ar'}       = 'عميل';
-        $this->data['Default_Role']->{'description:ar'} = 'مجموعة العملاء الافتراضية.';
+        $this->data['Default_Role']->{'title:ar'}       = 'شركة';
+        $this->data['Default_Role']->{'description:ar'} = 'مجموعة الشركات الافتراضية.';
         $this->data['Default_Role']->save();
 
         $this->data['ROOT_Role']                     = Role::firstOrNew(['name' => 'ROOT']);
