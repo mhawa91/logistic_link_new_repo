@@ -13,9 +13,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Route::get('/', function () {
+//     if (\Module::installedAndEnabled('Admin')) {
+//         return redirect()->route('AuthController@login');
+//     }
+//     return view('welcome');
+// });
+
 Route::get('/', function () {
-    if (\Module::installedAndEnabled('Admin')) {
-        return redirect()->route('AuthController@login');
+    if (\Module::installedAndEnabled('Website')) {
+        return redirect()->route('WebsiteController@index');
     }
     return view('welcome');
 });

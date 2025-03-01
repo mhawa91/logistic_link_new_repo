@@ -7,5 +7,6 @@
     "ContentTypes": true,
     "Address": true,
     "Clients": true,
-    "ContactUs": true
+    "ContactUs": true,
+    "Website": true
 }
