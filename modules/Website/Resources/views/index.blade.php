@@ -258,7 +258,7 @@
                             </li>
                         </ul>
                         <ul class="btns-inline">
-                            <li><a href="#" class="btn btn-lg btn-custom">{{ __('website::strings.request-for-demo') }}</a></li>
+                            <li><a href="#contact" class="btn btn-lg btn-custom">{{ __('website::strings.request-for-demo') }}</a></li>
                         </ul>
                     </div><!-- .text-block -->
                 </div><!-- .col -->

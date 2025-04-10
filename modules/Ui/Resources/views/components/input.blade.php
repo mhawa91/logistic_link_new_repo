@@ -8,6 +8,8 @@
         'view'         => 'INLINE', //INLINE | DEFAULT | TABLE
         'type'         => 'text',
         'value'        => '',
+        'value_from'   => '',
+        'value_to'     => '',
         'step'         => '0.1',
         'disable_step' => false,
         'attributes'   => [],
@@ -50,14 +52,18 @@
                                 name="{{ $OPTIONS['name'] }}_from" 
                                 placeholder="{{ $OPTIONS['placeholder'] }} ({{ __('ui::strings.from') }})" 
                                 class="form-control {{ $OPTIONS['class'] }}" 
-                                id="{{ $OPTIONS['id'] }}_from">
+                                id="{{ $OPTIONS['id'] }}_from"
+                                value="{{ $OPTIONS['value_from'] }}"
+                                {!! $ATTRIBUTES !!}>
                             <div class="input-group-addon">{{ __('ui::strings.to') }}</div> 
                             <input type="number" class="form-control text-center" 
                                 @if (! $OPTIONS['disable_step']) step="{{ $OPTIONS['step'] }}" @endif
                                 name="{{ $OPTIONS['name'] }}_to" 
                                 placeholder="{{ $OPTIONS['placeholder'] }} ({{ __('ui::strings.to') }})" 
                                 class="form-control {{ $OPTIONS['class'] }}" 
-                                id="{{ $OPTIONS['id'] }}_to">
+                                id="{{ $OPTIONS['id'] }}_to"
+                                value="{{ $OPTIONS['value_to'] }}"
+                                {!! $ATTRIBUTES !!}>
                         </div>
                     @elseif ($OPTIONS['type'] == 'daterange')
                         <div class="input-daterange date-picker-range input-group"> 
@@ -65,13 +71,17 @@
                                 name="{{ $OPTIONS['name'] }}_from" 
                                 placeholder="{{ $OPTIONS['placeholder'] }} ({{ __('ui::strings.from') }})" 
                                 class="form-control {{ $OPTIONS['class'] }}" 
-                                id="{{ $OPTIONS['id'] }}_from">
+                                id="{{ $OPTIONS['id'] }}_from"
+                                value="{{ $OPTIONS['value_from'] }}"
+                                {!! $ATTRIBUTES !!}>
                             <div class="input-group-addon">{{ __('ui::strings.to') }}</div> 
                             <input type="text" class="form-control" 
                                 name="{{ $OPTIONS['name'] }}_to" 
                                 placeholder="{{ $OPTIONS['placeholder'] }} ({{ __('ui::strings.to') }})" 
                                 class="form-control {{ $OPTIONS['class'] }}" 
-                                id="{{ $OPTIONS['id'] }}_to">
+                                id="{{ $OPTIONS['id'] }}_to"
+                                value="{{ $OPTIONS['value_to'] }}"
+                                {!! $ATTRIBUTES !!}>
                         </div>
                     @elseif ($OPTIONS['type'] == 'textarea')
                         {!! $BEFORE !!}
@@ -154,14 +164,18 @@
                         name="{{ $OPTIONS['name'] }}_from" 
                         placeholder="{{ $OPTIONS['placeholder'] }} ({{ __('ui::strings.from') }})" 
                         class="form-control {{ $OPTIONS['class'] }}" 
-                        id="{{ $OPTIONS['id'] }}_from">
+                        id="{{ $OPTIONS['id'] }}_from"
+                        value="{{ $OPTIONS['value_from'] }}"
+                        {!! $ATTRIBUTES !!}>
                     <div class="input-group-addon">{{ __('ui::strings.to') }}</div> 
                     <input type="number" class="form-control text-center" 
                         @if (! $OPTIONS['disable_step']) step="{{ $OPTIONS['step'] }}" @endif
                         name="{{ $OPTIONS['name'] }}_to" 
                         placeholder="{{ $OPTIONS['placeholder'] }} ({{ __('ui::strings.to') }})" 
                         class="form-control {{ $OPTIONS['class'] }}" 
-                        id="{{ $OPTIONS['id'] }}_to">
+                        id="{{ $OPTIONS['id'] }}_to"
+                        value="{{ $OPTIONS['value_to'] }}"
+                        {!! $ATTRIBUTES !!}>
                 </div>
             @elseif ($OPTIONS['type'] == 'daterange')
                 <div class="input-daterange date-picker-range input-group"> 
@@ -169,12 +183,16 @@
                         name="{{ $OPTIONS['name'] }}_from" 
                         placeholder="{{ $OPTIONS['placeholder'] }}" 
                         class="form-control {{ $OPTIONS['class'] }}" 
-                        id="{{ $OPTIONS['id'] }}_from">
+                        id="{{ $OPTIONS['id'] }}_from"
+                        value="{{ $OPTIONS['value_from'] }}"
+                        {!! $ATTRIBUTES !!}>
                     <div class="input-group-addon">{{ __('ui::strings.to') }}</div> 
                     <input type="text" class="form-control" name="{{ $OPTIONS['name'] }}_to" 
                         placeholder="{{ $OPTIONS['placeholder'] }}" 
                         class="form-control {{ $OPTIONS['class'] }}" 
-                        id="{{ $OPTIONS['id'] }}_to">
+                        id="{{ $OPTIONS['id'] }}_to"
+                        value="{{ $OPTIONS['value_to'] }}"
+                        {!! $ATTRIBUTES !!}>
                 </div>
             @elseif ($OPTIONS['type'] == 'textarea')
                 {!! $AFTER !!}
@@ -254,14 +272,18 @@
                         name="{{ $OPTIONS['name'] }}_from" 
                         placeholder="{{ $OPTIONS['placeholder'] }} ({{ __('ui::strings.from') }})" 
                         class="form-control {{ $OPTIONS['class'] }}" 
-                        id="{{ $OPTIONS['id'] }}_from">
+                        id="{{ $OPTIONS['id'] }}_from"
+                        value="{{ $OPTIONS['value_from'] }}"
+                        {!! $ATTRIBUTES !!}>
                     <div class="input-group-addon">{{ __('ui::strings.to') }}</div> 
                     <input type="number" class="form-control text-center" 
                         @if (! $OPTIONS['disable_step']) step="{{ $OPTIONS['step'] }}" @endif
                         name="{{ $OPTIONS['name'] }}_to" 
                         placeholder="{{ $OPTIONS['placeholder'] }} ({{ __('ui::strings.to') }})" 
                         class="form-control {{ $OPTIONS['class'] }}" 
-                        id="{{ $OPTIONS['id'] }}_to">
+                        id="{{ $OPTIONS['id'] }}_to"
+                        value="{{ $OPTIONS['value_to'] }}"
+                        {!! $ATTRIBUTES !!}>
                 </div>
             @elseif($OPTIONS['type'] == 'daterange')
                 <div class="input-daterange date-picker-range input-group"> 
@@ -269,12 +291,16 @@
                         name="{{ $OPTIONS['name'] }}_from" 
                         placeholder="{{ $OPTIONS['placeholder'] }}" 
                         class="form-control {{ $OPTIONS['class'] }}" 
-                        id="{{ $OPTIONS['id'] }}_from">
+                        id="{{ $OPTIONS['id'] }}_from"
+                        value="{{ $OPTIONS['value_from'] }}"
+                        {!! $ATTRIBUTES !!}>
                     <div class="input-group-addon">{{ __('ui::strings.to') }}</div> 
                     <input type="text" class="form-control" name="{{ $OPTIONS['name'] }}_to" 
                         placeholder="{{ $OPTIONS['placeholder'] }}" 
                         class="form-control {{ $OPTIONS['class'] }}" 
-                        id="{{ $OPTIONS['id'] }}_to">
+                        id="{{ $OPTIONS['id'] }}_to"
+                        value="{{ $OPTIONS['value_to'] }}"
+                        {!! $ATTRIBUTES !!}>
                 </div>
             @elseif ($OPTIONS['type'] == 'textarea')
                 {!! $BEFORE !!}

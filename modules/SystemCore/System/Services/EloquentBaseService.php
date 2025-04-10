@@ -252,7 +252,7 @@ abstract class EloquentBaseService implements EloquentInterface
                 'more' => $Rows->hasMorePages(),
             ]
         ];
-        if ($Options['nullable'] !== 'false' && $Rows->currentPage() == 1) {
+        if ($Options['nullable'] !== 'false' && $Options['nullable'] && $Rows->currentPage() == 1) {
             $Result['results'][] = static::toSelect2Option(null);
         }
         foreach ($Rows as $key => $value) {

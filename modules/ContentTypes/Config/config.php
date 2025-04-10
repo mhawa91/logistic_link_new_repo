@@ -23,4 +23,19 @@ return [
     |
     */
     'implemntations' => [],
+
+    'loadingTypes' => [
+        [
+            'id'    => 'CITY_TO_CITY',
+            'label' => 'contenttypes::inputs.loading_type.options.CITY_TO_CITY',
+        ],
+        [
+            'id'    => 'CITY_TO_CITY_MULTIPLE_LOCATIONS',
+            'label' => 'contenttypes::inputs.loading_type.options.CITY_TO_CITY_MULTIPLE_LOCATIONS',
+        ],
+        [
+            'id'    => 'CITY_TO_CITY_ROUND_TRIP',
+            'label' => 'contenttypes::inputs.loading_type.options.CITY_TO_CITY_ROUND_TRIP',
+        ],
+    ]
 ];

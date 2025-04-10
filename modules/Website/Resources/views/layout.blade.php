@@ -281,7 +281,7 @@
                                 </ul>
                                 <ul class="menu-btns">
                                     <li>
-                                        <a href="#" target="_blank" class="btn btn-custom btn-lg">{{ __('website::strings.request-for-demo') }}</a>
+                                        <a href="#contact" class="btn btn-custom btn-lg">{{ __('website::strings.request-for-demo') }}</a>
                                     </li>
                                 </ul>
                             </nav><!-- .nk-nav-menu -->

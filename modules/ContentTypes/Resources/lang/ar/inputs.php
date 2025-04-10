@@ -126,4 +126,159 @@ return [
         'placeholder' => 'أدخل خط الطول',
         'description' => 'خط الطول',
     ],
+    'start_date' => [
+        'label'       => 'تاريخ البدء',
+        'placeholder' => 'أدخل تاريخ البدء',
+        'description' => 'تاريخ البدء',
+    ],
+    'end_date' => [
+        'label'       => 'تاريخ الانتهاء',
+        'placeholder' => 'أدخل تاريخ الانتهاء',
+        'description' => 'تاريخ الانتهاء',
+    ],
+    'start_end_date' => [
+        'label'       => 'تاريخ البدء والانتهاء',
+        'placeholder' => 'أدخل تاريخ البدء والانتهاء',
+        'description' => 'تاريخ البدء والانتهاء',
+    ],
+    'payment_term_id' => [
+        'label'       => 'شروط الدفع',
+        'placeholder' => 'حدد شروط الدفع',
+        'description' => 'شروط الدفع',
+    ],
+    'insurance_value_limit' => [
+        'label'       => 'حد القيمة التأمينية',
+        'placeholder' => 'أدخل حد القيمة التأمينية',
+        'description' => 'حد القيمة التأمينية',
+    ],
+    'truck_type_id' => [
+        'label'       => 'نوع الشاحنة',
+        'placeholder' => 'حدد نوع الشاحنة',
+        'description' => 'نوع الشاحنة',
+    ],
+    'trucks_type_id' => [
+        'label'       => 'نوع الشاحنات',
+        'placeholder' => 'حدد نوع الشاحنات',
+        'description' => 'نوع الشاحنات',
+    ],
+    'loading_type' => [
+        'label'       => 'نوع التحميل',
+        'placeholder' => 'حدد نوع التحميل',
+        'description' => 'نوع التحميل',
+        'options'     => [
+            'CITY_TO_CITY'                    => 'من مدينة إلى مدينة',
+            'CITY_TO_CITY_MULTIPLE_LOCATIONS' => 'من مدينة إلى مدينة بعدة مواقع',
+            'CITY_TO_CITY_ROUND_TRIP'         => 'من مدينة إلى مدينة ذهاب وإياب',
+        ],
+    ],
+    'from_city_id' => [
+        'label'       => 'مدينة المصدر',
+        'placeholder' => 'حدد مدينة المصدر',
+        'description' => 'مدينة المصدر',
+    ],
+    'to_city_id' => [
+        'label'       => 'مدينة الوصول',
+        'placeholder' => 'حدد مدينة الوصول',
+        'description' => 'مدينة الوصول',
+    ],
+    'price' => [
+        'label'       => 'السعر',
+        'placeholder' => 'أدخل السعر',
+        'description' => 'السعر',
+    ],
+    'pre_additional_location_price' => [
+        'label'       => 'سعر الموقع الإضافي',
+        'placeholder' => 'أدخل سعر الموقع الإضافي',
+        'description' => 'سعر الموقع الإضافي',
+        'unsupported' => 'الموقع الإضافي غير مدعوم',
+    ],
+    'conditions-and-terms' => [
+        'label'       => 'الشروط والأحكام',
+        'placeholder' => 'أدخل الشروط والأحكام',
+        'description' => 'الشروط والأحكام',
+    ],
+    'insurance-details' => [
+        'label'       => 'تفاصيل التأمين',
+        'placeholder' => 'أدخل تفاصيل التأمين',
+        'description' => 'تفاصيل التأمين',
+    ],
+    'penalties' => [
+        'label'       => 'العقوبات',
+        'placeholder' => 'أدخل العقوبات',
+        'description' => 'العقوبات',
+    ],
+    'commodity_id' => [
+        'label'       => 'انواع البضائع',
+        'placeholder' => 'حدد انواع البضائع',
+        'description' => 'انواع البضائع',
+    ],
+    'contract_tax_certificate' => [
+        'label'       => 'شهادة الضريبة',
+        'placeholder' => 'أدخل شهادة الضريبة',
+        'description' => 'شهادة الضريبة',
+    ],
+    'contract_registration_license' => [
+        'label'       => 'شهادة التسجيل',
+        'placeholder' => 'أدخل شهادة التسجيل',
+        'description' => 'شهادة التسجيل',
+    ],
+    'contract_insurance_certificate' => [
+        'label'       => 'شهادة التأمين',
+        'placeholder' => 'أدخل شهادة التأمين',
+        'description' => 'شهادة التأمين',
+    ],
+    'contract_transportation_license' => [
+        'label'       => 'رخصة النقل',
+        'placeholder' => 'أدخل رخصة النقل',
+        'description' => 'رخصة النقل',
+    ],
+    'transportar_name' => [
+        'label'       => 'اسم شركة النقل',
+        'placeholder' => 'أدخل اسم شركة النقل',
+        'description' => 'اسم شركة النقل',
+    ],
+    'transportar_email' => [
+        'label'       => 'البريد الإلكتروني الخاص بشركة النقل',
+        'placeholder' => 'أدخل البريد الإلكتروني الخاص بشركة النقل',
+        'description' => 'البريد الإلكتروني الخاص بشركة النقل',
+    ],
+    'transportar_phone_number' => [
+        'label'       => 'رقم هاتف شركة النقل',
+        'placeholder' => 'أدخل رقم هاتف شركة النقل',
+        'description' => 'رقم هاتف شركة النقل',
+    ],
+    'contract_status' => [
+        'label'       => 'حالة العقد',
+        'placeholder' => 'حدد حالة العقد',
+        'description' => 'حالة العقد حسب تاريخ البدء والانتهاء',
+        'options'     => [
+            'ACTIVE'   => 'نشط',
+            'EXPIRED'  => 'منتهي',
+        ],
+    ],
+    'transportar' => [
+        'label'       => 'شركة النقل',
+        'placeholder' => 'حدد شركة النقل',
+        'description' => 'شركة النقل',
+    ],
+    'client' => [
+        'label'       => 'العميل',
+        'placeholder' => 'حدد العميل',
+        'description' => 'العميل',
+    ],
+    'client_name' => [
+        'label'       => 'اسم العميل',
+        'placeholder' => 'أدخل اسم العميل',
+        'description' => 'اسم العميل',
+    ],
+    'client_email' => [
+        'label'       => 'البريد الإلكتروني الخاص العميل',
+        'placeholder' => 'أدخل البريد الإلكتروني الخاص العميل',
+        'description' => 'البريد الإلكتروني الخاص العميل',
+    ],
+    'client_phone_number' => [
+        'label'       => 'رقم هاتف العميل',
+        'placeholder' => 'أدخل رقم هاتف العميل',
+        'description' => 'رقم هاتف العميل',
+    ],
 ];

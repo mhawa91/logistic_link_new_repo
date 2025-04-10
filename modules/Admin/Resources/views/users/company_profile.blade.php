@@ -526,7 +526,7 @@
         })
         .on("select2:select", function() {
             let _data = $(this).select2('data')[0];
-            CrudApp.country = _data?.id ? _data : null;
+            // CrudApp.country = _data?.id ? _data : null;
         });
     </script>
 @endpush
