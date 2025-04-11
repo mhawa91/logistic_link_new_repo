@@ -44,8 +44,10 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::post('perma-delete'  , 'CategoryController@postPermaDelete')->name('CategoryController@postPermaDelete');
         Route::post('status-update' , 'CategoryController@postStatus')->name('CategoryController@postStatus');
         Route::get('select'         , 'CategoryController@select')->name('CategoryController@select');
+        Route::get('loads'          , 'CategoryController@loads')->name('CategoryController@loads');
         Route::get('{model}'        , 'CategoryController@read')->name('CategoryController@read');
         Route::post('{model}'       , 'CategoryController@postRead')->name('CategoryController@postRead');
+
     });
     Route::prefix('contents')->group(function() {
         Route::get('list/{type}'    , 'ContentController@index')->name('ContentController@index');

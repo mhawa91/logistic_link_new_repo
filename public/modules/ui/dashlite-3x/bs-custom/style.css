@@ -63,3 +63,93 @@ table th.fit, table td.fit {
 .nk-menu-heading {
     padding: 0.7rem 24px 0.7rem !important;
 }
+
+.order-alert div{
+    color: #FB4F28;
+    font-size: 20px;
+    font-weight: 600;
+}
+.order-alert p{
+    color: #4F547B;
+    font-size: 18px;
+    font-weight: 500;
+}
+.order-alert{
+    border: #DBDFEA 1px solid;
+    background-color: #C9F5EF;
+}
+.card-1 .user-name{
+    margin: 0 20px;
+    color: #FB4F28;
+    font-size: 20px;
+    font-weight: 600;
+}
+.card-1 p{
+    margin-top: 15px;
+    line-height: 1.5;
+    color: #8094AE;
+    font-size: 18px;
+    font-weight: 400;
+}
+.border-unset-shadow{
+    border: #DBDFEA 1px solid !important;
+    box-shadow: unset !important;
+}
+.order-details .container-fluid{
+    padding: 0;
+}
+.custom-title{
+    font-weight: 700;
+    font-size: 24px;
+}
+.order-details .main-title{
+    border-bottom: 1px solid #DBDFEA;
+    padding-bottom: 15px;
+}
+.order-info .card-inner{
+    padding: 2em 3em;
+}
+.order-details .general-info{
+    margin-top: 40px;
+}
+.order-details .box{
+    padding: 30px;
+    border: #DBDFEA 1px solid;
+    margin-top: 20px;
+    border-radius: 5px;
+}
+.order-details .general-info .name{
+    font-weight: 500;
+    font-size: 14px;
+}
+.order-details .general-info .value{
+    font-weight: 600;
+    font-size: 24px;
+    color: #364A63;
+}
+.btn-custom-1{
+    background-color: #24BDA6;
+    color: #fff;
+}
+.btn-custom-1:hover{
+    background-color: #1c8a79;
+    color: #fff;
+}
+.order-details .box .btns{
+    margin-top: 13px;
+}
+.general-info textarea{
+    border: 1px solid #DBDFEA;
+    padding: 20px 15px;
+}
+.view-on-map a{
+    color: #24BDA6;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: underline;
+}
+.order-details .map p{
+    color: #344357;
+    font-weight: 600;
+    font-size: 16px;
+}

@@ -28,6 +28,12 @@ class CategoryController extends SystemCoreHttpController
         $this->middleware(config('systemcore.auth.HTTP_PERMISSIONS_MIDDLEWARE') .':'. $this->service->permissionNamespace('permaDelete'))->only(['postPermaDelete']);
     }
 
+    public function loads(Request $Request, ActionResponse $Response)
+    {
+        $this->data['Service']      = $this->service;
+        return view($this->viewsFolderPath . '.loads', $this->data);
+    }
+
     public function index(Request $Request, ActionResponse $Response)
     {
         $this->data['type']    = $Request->type;

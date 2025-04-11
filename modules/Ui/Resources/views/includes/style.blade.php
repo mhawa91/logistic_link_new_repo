@@ -2,6 +2,7 @@
 
 @if ($_DIR_ == 'rtl')
     <link rel="stylesheet" href="{{ asset('modules/ui/dashlite-3x/css/dashlite.rtl.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('modules/ui/dashlite-3x/bs-custom/rtl.css') }}"> 
 @else
     <link rel="stylesheet" href="{{ asset('modules/ui/dashlite-3x/css/dashlite.css') }}">
 @endif
