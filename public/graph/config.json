@@ -27,7 +27,8 @@
         "product_image": [
             "400x400",
             "765x850"
-        ]
+        ],
+        "files": []
     },
     "DEFAULT_FOLDERS_FILES" : {
         "user"    : "user/base.png",
@@ -37,7 +38,8 @@
         "category_image"      : "category_image/empty.png",
         "category_icon"       : "category_icon/empty.png",
         "category_wide_image" : "category_wide_image/empty.png",
-        "product_image"       : "product_image/empty.png"
+        "product_image"       : "product_image/empty.png",
+        "files"               : "files/empty.png"
     },
     "SUPPORTED_RATIOS" : [
 

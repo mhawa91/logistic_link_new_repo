@@ -7,6 +7,9 @@ return [
         'ROOT',
         'SYSTEM_ADMIN',
         'EMPLOYEE',
+        'CONTENT_EDITOR',
+        'DEFAULT',
+        'TRANSPORTER',
     ],
 
     'controll-panel-users-list-filter' => true,
@@ -14,5 +17,6 @@ return [
         'ROOT',
         'SYSTEM_ADMIN',
         'EMPLOYEE',
+        'CONTENT_EDITOR'
     ],
 ];

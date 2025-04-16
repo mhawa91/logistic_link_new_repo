@@ -89,6 +89,7 @@ class CitiesController extends SystemCoreHttpController
 
     public function select(Request $Request, ActionResponse $Response, CitiesService $CitiesService)
     {
+        $CitiesService->unguard();
         return $CitiesService->ajaxSelect($Request->search ?? null, [
             'nullable'   => $Request->nullable   ?? true,
             'country_id' => $Request->country_id ?? null,

@@ -15,6 +15,8 @@
     </div><!-- .nk-block-head -->
     <form action="{{ route('AuthController@postRegister') }}" onsubmit="BS.AJAX_FORM(event)" data-keep-loading-on-success="true" method="POST">
         @csrf
+
+        
         <div class="form-group">
             <div class="form-label-group">
                 <label class="form-label" for="full-name">{{ __('ui::inputs.full_name.label') }}</label>
@@ -53,6 +55,32 @@
                 </a>
                 <input type="password" name="password_confirmation" class="form-control form-control-lg" id="your_password_confirmation" placeholder="{{ __('ui::inputs.your_password_confirmation.placeholder') }}">
             </div>
+        </div>
+
+        <div class="form-group">
+            <div class="form-label-group">
+                <label class="form-label" for="full-name">{{ __('contenttypes::inputs.account-type.label') }}</label>
+            </div>
+            <ul class="custom-control-group">
+                <li>
+                    <div class="custom-control custom-checkbox custom-control-pro no-control">
+                        <input type="radio" class="custom-control-input" name="type" id="GROUP-DEFAULT" value="DEFAULT">
+                        <label class="custom-control-label" for="GROUP-DEFAULT">
+                            <em class="icon ni ni-building"></em>
+                            <span>{{ __('contenttypes::inputs.account-type.options.DEFAULT') }}</span>
+                        </label>
+                    </div>
+                </li>
+                <li>
+                    <div class="custom-control custom-checkbox custom-control-pro no-control">
+                        <input type="radio" class="custom-control-input" name="type" id="GROUP-TRANSPORTER" value="TRANSPORTER">
+                        <label class="custom-control-label" for="GROUP-TRANSPORTER">
+                            <em class="icon ni ni-truck"></em>
+                            <span>{{ __('contenttypes::inputs.account-type.options.TRANSPORTER') }}</span>
+                        </label>
+                    </div>
+                </li>
+            </ul>
         </div>
 
         <div class="form-group">

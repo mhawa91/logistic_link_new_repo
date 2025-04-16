@@ -5,5 +5,8 @@
     "Admin": true,
     "ContentManager": true,
     "ContentTypes": true,
-    "ContactUs": true
+    "Address": true,
+    "Clients": true,
+    "ContactUs": true,
+    "Website": true
 }

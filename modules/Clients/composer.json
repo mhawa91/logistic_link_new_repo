@@ -1,0 +1,23 @@
+{
+    "name": "namaa-solutions/clients",
+    "description": "",
+    "authors": [
+        {
+            "name": "Beyond 360",
+            "email": "services@beyond-360.net"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Clients\\": ""
+        }
+    }
+}

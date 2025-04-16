@@ -10,6 +10,10 @@ use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\Admin\Entities\UserService;
 use Modules\Admin\Entities\RoleService;
+use Modules\SystemCore\Entities\Role;
+
+use Modules\ContentTypes\Entities\Company;
+use Modules\ContentTypes\Entities\Address;
 
 class UsersController extends SystemCoreHttpController
 {
@@ -69,6 +73,22 @@ class UsersController extends SystemCoreHttpController
     public function profile(Request $Request, ActionResponse $Response, UserService $UserService)
     {
         $this->data['model'] = auth()->user();
+        if ($this->data['model']->type == 'DEFAULT' || $this->data['model']->type == 'TRANSOPRTER') {
+            $this->data['model']->load(['company' => function($rel) {
+                $rel->withTrashed();
+                $rel->with(['address' => function($rel) {
+                    $rel->withTrashed();
+                    $rel->with(['city' => function($rel) {
+                        $rel->withTrashed();
+                        $rel->with(['country' => function($rel) {
+                            $rel->withTrashed();
+                        }]);
+                    }]);
+                }]);
+            }]);
+            $this->data['registerationTypes'] = \Modules\ContentManager\Entities\Content::where('type', 'registration-type')->with('translations')->get();
+            return view($this->viewsFolderPath . '.company_profile', $this->data);
+        }
         return view($this->viewsFolderPath . '.profile', $this->data);
     }
 
@@ -122,6 +142,114 @@ class UsersController extends SystemCoreHttpController
             'type'                         => $Request->type                         ?? null,
             'has_no_scheduals'             => $Request->has_no_scheduals             ?? null,
             'has_no_scheduals_exclude_ids' => $Request->has_no_scheduals_exclude_ids ?? [],
+        ]);
+    }
+
+    public function postCompany(Request $Request, ActionResponse $Response, UserService $UserService)
+    {        
+        $this->data['UserData']  = [
+            'name'               => $Request->contact_name,
+            'username'           => null,
+            'phone_number'       => null,
+            'email'              => $Request->company_email,
+            'avatar'             => $Request->company_logo,
+            'locale'             => app()->getLocale(),
+            'type'               => auth()->user()->type,
+            'completed_at'       => now()->format('Y-m-d H:i:s'),
+            'reviewd_at'         => null,
+            'created_by_user_id' => auth()->check() ? auth()->user()->id : null,
+            'updated_by_user_id' => auth()->check() ? auth()->user()->id : null,
+            'sys_status'         => 'ACTIVE',
+            'bio'                => null,
+        ];
+        $UserService->unguard();
+        $this->data['model']     = $UserService->withTrashed()->findOrFail(auth()->user()->id)->data();
+        $this->data['Validator'] = $UserService->validator('updateProfile', $this->data['UserData']);
+        $this->data['Validator']->validate();
+
+        $Company = Company::where('user_id', auth()->user()->id)->first() ?? new Company;
+        $this->data['ValidatorCompany'] = Validator::make($Request->all(), [
+            'registration_type_category_id' => 'required|exists:contents,id',
+            'company_logo'                  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'company_name'                  => 'required|string|max:255',
+            'contact_name'                  => 'required|string|max:255',
+            'company_email'                 => 'required|email|max:255',
+            'company_phone_number'          => 'required|string|max:255',
+            'registration_number'           => 'nullable|mimes:jpeg,png,jpg,pdf|max:2048',
+            'tax_identification_number'     => 'nullable|mimes:jpeg,png,jpg,pdf|max:2048',
+            'country_id'                    => 'required|exists:countries,id',
+            'city_id'                       => 'required|exists:cities,id',
+            'street'                        => 'required|string|max:255',
+            'lat_lng'                       => 'required|string|max:255',
+            'full_address'                  => 'required|string|max:255',
+        ]);
+        $this->data['ValidatorCompany']->validate();
+
+        DB::transaction(function() use($Request, $UserService, $Company) {
+            $phone = strtolower($Request->company_phone_number);
+            $phone = app(\Modules\SystemCore\System\Classes\Helpers::class)->phoneNumberParts($phone);
+            $UserService->updateProfile($this->data['UserData']);
+            
+            $Role    = Role::where('name', auth()->user()->type)->first();
+            
+            if ($Company->company_logo && $Request->company_logo && !is_string($Request->company_logo)) {
+                app()->make('GraphManager')->remove( $Company->company_logo );
+            }
+            if ($Request->company_logo && !is_string($Request->company_logo)) {
+                $Company->company_logo               = app('GraphManager')->process('company', $Request->company_logo);
+            }
+            if ($Company->registration_number && $Request->registration_number && !is_string($Request->registration_number)) {
+                app()->make('GraphManager')->remove( $Company->registration_number );
+            }
+            if ($Request->registration_number && !is_string($Request->registration_number)) {
+                $Company->registration_number               = app('GraphManager')->process('files', $Request->registration_number);
+            }
+            if ($Company->tax_identification_number && $Request->tax_identification_number && !is_string($Request->tax_identification_number)) {
+                app()->make('GraphManager')->remove( $Company->tax_identification_number );
+            }
+            if ($Request->tax_identification_number && !is_string($Request->tax_identification_number)) {
+                $Company->tax_identification_number               = app('GraphManager')->process('files', $Request->tax_identification_number);
+            }
+            $Company->user_id                        = auth()->user()->id;
+            $Company->profile_type_category_id       = $Role->id;
+            $Company->registration_type_category_id  = $Request->registration_type_category_id;
+            $Company->company_name                   = $Request->company_name;
+            $Company->contact_name                   = $Request->contact_name;
+            $Company->company_email                  = $Request->company_email;
+            $Company->company_phone_number_ext       = $phone ? $phone->ext    : null;
+            $Company->company_phone_number           = $phone ? $phone->number : null;
+            $Company->sys_status                     = 'ACTIVE';
+            $Company->created_by_user_id             = auth()->check() ? auth()->user()->id : null;
+            $Company->updated_by_user_id             = auth()->check() ? auth()->user()->id : null;
+            $Company->save();
+
+            $latlng  = explode(',', $Request->lat_lng);
+            $Address = Address::where('related_id', $Company->id)->where('related_type', 'PRIMARY_COMPANY_ADDRESS')->first() ?? new Address;
+            $Address->related_id                       = $Company->id;
+            $Address->related_type                     = 'PRIMARY_COMPANY_ADDRESS';
+            $Address->address_tag                      = 'PRIMARY_COMPANY_ADDRESS';
+            $Address->primary_contact_name             = $Request->contact_name;
+            $Address->primary_contact_email            = $Request->company_email;
+            $Address->primary_contact_phone_number_ext = $Company->company_phone_number_ext;
+            $Address->primary_contact_phone_number     = $Company->company_phone_number;
+            $Address->country_id                       = $Request->country_id;
+            $Address->city_id                          = $Request->city_id;
+            $Address->street                           = $Request->street;
+            $Address->lat                              = $latlng[0] ?? null;
+            $Address->lng                              = $latlng[1] ?? null;
+            $Address->full_address                     = $Request->full_address;
+            $Address->sys_status                       = 'ACTIVE';
+            $Address->created_by_user_id               = auth()->check() ? auth()->user()->id : null;
+            $Address->updated_by_user_id               = auth()->check() ? auth()->user()->id : null;
+            $Address->save();
+        });
+
+        return $Response->module('Admin')->code('200')->success()->withOnlyToAjaxWeb([
+            'toastr' => [
+                'type'        => 'success',
+                'title'       => __('ui::strings.messages.saved.title'),
+                'description' => __('ui::strings.messages.saved.description'),
+            ],
         ]);
     }
 

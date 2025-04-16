@@ -115,7 +115,7 @@ class CategoryController extends SystemCoreHttpController
         ->search($Request->search ?? null)
         ->paginate(50);
         return $this->service->toSelect2($Data, [
-            'nullable' => true,
+            'nullable' => $Request->nullable == 'N' ? false : true,
         ]);
     }
 

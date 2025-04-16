@@ -111,6 +111,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(\Modules\Branches\Entities\Branch::class, 'branch_id', 'id');
     }
 
+    public function company()
+    {
+        return $this->hasOne(\Modules\ContentTypes\Entities\Company::class, 'user_id', 'id');
+    }
+
     public function scopeAdvancedSearch($query, array $filter = [])
     {
         if (! empty($filter['name'])) {

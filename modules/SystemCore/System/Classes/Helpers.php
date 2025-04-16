@@ -73,6 +73,33 @@ class Helpers
         return empty($Number) ? null : PhoneNumber::parse($Number);
     }
 
+    /**
+     * Generate protected string from a string
+     * EX: example.com => ex*******om
+     *
+     * @param string $Phone
+     * @return PhoneNumber|null
+     */
+    public function phoneNumberParts($Phone)
+    {
+        $Number = $this->parsePhoneNumber($Phone);
+        /* Available methods on the results
+        /----------------------------------------------
+        | $number->getRegionCode();     => TR
+        | $number->getCountryCode();    => 90
+        | $number->getNationalNumber(); => 5050111222
+        | $number->getNumberType();     => PhoneNumberType::FIXED_LINE | PhoneNumberType::MOBILE
+        */
+        $result = empty($Number) ? null : PhoneNumber::parse($Number);
+
+        return !$result ? null : (object) [
+            'country'    => $result->getRegionCode(),
+            'ext'        => $result->getCountryCode(),
+            'number'     => $result->getNationalNumber(),
+            'type'       => $result->getNumberType(),
+        ];
+    }
+
     public function randomNumber($length = 5) {
         $result = '';
         for($i = 0; $i < $length; $i++) {

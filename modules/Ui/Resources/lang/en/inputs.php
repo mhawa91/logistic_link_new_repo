@@ -63,4 +63,8 @@ return [
         'label'       => 'Publication Date',
         'placeholder' => '',
     ],
+    'otp_code' => [
+        'label'       => 'OTP Code',
+        'placeholder' => 'Enter the OTP code sent to your email',
+    ],
 ];

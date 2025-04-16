@@ -89,6 +89,7 @@ class CountriesController extends SystemCoreHttpController
 
     public function select(Request $Request, ActionResponse $Response, CountriesService $CountriesService)
     {
+        $CountriesService->unguard();
         return $CountriesService->ajaxSelect($Request->search ?? null, [
             'nullable'   => $Request->nullable   ?? true,
             'country_id' => $Request->country_id ?? null,

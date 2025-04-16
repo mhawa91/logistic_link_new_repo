@@ -14,6 +14,8 @@ use Modules\SystemCore\Entities\AbilityGroup;
 use Modules\SystemCore\Entities\Ability;
 use Modules\SystemCore\Entities\Role;
 
+use Modules\ContentTypes\Entities;
+
 class ContentTypesDatabaseSeeder extends Seeder
 {
     public $data = [];
@@ -43,6 +45,8 @@ class ContentTypesDatabaseSeeder extends Seeder
      */
     public function Install()
     {
+        app(Entities\TransporterService::class)->install();
+        app(Entities\ShippmentService::class)->install();
     }
 
     /**

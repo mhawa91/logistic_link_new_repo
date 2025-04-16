@@ -63,6 +63,9 @@ return [
             'url'                     => env('DO_URL'),
             'endpoint'                => env('DO_ENDPOINT'),
             'use_path_style_endpoint' => env('DO_USE_PATH_STYLE_ENDPOINT', false),
+            'http'    => [
+                'verify' => false,
+            ],
         ],
     ],
 
