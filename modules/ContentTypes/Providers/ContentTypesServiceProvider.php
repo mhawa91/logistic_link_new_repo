@@ -593,7 +593,7 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'parent_id' => 'AdminDashboardController',
                 'ordering'  => 0,
                 'type'      => 'MENU', //MENU | HEADER
-                'link'      => 'javascript:void(0);',
+                'link'      => route('ShippmentsController@index'),
                 'text'      => __('contenttypes::strings.orders.menu'),
                 'icon'      => [
                     'name' => 'DEFAULT',

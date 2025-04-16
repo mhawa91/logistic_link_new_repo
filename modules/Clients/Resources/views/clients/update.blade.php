@@ -1,6 +1,6 @@
 @extends('ui::layouts.main', [
     'options' => [
-        'width'  => 'xl',
+        'width'  => 'md',
         'margin' => 'auto',
     ],
 ])

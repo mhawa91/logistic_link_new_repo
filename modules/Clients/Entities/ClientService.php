@@ -19,7 +19,7 @@ class ClientService extends ModelService
             $this->registerDataTableAction('update', function($Row) {
                 return [
                     'label'  => __('ui::strings.update'),
-                    'action' => route('UsersController@update', ['model' => $Row->id]),
+                    'action' => route('ClientsController@update', ['model' => $Row->id]),
                 ];
             });
         }
@@ -27,7 +27,7 @@ class ClientService extends ModelService
             $this->registerDataTableAction('delete', function($Row) {
                 return $Row->trashed() ? null : [
                     'label'  => __('ui::strings.delete'),
-                    'action' => route('UsersController@postDelete', ['model' => $Row->id]),
+                    'action' => route('ClientsController@postDelete', ['model' => $Row->id]),
                 ];
             });
         }
@@ -35,7 +35,7 @@ class ClientService extends ModelService
             $this->registerDataTableAction('restore', function($Row) {
                 return ! $Row->trashed() ? null : [
                     'label'  => __('ui::strings.restore'),
-                    'action' => route('UsersController@postRestore', ['model' => $Row->id]),
+                    'action' => route('ClientsController@postRestore', ['model' => $Row->id]),
                 ];
             });
         }
@@ -43,7 +43,7 @@ class ClientService extends ModelService
             $this->registerDataTableAction('permaDelete', function($Row) {
                 return [
                     'label'  => __('ui::strings.perma_delete'),
-                    'action' => route('UsersController@postPermaDelete', ['model' => $Row->id]),
+                    'action' => route('ClientsController@postPermaDelete', ['model' => $Row->id]),
                 ];
             });
         }

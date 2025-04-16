@@ -138,6 +138,123 @@
             overflow-y: scroll;
             padding-right: 10px;
         }
+        .stepper {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: 999px;
+            padding: 8px 16px;
+            box-shadow: 0 0 2px rgba(0,0,0,0.1);
+            width: fit-content;
+        }	
+
+        .stepper .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stepper .circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ff4b2b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .stepper .circle.inactive {
+            background-color: #e2e6f0;
+            color: #a0aec0;
+        }
+
+        .stepper .label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a202c;
+        }
+
+        .stepper .arrow {
+            color: #cbd5e0;
+            margin: 0 12px;
+            font-size: 20px;
+            user-select: none;
+        }
+
+        .weight-slider-container {
+            width: 100%;
+            /* margin-bottom: 2rem; */
+        }
+
+        .weight-slider-container .label {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1a202c;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .weight-slider-container .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .weight-slider-container .min,
+        .weight-slider-container .max {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .weight-slider-container .unit {
+            font-size: 10px;
+            margin-left: 2px;
+            margin-right: 2px;
+        }
+
+        .weight-slider-container .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 8px;
+            outline: none;
+            background: #e2e6f0;
+        }
+
+        .weight-slider-container .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff5a3c;
+            border: 3px solid #fcd6ce;
+            cursor: pointer;
+            margin-top: 0px;
+        }
+
+        .weight-slider-container .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff5a3c;
+            border: 3px solid #fcd6ce;
+            cursor: pointer;
+        }
+
+        .weight-slider-container .marks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding: 0 32px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a202c;
+        }
     </style>
     @if ($_DIR_ == 'rtl')
         <style>

@@ -46,6 +46,7 @@ class ContentTypesDatabaseSeeder extends Seeder
     public function Install()
     {
         app(Entities\TransporterService::class)->install();
+        app(Entities\ShippmentService::class)->install();
     }
 
     /**

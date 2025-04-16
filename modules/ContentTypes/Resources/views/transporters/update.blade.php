@@ -220,7 +220,15 @@
                                 'view'        => 'DEFAULT',
                                 'type'        => 'file',
                                 'name'        => 'TRANSPORTER_TAX_CERTIFICATE',
-                                'label'       => __('contenttypes::inputs.contract_tax_certificate.label'),
+                                'label'       => __('contenttypes::inputs.contract_tax_certificate.label') 
+                                . (
+                                    $model->TRANSPORTER_TAX_CERTIFICATE 
+                                    ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->TRANSPORTER_TAX_CERTIFICATE->file_path) .'" target="_blank">
+                                        <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
+                                        '. __('contenttypes::inputs.files.options.view') .'
+                                        </a>' 
+                                    : ''
+                                ),
                                 'description' => __('contenttypes::inputs.contract_tax_certificate.description'),
                                 'placeholder' => null,
                                 'value'       => null,
@@ -232,7 +240,15 @@
                                 'view'        => 'DEFAULT',
                                 'type'        => 'file',
                                 'name'        => 'TRANSPORTER_REGISTAION_LICENCE',
-                                'label'       => __('contenttypes::inputs.contract_registration_license.label'),
+                                'label'       => __('contenttypes::inputs.contract_registration_license.label')
+                                . (
+                                    $model->TRANSPORTER_REGISTAION_LICENCE 
+                                    ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->TRANSPORTER_REGISTAION_LICENCE->file_path) .'" target="_blank">
+                                        <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
+                                        '. __('contenttypes::inputs.files.options.view') .'
+                                        </a>' 
+                                    : ''
+                                ),
                                 'description' => __('contenttypes::inputs.contract_registration_license.description'),
                                 'placeholder' => null,
                                 'value'       => null,
@@ -244,7 +260,15 @@
                                 'view'        => 'DEFAULT',
                                 'type'        => 'file',
                                 'name'        => 'TRANSPORTER_INSURANCE_CERTIFICATE',
-                                'label'       => __('contenttypes::inputs.contract_insurance_certificate.label'),
+                                'label'       => __('contenttypes::inputs.contract_insurance_certificate.label')
+                                . (
+                                    $model->TRANSPORTER_INSURANCE_CERTIFICATE 
+                                    ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->TRANSPORTER_INSURANCE_CERTIFICATE->file_path) .'" target="_blank">
+                                        <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
+                                        '. __('contenttypes::inputs.files.options.view') .'
+                                        </a>' 
+                                    : ''
+                                ),
                                 'description' => __('contenttypes::inputs.contract_insurance_certificate.description'),
                                 'placeholder' => null,
                                 'value'       => null,
@@ -256,7 +280,15 @@
                                 'view'        => 'DEFAULT',
                                 'type'        => 'file',
                                 'name'        => 'TRANSPORTER_TRANSPORTATION_LICENCE',
-                                'label'       => __('contenttypes::inputs.contract_transportation_license.label'),
+                                'label'       => __('contenttypes::inputs.contract_transportation_license.label')
+                                . (
+                                    $model->TRANSPORTER_TRANSPORTATION_LICENCE 
+                                    ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->TRANSPORTER_TRANSPORTATION_LICENCE->file_path) .'" target="_blank">
+                                        <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
+                                        '. __('contenttypes::inputs.files.options.view') .'
+                                        </a>' 
+                                    : ''
+                                ),
                                 'description' => __('contenttypes::inputs.contract_transportation_license.description'),
                                 'placeholder' => null,
                                 'value'       => null,

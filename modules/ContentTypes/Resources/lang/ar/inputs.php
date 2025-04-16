@@ -281,4 +281,88 @@ return [
         'placeholder' => 'أدخل رقم هاتف العميل',
         'description' => 'رقم هاتف العميل',
     ],
+    'files' => [
+        'label'       => 'الملفات',
+        'placeholder' => 'أدخل الملفات',
+        'description' => 'الملفات المرفقة',
+        'options'     => [
+            'view'           => 'مشاهدة الملف',
+        ],
+    ],
+    'weight' => [
+        'label'       => 'الوزن',
+        'placeholder' => 'أدخل الوزن',
+        'description' => 'الوزن',
+        'tons'        => 'طن',
+    ],
+    'declared_order_value' => [
+        'label'       => 'القيمة المعلنة للطلب',
+        'placeholder' => 'أدخل القيمة المعلنة للطلب',
+        'description' => 'القيمة المعلنة للطلب',
+    ],
+    'load_size_id' => [
+        'label'       => 'حجم الحمولة',
+        'placeholder' => 'حدد حجم الحمولة',
+        'description' => 'حجم الحمولة',
+    ],
+    'load_type_id' => [
+        'label'       => 'نوع الحمولة',
+        'placeholder' => 'حدد نوع الحمولة',
+        'description' => 'نوع الحمولة',
+    ],
+    'number_of_pallets' => [
+        'label'       => 'عدد الطبليات',
+        'placeholder' => 'أدخل عدد الطبليات',
+        'description' => 'عدد الطبليات',
+        'pallet'      => 'طبلية',
+    ],
+    'number_of_trucks' => [
+        'label'       => 'عدد الشاحنات',
+        'placeholder' => 'أدخل عدد الشاحنات',
+        'description' => 'عدد الشاحنات',
+        'truck'       => 'شاحنة',
+    ],
+    'temperature' => [
+        'label'       => 'درجة الحرارة المطلوبة',
+        'placeholder' => 'أدخل درجة الحرارة',
+        'description' => 'درجة الحرارة',
+        'celsius'     => 'درجة مئوية',
+    ],
+    'equipment_length' => [
+        'label'       => 'طول المعدات',
+        'placeholder' => 'أدخل طول المعدات',
+        'description' => 'طول المعدات',
+        'meters'      => 'متر',
+    ],
+    'equipment_width' => [
+        'label'       => 'عرض المعدات',
+        'placeholder' => 'أدخل عرض المعدات',
+        'description' => 'عرض المعدات',
+        'meters'      => 'متر',
+    ],
+    'delivery_required_at' => [
+        'label'       => 'تاريخ التسليم المطلوب',
+        'placeholder' => 'أدخل تاريخ التسليم المطلوب',
+        'description' => 'تاريخ التسليم المطلوب',
+    ],
+    'public_notes' => [
+        'label'       => 'ملاحظات عامة',
+        'placeholder' => 'أدخل ملاحظات عامة',
+        'description' => 'ملاحظات عامة',
+    ],
+    'private_notes' => [
+        'label'       => 'ملاحظات خاصة',
+        'placeholder' => 'أدخل ملاحظات خاصة',
+        'description' => 'ملاحظات خاصة',
+    ],
+    'attachment_1' => [
+        'label'       => 'المرفق 1',
+        'placeholder' => 'أدخل المرفق 1',
+        'description' => 'المرفق 1',
+    ],
+    'WAY_BILL' => [
+        'label'       => 'سند الشحن',
+        'placeholder' => 'أدخل سند الشحن',
+        'description' => 'سند الشحن',
+    ],
 ];

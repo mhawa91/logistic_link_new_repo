@@ -54,6 +54,39 @@ class TransporterContract extends Model
         return $this->hasOne(TransporterContractInstance::class, 'contract_id', 'id')->where('is_current', 'YES');
     }
 
+    public function relatedFiles()
+    {
+        return $this->hasMany(UploadedFile::class, 'related_id', 'id')->where('related_type', 'contract');
+    }
+
+    public function TRANSPORTER_TAX_CERTIFICATE()
+    {
+        return $this->hasOne(UploadedFile::class, 'related_id', 'id')
+        ->where('related_type', 'contract')
+        ->where('file_tag', 'TRANSPORTER_TAX_CERTIFICATE');
+    }
+
+    public function TRANSPORTER_REGISTAION_LICENCE()
+    {
+        return $this->hasOne(UploadedFile::class, 'related_id', 'id')
+        ->where('related_type', 'contract')
+        ->where('file_tag', 'TRANSPORTER_REGISTAION_LICENCE');
+    }
+
+    public function TRANSPORTER_INSURANCE_CERTIFICATE()
+    {
+        return $this->hasOne(UploadedFile::class, 'related_id', 'id')
+        ->where('related_type', 'contract')
+        ->where('file_tag', 'TRANSPORTER_INSURANCE_CERTIFICATE');
+    }
+
+    public function TRANSPORTER_TRANSPORTATION_LICENCE()
+    {
+        return $this->hasOne(UploadedFile::class, 'related_id', 'id')
+        ->where('related_type', 'contract')
+        ->where('file_tag', 'TRANSPORTER_TRANSPORTATION_LICENCE');
+    }
+
     public function scopeWithSelectMeta($query)
     {
         $query->addSelect([
@@ -170,6 +203,18 @@ class TransporterContract extends Model
             'currentInstance' => function($rel) {
                 $rel->select('*')->withFullDetails();
             },
+        ]);
+        
+        return $query;
+    }
+
+    public function scopeWithFiles($query)
+    {
+        $query->with([
+            'TRANSPORTER_TAX_CERTIFICATE' => function($rel) {},
+            'TRANSPORTER_REGISTAION_LICENCE' => function($rel) {},
+            'TRANSPORTER_INSURANCE_CERTIFICATE' => function($rel) {},
+            'TRANSPORTER_TRANSPORTATION_LICENCE' => function($rel) {},
         ]);
         
         return $query;

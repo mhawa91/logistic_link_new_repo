@@ -7,6 +7,7 @@ return [
         'ROOT',
         'SYSTEM_ADMIN',
         'EMPLOYEE',
+        'CONTENT_EDITOR',
         'DEFAULT',
         'TRANSPORTER',
     ],
@@ -16,5 +17,6 @@ return [
         'ROOT',
         'SYSTEM_ADMIN',
         'EMPLOYEE',
+        'CONTENT_EDITOR'
     ],
 ];

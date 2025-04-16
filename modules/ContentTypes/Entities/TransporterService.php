@@ -336,7 +336,19 @@ class TransporterService extends ModelService
                 $read->id,
                 $create->id,
                 $update->id,
-                $delete->id,
+                // $delete->id,
+                // $permaDelete->id,
+                $statusUpdate->id,
+            ]);
+        }
+
+        $TRANSPORTER_Role = Role::where('name', 'TRANSPORTER')->first();
+        if ($TRANSPORTER_Role) {
+            $TRANSPORTER_Role->abilities()->syncWithoutDetaching([
+                $read->id,
+                // $create->id,
+                $update->id,
+                // $delete->id,
                 // $permaDelete->id,
                 $statusUpdate->id,
             ]);
@@ -456,16 +468,16 @@ class TransporterService extends ModelService
                 'related_type' => 'contract',
                 'related_id'   => $contract->id,
             ]);
-            $file->related_id     = $contract->id;
-            $file->related_type   = 'contract';
-            $file->file_tag       = $type;
-            $file->file_name      = $uplaodedFile->getClientOriginalName();
-            $file->file_extension = $uplaodedFile->getClientOriginalExtension();
-            $file->file_size      = $uplaodedFile->getSize();
+            $file->related_id         = $contract->id;
+            $file->related_type       = 'contract';
+            $file->file_tag           = $type;
+            $file->file_name          = $uplaodedFile->getClientOriginalName();
+            $file->file_extension     = $uplaodedFile->getClientOriginalExtension();
+            $file->file_size          = $uplaodedFile->getSize();
             $file->created_by_user_id = auth()->id();
             $file->updated_by_user_id = auth()->id();
-            $file->sys_status     = 'ACTIVE';
-            $file->file_path      = app('GraphManager')->process('files', $uplaodedFile);
+            $file->sys_status         = 'ACTIVE';
+            $file->file_path          = app('GraphManager')->process('files', $uplaodedFile);
             $file->save();
         }
     }
@@ -482,6 +494,7 @@ class TransporterService extends ModelService
         ->withClient()
         ->withTransporter()
         ->withInstanceDetails()
+        ->withFiles()
         ->when(auth()->check() && auth()->user()->type == 'DEFAULT', function($query) {
             $query->where('company_user_id', auth()->id());
         })
