@@ -31,7 +31,10 @@ class CategoryController extends SystemCoreHttpController
     public function loads(Request $Request, ActionResponse $Response)
     {
         $this->data['Service']      = $this->service;
+        return view($this->viewsFolderPath . '.transporter_details', $this->data);
+        return view($this->viewsFolderPath . '.contracts_details', $this->data);
         return view($this->viewsFolderPath . '.loads', $this->data);
+
     }
 
     public function index(Request $Request, ActionResponse $Response)

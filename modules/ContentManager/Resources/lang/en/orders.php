@@ -40,4 +40,9 @@ return [
     'primary_contact_person'            => 'Primary contact person',
     'phone'                             => 'Phone',
     'email_address'                     => 'Email address',
+    'offloading_points_section'         => 'Offloading points details',
+    'loading_type'                      => 'Loading type',
+    'ctiy_to_city_with_m_locations'     => 'From city to city with multiple locations',
+    'round_trip'                        => 'Round-Trip',
+
 ];

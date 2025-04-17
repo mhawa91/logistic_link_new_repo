@@ -40,4 +40,10 @@ return [
     'primary_contact_person'            => 'الشخص الرئيسي للتواصل',
     'phone'                             => 'الهاتف',
     'email_address'                     => 'البريد الإلكتروني',
+    'offloading_points_section'         => 'نقاط التفريغ',
+    'loading_type'                      => 'نوع التحميل',
+    'ctiy_to_city_with_m_locations'     => 'من مدينة إلى مدينة مع مواقع متعددة',
+    'round_trip'                        => 'رحلة ذهاب وإياب',
+
+
 ];

@@ -117,6 +117,7 @@ table th.fit, table td.fit {
     border: #DBDFEA 1px solid;
     margin-top: 20px;
     border-radius: 5px;
+    height: 90%;
 }
 .order-details .general-info .name{
     font-weight: 500;
@@ -133,6 +134,14 @@ table th.fit, table td.fit {
 }
 .btn-custom-1:hover{
     background-color: #1c8a79;
+    color: #fff;
+}
+.btn-custom-2{
+    background-color: #FB4F28;
+    color: #fff;
+}
+.btn-custom-2:hover{
+    background-color: #ff2f00;
     color: #fff;
 }
 .order-details .box .btns{
@@ -152,4 +161,124 @@ table th.fit, table td.fit {
     color: #344357;
     font-weight: 600;
     font-size: 16px;
+}
+/*  */
+.progress-container {
+    margin-top: 50px;
+}
+
+.progress-bar {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 6px;
+    width: 98.5%;
+    background-color: #e0e4ed;
+    border-radius: 10px;
+}
+.progress-fill {
+    height: 6px;
+    background-color: #ff5722;
+    border-radius: 10px;
+    width: 50%; /* Set percentage of progress */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+.step-points {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    width: 98.5%;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+}
+.step-points .step {
+    width: 16px;
+    height: 16px;
+    background-color: #e0e4ed;
+    border-radius: 50%;
+    z-index: 2;
+}
+.step-points .step.active {
+    background-color: #ff5722;
+}
+.step-points .title{
+    margin-top: -27px;
+    position: absolute;
+    font-weight: 600;
+    font-size: 14px;
+}
+.shipments-items:not(:last-child) {
+    border-bottom: 1px solid #DBDFEA;
+}
+.custom-title-2{
+    color: #FB4F28;
+    font-weight: 700;
+    font-size: 24px;
+}
+.custom-p{
+    color: #364A63;
+    font-weight: 400;
+    font-size: 16px;
+}
+.custom-table thead th{
+    color: #FB4F28;
+    font-weight: 700;
+    font-size: 18px;
+}
+.custom-table tbody td{
+    color: #344357;
+    font-weight: 500;
+    font-size: 14px;
+}
+.mt-6{
+    margin-top: 60px;
+}
+.custom-table{
+    border: 1px solid #DBDFEA;
+}
+.custom-table th, .custom-table td{
+    padding: 20px 15px;
+}
+.custom-tabs .card-inner{
+    padding: 15px;
+}
+.dark-mode .nav-tabs .nav-link.active, .nav-tabs .nav-link.active{
+    color: #FB4F28;
+}
+.nav-tabs .nav-link:after{
+    background: #FB4F28;
+}
+.transporter-profile .section-1 .company{
+    color: #FB4F28;
+    font-weight: 400;
+    font-size: 14px;
+}
+.transporter-profile .section-1 .stars{
+    display: flex;
+    gap: 30px;
+}
+.box-info{
+    display: flex;
+    justify-content: space-between;
+}
+.box-info:not(:last-child){
+    border-bottom: 1px solid #DBDFEA;
+    padding-bottom: 20px;
+}
+.box-info:not(:first-child){
+    padding-top: 20px;
+}
+.box-info .label span{
+    color: #526484;
+    font-weight: 500;
+    font-size: 14px;
+}
+.box-info .info{
+    color: #526484;
+    font-weight: 600;
+    font-size: 14px;
 }
