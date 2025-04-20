@@ -23,4 +23,9 @@ class ShippmentCommodity extends Model
         'shippment_id',
         'commodity_id',
     ];
+
+    public function commodity()
+    {
+        return $this->belongsTo(Content::class, 'commodity_id', 'id');
+    }
 }

@@ -608,15 +608,13 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'ordering'  => 0,
                 'type'      => 'MENU', //MENU | HEADER
                 'link'      => route('TransportersController@index'),
-                'text'      => __('contenttypes::strings.transporters.menu'),
+                'text'      => __('contenttypes::strings.contracts.menu'),
                 'icon'      => [
                     'name' => 'DEFAULT',
                     'type' => 'em', //em | i | svg | span
                     'data' => 'icon ni ni-truck',
                 ],
-                'show'      => function() {
-                    return auth()->check() && auth()->user()->isAn('DEFAULT');
-                },
+                'show'      => $isConsumer,
             ]);
             app('Ui')->registerMainMenuItem([
                 'id'        => 'consumer/billing',

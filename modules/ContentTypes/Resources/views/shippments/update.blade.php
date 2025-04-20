@@ -20,6 +20,30 @@
         ],
     ]
 ])
+    <div class="nk-block-head-content" id="vue-header">
+        <div class="toggle-wrap nk-block-tools-toggle">
+            <a href="javascript:;" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu">
+                <em class="icon ni ni-menu-alt-r"></em>
+            </a>
+            <div class="toggle-expand-content" data-content="pageMenu">
+                <ul class="nk-block-tools g-3">
+                    <li>
+                        <div class="stepper">
+                            <div class="step" :class="{'active': step == 1}">
+                                <div class="circle" :class="{'inactive': step == 2}">1</div>
+                                <div class="label" :class="{'text-muted': step == 2}">{{ __('contenttypes::strings.shippments.steps.step1') }}</div>
+                            </div>
+                            <div class="arrow">›</div>
+                            <div class="step" :class="{'active': step == 2}">
+                                <div class="circle" :class="{'inactive': step == 1}">2</div>
+                                <div class="label" :class="{'text-muted': step == 1}">{{ __('contenttypes::strings.shippments.steps.step2') }}</div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 @endcomponent
 
 @section('content')
@@ -30,7 +54,7 @@
 
             @component('ui::components.form', [
                 'options' => [
-                    'id'                => null,
+                    'id'                => 'shippment_form',
                     'action'            => route('ShippmentsController@postUpdate'),
                     'method'            => 'POST',
                     'class'             => '',
@@ -50,116 +74,920 @@
                     ],
                 ])
 
-                @component('ui::components.input', [
-                    'options' => [
-                        'view'        => 'INLINE',
-                        'type'        => 'text',
-                        'name'        => 'code',
-                        'label'       => __('contenttypes::inputs.contract_code.label'),
-                        'placeholder' => __('contenttypes::inputs.contract_code.placeholder'),
-                        'description' => __('contenttypes::inputs.contract_code.description'),
-                        'attributes'  => [],
-                        'value'       => $model->code,
-                    ],
-                ])
-                @endcomponent
-
-                @component('ui::components.input', [
-                    'options' => [
-                        'view'        => 'INLINE',
-                        'type'        => 'number',
-                        'name'        => 'period_in_months',
-                        'label'       => __('contenttypes::inputs.contract_period_in_months.label'),
-                        'placeholder' => __('contenttypes::inputs.contract_period_in_months.placeholder'),
-                        'description' => __('contenttypes::inputs.contract_period_in_months.description'),
-                        'attributes'  => [],
-                        'value'       => $model->period_in_months,
-                    ],
-                ])
-                @endcomponent
-
-                @include('ui::components.radios', [
-                    'options' => [
-                        'view'              => 'INLINE',
-                        'type'              => 'radio',
-                        'name'              => 'sys_status',
-                        'label'             => __('admin::inputs.status.label'),
-                        'placeholder'       => __('admin::inputs.status.placeholder'),
-                        'description'       => __('admin::inputs.status.description'),
-                        'attributes'        => [],
-                        'value'             => null,
-                        'search'            => true,
-                        'multiple'          => false,
-                        'options'           => [
-                            [
-                                'id'       => 's_2',
-                                'value'    => 'ACTIVE',
-                                'label'    => __('ui::inputs.status.options.ACTIVE'),
-                                'selected' => $model->sys_status == 'ACTIVE',
-                            ],
-                            [
-                                'id'       => 's_3',
-                                'value'    => 'DISABLED',
-                                'label'    => __('ui::inputs.status.options.DISABLED'),
-                                'selected' => $model->sys_status == 'DISABLED',
-                            ],
-                        ],
-                        'option_id'         => function($key, $option)                   { return $option['id']; },
-                        'option_text'       => function($key, $option)                   { return $option['label']; },
-                        'option_sub_text'   => function($key, $option)                   { return null; },
-                        'option_value'      => function($key, $option)                   { return $option['value']; },
-                        'option_attributes' => function($key, $option)                   { return []; },
-                        'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
-                        'disabled'          => function($options, $key, $option, $value) { return false; },
-                    ],
-                ])
-
-                <ul class="nav nav-tabs">
-                    @foreach ($_ALL_LOCALES_ as $locale => $item)
-                        <li class="nav-item">
-                            <a class="nav-link {{ $loop->first ? 'active' : '' }}" data-toggle="tab" href="#locale_{{ $locale }}">
-                                <img src="{{ asset( config('ui.logos.' . $locale . '.flag.publicPath') ) }}" alt="" class="language-flag" style="border-radius: 30%;">
-                                <span>{{ $item['native'] }}</span>
-                            </a>
-                        </li>
-                    @endforeach                    
-                </ul>
-                <div class="tab-content">
-                    @foreach ($_ALL_LOCALES_ as $locale => $item)
-                        <div class="tab-pane {{ $loop->first ? 'active' : '' }}" id="locale_{{ $locale }}">
-                            
-                            @include('ui::components.input', [
-                                'options' => [
-                                    'view'        => 'INLINE',
-                                    'type'        => 'text',
-                                    'name'        => 'translations['. $locale .'][title]',
-                                    'label'       => __('contenttypes::inputs.contract_title.label') . '<span class="text-primary"> [' . $locale . ']</span>',
-                                    'placeholder' => __('contenttypes::inputs.contract_title.placeholder'),
-                                    'description' => __('contenttypes::inputs.contract_title.description'),
-                                    'value'       => $model->__f('title', $locale),
-                                ],
-                            ])
-
-                            @include('ui::components.input', [
-                                'options' => [
-                                    'view'        => 'INLINE',
-                                    'type'        => 'textarea',
-                                    'name'        => 'translations['. $locale .'][description]',
-                                    'label'       => __('contenttypes::inputs.contract_description.label') . '<span class="text-primary"> [' . $locale . ']</span>',
-                                    'placeholder' => __('contenttypes::inputs.contract_description.placeholder'),
-                                    'description' => __('contenttypes::inputs.contract_description.description'),
-                                    'value'       => $model->__f('description', $locale),
-                                ],
-                            ])
-
+                <div :style="{ 'display': step == 2 ? 'none' : 'block' }">
+                    <div class="nk-block-head">
+                        <div class="nk-block-head-content">
+                            <h4 class="nk-block-title">{{ __('contenttypes::strings.shippments.steps.step1') }}</h4>
+                            <p>{{ __('contenttypes::strings.shippments.steps.step1_desc') }}</p>
                         </div>
-                    @endforeach  
+                    </div>
+                    <hr class="preview-hr" style="margin-bottom: 0.5rem">
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="weight-slider-container" id="weightSliderWrapper" dir="rtl">
+                                <label class="form-label">
+                                    {{ __('contenttypes::inputs.weight.label') }}
+                                    (
+                                        <span style="color: #ff4b2b">
+                                            @{{ Number(total_weight).toFixed(2) }} {{ __('contenttypes::inputs.weight.tons') }}
+                                        </span>
+                                    )
+                                </label>
+                                <div class="slider-wrapper">
+                                    <span class="min">0<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
+                                    <input
+                                        name="total_weight"
+                                        type="range"
+                                        min="0"
+                                        max="250"
+                                        step="0.5"
+                                        value="5"
+                                        class="slider"
+                                        id="weightRange"
+                                        v-model="total_weight"
+                                    />
+                                    <span class="max">250<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
+                                </div>
+                                <div class="marks">
+                                    <span>5<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
+                                    <span>125<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
+                                    <span>250<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            @include('ui::components.select', [
+                                'options' => [
+                                    'id'                => 'commodity_id_select',
+                                    'jsSelect2'         => 'commodity_id_jsSelect2',
+                                    'view'              => 'DEFAULT',
+                                    'name'              => 'commodity_id[]',
+                                    'label'             => __('contenttypes::inputs.commodity_id.label'),
+                                    'placeholder'       => __('contenttypes::inputs.commodity_id.placeholder'),
+                                    'attributes'        => [],
+                                    'value'             => $model->commodities->pluck('commodity_id')->toArray(),
+                                    'search'            => true,
+                                    'multiple'          => true,
+                                    'options'           => $model->commodities->map(function($item) {
+                                        return [
+                                            'id'       => $item->commodity->id,
+                                            'text'     => $item->commodity->__('title'),
+                                            'selected' => true,
+                                        ];
+                                    })->toArray(),
+                                    'option_text'       => function($key, $option)                   { return $option['text']; },
+                                    'option_value'      => function($key, $option)                   { return $option['id']; },
+                                    'option_attributes' => function($key, $option)                   { return []; },
+                                    'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
+                                    'disabled'          => function($options, $key, $option, $value) { return false; },
+                                ],
+                            ])
+                        </div>
+                        <div class="col-md-6">
+                            @component('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'number',
+                                    'name'        => 'declared_order_value',
+                                    'label'       => __('contenttypes::inputs.declared_order_value.label'),
+                                    'placeholder' => __('contenttypes::inputs.declared_order_value.placeholder'),
+                                    'description' => __('contenttypes::inputs.declared_order_value.description'),
+                                    'attributes'  => [],
+                                    'value'       => $model->decalred_value,
+                                ],
+                            ])
+                                <x-slot name="after">
+                                    <div class="form-text-hint">
+                                        <small class="overline-title">SAR</small>
+                                    </div>
+                                </x-slot>
+                            @endcomponent
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            @include('ui::components.radios', [
+                                'options' => [
+                                    'view'              => 'DEFAULT',
+                                    'type'              => 'radio',
+                                    'name'              => 'load_size_id',
+                                    'label'             => __('contenttypes::inputs.load_size_id.label'),
+                                    'placeholder'       => __('contenttypes::inputs.load_size_id.placeholder'),
+                                    'description'       => __('contenttypes::inputs.load_size_id.description'),
+                                    'attributes'        => [],
+                                    'value'             => null,
+                                    'search'            => true,
+                                    'multiple'          => false,
+                                    'options'           => $loadSizes->map(function($item) use($model) {
+                                        return [
+                                            'id'       => 'ls_' . $item->id,
+                                            'value'    => $item->id,
+                                            'label'    => $item->__('title'),
+                                            'selected' => $model->load_size_id == $item->id,
+                                        ];
+                                    })->toArray(),
+                                    'option_id'         => function($key, $option)                   { return $option['id']; },
+                                    'option_text'       => function($key, $option)                   { return $option['label']; },
+                                    'option_sub_text'   => function($key, $option)                   { return null; },
+                                    'option_value'      => function($key, $option)                   { return $option['value']; },
+                                    'option_attributes' => function($key, $option)                   { return []; },
+                                    'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
+                                    'disabled'          => function($options, $key, $option, $value) { return false; },
+                                ],
+                            ])
+                        </div>
+
+                        <div class="col-md-6">
+                            @component('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'number',
+                                    'step'       => '1',
+                                    'name'        => 'number_of_pallets',
+                                    'label'       => __('contenttypes::inputs.number_of_pallets.label'),
+                                    'placeholder' => __('contenttypes::inputs.number_of_pallets.placeholder'),
+                                    'description' => __('contenttypes::inputs.number_of_pallets.description'),
+                                    'attributes'  => [],
+                                    'value'       => $model->number_of_pallets,
+                                ],
+                            ])
+                                <x-slot name="after">
+                                    <div class="form-text-hint">
+                                        <small class="overline-title">{{ __('contenttypes::inputs.number_of_pallets.pallet') }}</small>
+                                    </div>
+                                </x-slot>
+                            @endcomponent
+                        </div>
+
+                        <div class="col-md-6">
+                            @include('ui::components.radios', [
+                                'options' => [
+                                    'view'              => 'DEFAULT',
+                                    'type'              => 'radio',
+                                    'name'              => 'load_type_id',
+                                    'label'             => __('contenttypes::inputs.load_type_id.label'),
+                                    'placeholder'       => __('contenttypes::inputs.load_type_id.placeholder'),
+                                    'description'       => __('contenttypes::inputs.load_type_id.description'),
+                                    'attributes'        => [],
+                                    'value'             => null,
+                                    'search'            => true,
+                                    'multiple'          => false,
+                                    'options'           => $loadTypes->map(function($item) use($model) {
+                                        return [
+                                            'id'       => 'lt_' . $item->id,
+                                            'value'    => $item->id,
+                                            'label'    => $item->__('title'),
+                                            'selected' => $model->load_type_id == $item->id,
+                                        ];
+                                    })->toArray(),
+                                    'option_id'         => function($key, $option)                   { return $option['id']; },
+                                    'option_text'       => function($key, $option)                   { return $option['label']; },
+                                    'option_sub_text'   => function($key, $option)                   { return null; },
+                                    'option_value'      => function($key, $option)                   { return $option['value']; },
+                                    'option_attributes' => function($key, $option)                   { return []; },
+                                    'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
+                                    'disabled'          => function($options, $key, $option, $value) { return false; },
+                                ],
+                            ])
+                        </div>
+                    </div>
+                    
+                    <hr class="preview-hr" style="margin-bottom: 0.5rem">
+                    <br>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            @include('ui::components.select', [
+                                'options' => [
+                                    'id'                => 'truck_type_id_select',
+                                    'jsSelect2'         => 'truck_type_id_jsSelect2',
+                                    'view'              => 'DEFAULT',
+                                    'name'              => 'truck_type_id',
+                                    'label'             => __('contenttypes::inputs.truck_type_id.label'),
+                                    'placeholder'       => __('contenttypes::inputs.truck_type_id.placeholder'),
+                                    'attributes'        => [],
+                                    'value'             => null,
+                                    'search'            => true,
+                                    'multiple'          => false,
+                                    'options'           => ! $model->truckType ? [] : [
+                                        [
+                                            'id'       => $model->truckType->id,
+                                            'text'     => $model->truckType->__('title'),
+                                            'selected' => true,
+                                        ]
+                                    ],
+                                    'option_text'       => function($key, $option)                   { return $option['text']; },
+                                    'option_sub_text'   => function($key, $option)                   { return null; },
+                                    'option_value'      => function($key, $option)                   { return $option['id']; },
+                                    'option_attributes' => function($key, $option)                   { return []; },
+                                    'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
+                                    'disabled'          => function($options, $key, $option, $value) { return false; },
+                                ],
+                            ])
+                        </div>
+                        <div class="col-md-6">
+                            @component('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'number',
+                                    'step'       => '1',
+                                    'name'        => 'number_of_trucks',
+                                    'label'       => __('contenttypes::inputs.number_of_trucks.label'),
+                                    'placeholder' => __('contenttypes::inputs.number_of_trucks.placeholder'),
+                                    'description' => __('contenttypes::inputs.number_of_trucks.description'),
+                                    'attributes'  => [],
+                                    'value'       => $model->number_of_trucks,
+                                ],
+                            ])
+                                <x-slot name="after">
+                                    <div class="form-text-hint">
+                                        <small class="overline-title">{{ __('contenttypes::inputs.number_of_trucks.truck') }}</small>
+                                    </div>
+                                </x-slot>
+                            @endcomponent
+                        </div>
+                        <div class="col-md-6">
+                            @component('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'number',
+                                    'name'        => 'equipment_length',
+                                    'label'       => __('contenttypes::inputs.equipment_length.label'),
+                                    'placeholder' => __('contenttypes::inputs.equipment_length.placeholder'),
+                                    'description' => __('contenttypes::inputs.equipment_length.description'),
+                                    'attributes'  => [],
+                                    'value'       => $model->equipment_length,
+                                ],
+                            ])
+                                <x-slot name="after">
+                                    <div class="form-text-hint">
+                                        <small class="overline-title">{{ __('contenttypes::inputs.equipment_length.meters') }}</small>
+                                    </div>
+                                </x-slot>
+                            @endcomponent
+                        </div>
+                        <div class="col-md-6">
+                            @component('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'number',
+                                    'name'        => 'equipment_width',
+                                    'label'       => __('contenttypes::inputs.equipment_width.label'),
+                                    'placeholder' => __('contenttypes::inputs.equipment_width.placeholder'),
+                                    'description' => __('contenttypes::inputs.equipment_width.description'),
+                                    'attributes'  => [],
+                                    'value'       => $model->equipment_width,
+                                ],
+                            ])
+                                <x-slot name="after">
+                                    <div class="form-text-hint">
+                                        <small class="overline-title">{{ __('contenttypes::inputs.equipment_width.meters') }}</small>
+                                    </div>
+                                </x-slot>
+                            @endcomponent
+                        </div>
+                        <div class="col-md-6">
+                            @component('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'number',
+                                    'step'       => '1',
+                                    'name'        => 'temperature',
+                                    'label'       => __('contenttypes::inputs.temperature.label'),
+                                    'placeholder' => __('contenttypes::inputs.temperature.placeholder'),
+                                    'description' => __('contenttypes::inputs.temperature.description'),
+                                    'attributes'  => [],
+                                    'value'       => $model->temperature,
+                                ],
+                            ])
+                                <x-slot name="after">
+                                    <div class="form-text-hint">
+                                        <small class="overline-title">{{ __('contenttypes::inputs.temperature.celsius') }}</small>
+                                    </div>
+                                </x-slot>
+                            @endcomponent
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="delivery_required_at" class="form-label">{{ __('contenttypes::inputs.delivery_required_at.label') }}</label>
+
+                                <div class="form-control-wrap">
+                                    <div class="form-icon form-icon-right">
+                                        <em class="icon ni ni-calendar-alt"></em>
+                                    </div>
+                                    <ui-datepicker id="delivery_required_at" name="delivery_required_at" value="{{ \Carbon\Carbon::parse($model->delivery_required_at)->format('Y-m-d') }}"></ui-datepicker>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <hr class="preview-hr" style="margin-bottom: 0.5rem">
+                    <br>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            @include('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'textarea',
+                                    'name'        => 'public_notes',
+                                    'label'       => __('contenttypes::inputs.public_notes.label'),
+                                    'placeholder' => __('contenttypes::inputs.public_notes.placeholder'),
+                                    'description' => __('contenttypes::inputs.public_notes.description'),
+                                    'attributes'  => [],
+                                    'value'       => $model->public_notes,
+                                ],
+                            ])
+                            @include('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'textarea',
+                                    'name'        => 'private_notes',
+                                    'label'       => __('contenttypes::inputs.private_notes.label'),
+                                    'placeholder' => __('contenttypes::inputs.private_notes.placeholder'),
+                                    'description' => __('contenttypes::inputs.private_notes.description'),
+                                    'attributes'  => [],
+                                    'value'       => $model->private_notes,
+                                ],
+                            ])
+                        </div>
+                        <div class="col-md-6">
+                            @include('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'file',
+                                    'name'        => 'ADDITIONAL_DATA',
+                                    'label'       => __('contenttypes::inputs.attachment_1.label')
+                                    . (
+                                        $model->ADDITIONAL_DATA 
+                                        ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->ADDITIONAL_DATA->file_path) .'" target="_blank">
+                                                <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
+                                                '. __('contenttypes::inputs.files.options.view') .'
+                                            </a>' 
+                                        : ''
+                                    ),
+                                    'description' => __('contenttypes::inputs.attachment_1.description'),
+                                    'placeholder' => null,
+                                    'value'       => null,
+                                ],
+                            ])
+                            {{-- @include('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'file',
+                                    'name'        => 'WAY_BILL',
+                                    'label'       => __('contenttypes::inputs.WAY_BILL.label'),
+                                    'description' => __('contenttypes::inputs.WAY_BILL.description'),
+                                    'placeholder' => null,
+                                    'value'       => null,
+                                ],
+                            ]) --}}
+                        </div>
+                    </div>
+                </div>
+                <div :style="{ 'display': step == 2 ? 'block' : 'none' }">
+                    <div class="nk-block-head">
+                        <div class="nk-block-head-content">
+                            <h4 class="nk-block-title">{{ __('contenttypes::strings.shippments.steps.step2') }}</h4>
+                            <p>{{ __('contenttypes::strings.shippments.steps.step2_desc') }}</p>
+                        </div>
+                    </div>
+                    <hr class="preview-hr" style="margin-bottom: 0.5rem">
+                    <br>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="city_select" class="form-label">{{ __('contenttypes::inputs.from_city_id.label') }}</label>
+                                <div class="form-control-wrap">
+                                    <ui-select2 class="form-control" 
+                                        :name="`from_city_id`"
+                                        :selected="loading_address.city"
+                                        v-on:options="citySelectOptions" 
+                                        v-on:change="citySelected($event)">
+                                    </ui-select2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="city_select" class="form-label">{{ __('contenttypes::inputs.to_city_id.label') }}</label>
+                                <div class="form-control-wrap">
+                                    <ui-select2 class="form-control" 
+                                        :name="`to_city_id`"
+                                        :selected="to_address.city"
+                                        v-on:options="citySelectOptions" 
+                                        v-on:change="toCitySelected($event, null)">
+                                    </ui-select2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            @include('ui::components.radios', [
+                                'options' => [
+                                    'view'              => 'DEFAULT',
+                                    'type'              => 'radio',
+                                    'name'              => 'loading_type',
+                                    'label'             => __('contenttypes::inputs.loading_type.label'),
+                                    'placeholder'       => __('contenttypes::inputs.loading_type.placeholder'),
+                                    'description'       => __('contenttypes::inputs.loading_type.description'),
+                                    'attributes'        => [],
+                                    'value'             => null,
+                                    'search'            => true,
+                                    'multiple'          => false,
+                                    'options'           => collect(config('contenttypes.loadingTypes'))->filter(fn($item) => $item['id'] != 'CITY_TO_CITY_ROUND_TRIP')->map(function($item) use($model) {
+                                        return [
+                                            'id'       => 'st_' . $item['id'],
+                                            'value'    => $item['id'],
+                                            'label'    => __($item['label']),
+                                            'selected' => $model->type == $item['id'],
+                                        ];
+                                    })->toArray(),
+                                    'option_id'         => function($key, $option)                   { return $option['id']; },
+                                    'option_text'       => function($key, $option)                   { return $option['label']; },
+                                    'option_sub_text'   => function($key, $option)                   { return null; },
+                                    'option_value'      => function($key, $option)                   { return $option['value']; },
+                                    'option_attributes' => function($key, $option)                   { return []; },
+                                    'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
+                                    'disabled'          => function($options, $key, $option, $value) { return false; },
+                                ],
+                            ])
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="nk-block-head">
+                        <div class="nk-block-head-content">
+                            <h6 style="color: #FB4F28">{{ __('contenttypes::strings.shippments.loading_address') }}</h6>
+                        </div>
+                    </div>
+                    <hr class="preview-hr" style="margin-bottom: 0.5rem">
+                    <br>
+
+                    <div class="row gy-4">
+                        <div class="col-md-4">
+                            <div class="row gy-4">
+                                <div class="col-md-12">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'INLINE',
+                                            'type'        => 'hidden',
+                                            'name'        => 'loading_address_id',
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'loading_address.id',
+                                                ':name'   => "'loading_address[id]'",
+                                            ]
+                                        ],
+                                    ])
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'text',
+                                            'name'        => 'loading_address[primary_contact_company_name]',
+                                            'label'       => __('contenttypes::inputs.address_name.label'),
+                                            'placeholder' => __('contenttypes::inputs.address_name.placeholder'),
+                                            'description' => __('contenttypes::inputs.address_name.description'),
+                                            'value'       => $model->loadingLocation?->primary_contact_company_name,
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-12">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'text',
+                                            'name'        => 'loading_address[primary_contact_name]',
+                                            'label'       => __('contenttypes::inputs.address_primary_contact.label'),
+                                            'placeholder' => __('contenttypes::inputs.address_primary_contact.placeholder'),
+                                            'description' => __('contenttypes::inputs.address_primary_contact.description'),
+                                            'value'       => $model->loadingLocation?->primary_contact_name,
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-12">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'email',
+                                            'name'        => 'loading_address[primary_contact_email]',
+                                            'label'       => __('contenttypes::inputs.address_email.label'),
+                                            'placeholder' => __('contenttypes::inputs.address_email.placeholder'),
+                                            'description' => __('contenttypes::inputs.address_email.description'),
+                                            'value'       => $model->loadingLocation?->primary_contact_email,
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-12">
+                                    @component('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'text',
+                                            'name'        => 'loading_address[primary_contact_phone_number]',
+                                            'label'       => __('contenttypes::inputs.address_phone_number.label'),
+                                            'placeholder' => __('contenttypes::inputs.address_phone_number.placeholder'),
+                                            'description' => __('contenttypes::inputs.address_phone_number.description'),
+                                            'attributes'  => ['dir' => 'ltr', 'style' => 'text-align: ' . ($_DIR_ == 'ltr' ? 'left' : 'right')],
+                                            'value'       => $model->loadingLocation?->primary_contact_phone_number,
+                                        ],
+                                    ])
+                                        <x-slot name="after">
+                                            <div class="form-text-hint">
+                                                <strong class="overline-title" dir="ltr">+966</strong>
+                                            </div>
+                                        </x-slot>
+                                    @endcomponent
+                                </div>
+                                <div class="col-md-12">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'text',
+                                            'name'        => 'loading_address[lat_lng]',
+                                            'label'       => __('contenttypes::inputs.lat.label') . ' / ' . __('contenttypes::inputs.lng.label'),
+                                            'placeholder' => __('contenttypes::inputs.lat.placeholder') . ' / ' . __('contenttypes::inputs.lng.placeholder'),
+                                            'description' => __('contenttypes::inputs.lat.description') . ' / ' . __('contenttypes::inputs.lng.description'),
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model'     => 'loading_address.latlng',
+                                                'v-on:change' => 'setLatlng($event.target.value)',
+                                            ],
+                                        ],
+                                    ])
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'INLINE',
+                                            'type'        => 'hidden',
+                                            'name'        => 'lat',
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'loading_address.lat',
+                                                ':name'   => "'loading_address[lat]'",
+                                            ]
+                                        ],
+                                    ])
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'INLINE',
+                                            'type'        => 'hidden',
+                                            'name'        => 'lng',
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'loading_address.lng',
+                                                ':name'   => "'loading_address[lng]'",
+                                            ]
+                                        ],
+                                    ])
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div dir="ltr" class="bs-map-lg" id="geo_map"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'textarea',
+                                            'name'        => 'loading_address[full_address]',
+                                            'label'       => __('contenttypes::inputs.full_address.label'),
+                                            'placeholder' => __('contenttypes::inputs.full_address.placeholder'),
+                                            'description' => __('contenttypes::inputs.full_address.description'),
+                                            'value'       => $model->loadingLocation?->full_address,
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-4">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'textarea',
+                                            'name'        => 'loading_address[public_notes]',
+                                            'label'       => __('contenttypes::inputs.public_notes.label'),
+                                            'placeholder' => __('contenttypes::inputs.public_notes.placeholder'),
+                                            'description' => __('contenttypes::inputs.public_notes.description'),
+                                            'value'       => $model->loadingLocation?->public_notes,
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-4">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'textarea',
+                                            'name'        => 'loading_address[private_notes]',
+                                            'label'       => __('contenttypes::inputs.private_notes.label'),
+                                            'placeholder' => __('contenttypes::inputs.private_notes.placeholder'),
+                                            'description' => __('contenttypes::inputs.private_notes.description'),
+                                            'value'       => $model->loadingLocation?->private_notes,
+                                        ],
+                                    ])
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="nk-block-head">
+                        <div class="nk-block-head-content">
+                            <h6 style="color: #FB4F28">{{ __('contenttypes::strings.shippments.offloading_address') }}</h6>
+                        </div>
+                    </div>
+                    <hr class="preview-hr" style="margin-bottom: 0.5rem">
+                    <br>
+
+                    <div class="row gy-4" v-for="(address, address_index) in to_addresses" :style="{ 'display': address.removed == 'Y' ? 'none' : 'flex' }">
+                        <div class="col-md-4">
+                            <div class="row gy-4">
+                                <div class="col-md-12">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'INLINE',
+                                            'type'        => 'hidden',
+                                            'name'        => 'offloading_address_id',
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.id',
+                                                ':name'   => "'offloading_address[' + address_index + '][id]'",
+                                            ]
+                                        ],
+                                    ])
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'text',
+                                            'name'        => 'offloading_address[primary_contact_company_name]',
+                                            'label'       => __('contenttypes::inputs.address_name.label'),
+                                            'placeholder' => __('contenttypes::inputs.address_name.placeholder'),
+                                            'description' => __('contenttypes::inputs.address_name.description'),
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.primary_contact_company_name',
+                                                ':name'   => "'offloading_address[' + address_index + '][primary_contact_company_name]'",
+                                            ]
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-12">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'text',
+                                            'name'        => 'offloading_address[primary_contact_name]',
+                                            'label'       => __('contenttypes::inputs.address_primary_contact.label'),
+                                            'placeholder' => __('contenttypes::inputs.address_primary_contact.placeholder'),
+                                            'description' => __('contenttypes::inputs.address_primary_contact.description'),
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.primary_contact_name',
+                                                ':name'   => "'offloading_address[' + address_index + '][primary_contact_name]'",
+                                            ]
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-12">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'email',
+                                            'name'        => 'offloading_address[primary_contact_email]',
+                                            'label'       => __('contenttypes::inputs.address_email.label'),
+                                            'placeholder' => __('contenttypes::inputs.address_email.placeholder'),
+                                            'description' => __('contenttypes::inputs.address_email.description'),
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.primary_contact_email',
+                                                ':name'   => "'offloading_address[' + address_index + '][primary_contact_email]'",
+                                            ]
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-12">
+                                    @component('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'text',
+                                            'name'        => 'offloading_address[primary_contact_phone_number]',
+                                            'label'       => __('contenttypes::inputs.address_phone_number.label'),
+                                            'placeholder' => __('contenttypes::inputs.address_phone_number.placeholder'),
+                                            'description' => __('contenttypes::inputs.address_phone_number.description'),
+                                            'attributes'  => ['dir' => 'ltr', 'style' => 'text-align: ' . ($_DIR_ == 'ltr' ? 'left' : 'right')],
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.primary_contact_phone_number',
+                                                ':name'   => "'offloading_address[' + address_index + '][primary_contact_phone_number]'",
+                                            ]
+                                        ],
+                                    ])
+                                        <x-slot name="after">
+                                            <div class="form-text-hint">
+                                                <strong class="overline-title" dir="ltr">+966</strong>
+                                            </div>
+                                        </x-slot>
+                                    @endcomponent
+                                </div>
+                                <div class="col-md-12">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'text',
+                                            'name'        => 'offloading_address[lat_lng]',
+                                            'label'       => __('contenttypes::inputs.lat.label') . ' / ' . __('contenttypes::inputs.lng.label'),
+                                            'placeholder' => __('contenttypes::inputs.lat.placeholder') . ' / ' . __('contenttypes::inputs.lng.placeholder'),
+                                            'description' => __('contenttypes::inputs.lat.description') . ' / ' . __('contenttypes::inputs.lng.description'),
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model'     => 'address.latlng',
+                                                'v-on:change' => 'setLatlng($event.target.value, address)',
+                                                ':name'       => "'offloading_address[' + address_index + '][lat_lng]'",
+                                            ],
+                                        ],
+                                    ])
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'INLINE',
+                                            'type'        => 'hidden',
+                                            'name'        => 'lat',
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.lat',
+                                                ':name'   => "'offloading_address[' + address_index + '][lat]'",
+                                            ]
+                                        ],
+                                    ])
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'INLINE',
+                                            'type'        => 'hidden',
+                                            'name'        => 'lng',
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.lng',
+                                                ':name'   => "'offloading_address[' + address_index + '][lng]'",
+                                            ]
+                                        ],
+                                    ])
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'INLINE',
+                                            'type'        => 'hidden',
+                                            'name'        => 'removed',
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.removed',
+                                                ':name'   => "'offloading_address[' + address_index + '][removed]'",
+                                            ]
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-label">{{ __('contenttypes::inputs.round_trip.label') }}</label>
+                                        <div class="form-control-wrap">
+                                            <ul class="custom-control-group g-3 align-center flex-wrap">
+                                                <li>
+                                                    <div class="custom-control custom-radio" :class="{'checked': address.round_trip == 'NO' ? 'checked' : ''}">
+                                                        <input :id="'rt_no' + address_index" type="radio" :name="`offloading_address[${address_index}][round_trip]`" value="NO" :checked="address.round_trip == 'NO'" class="custom-control-input"> 
+                                                        <label :for="'rt_no' + address_index" class="custom-control-label">
+                                                            {{ __('contenttypes::inputs.round_trip.options.NO') }}
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="custom-control custom-radio" :class="{'checked': address.round_trip == 'YES' ? 'checked' : ''}">
+                                                        <input :id="'rt_yes' + address_index" type="radio" :name="`offloading_address[${address_index}][round_trip]`" value="YES" :checked="address.round_trip == 'YES'" class="custom-control-input"> 
+                                                        <label :for="'rt_yes' + address_index" class="custom-control-label">
+                                                            {{ __('contenttypes::inputs.round_trip.options.YES') }} 
+                                                        </label>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div dir="ltr" class="bs-map-lg" :id="address.el"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'textarea',
+                                            'name'        => 'offloading_address[full_address]',
+                                            'label'       => __('contenttypes::inputs.full_address.label'),
+                                            'placeholder' => __('contenttypes::inputs.full_address.placeholder'),
+                                            'description' => __('contenttypes::inputs.full_address.description'),
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.full_address',
+                                                ':name'   => "'offloading_address[' + address_index + '][full_address]'",
+                                            ]
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-4">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'textarea',
+                                            'name'        => 'offloading_address[public_notes]',
+                                            'label'       => __('contenttypes::inputs.public_notes.label'),
+                                            'placeholder' => __('contenttypes::inputs.public_notes.placeholder'),
+                                            'description' => __('contenttypes::inputs.public_notes.description'),
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.public_notes',
+                                                ':name'   => "'offloading_address[' + address_index + '][public_notes]'",
+                                            ]
+                                        ],
+                                    ])
+                                </div>
+                                <div class="col-md-4">
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'DEFAULT',
+                                            'type'        => 'textarea',
+                                            'name'        => 'offloading_address[private_notes]',
+                                            'label'       => __('contenttypes::inputs.private_notes.label'),
+                                            'placeholder' => __('contenttypes::inputs.private_notes.placeholder'),
+                                            'description' => __('contenttypes::inputs.private_notes.description'),
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.private_notes',
+                                                ':name'   => "'offloading_address[' + address_index + '][private_notes]'",
+                                            ]
+                                        ],
+                                    ])
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-12 d-flex justify-end">
+                            <a class="link link-danger link-sm text-danger" tabindex="-1" href="javascript:;" v-on:click="removeToAddress(address_index)">
+                                <i class="fas fa-trash" style="margin-left: 5px; margin-right: 5px;"></i>
+                                {{ __('contenttypes::strings.shippments.remove_offloading_address') }}
+                            </a>
+                        </div>
+                        <div class="col-md-12">
+                            <hr class="preview-hr" style="margin-bottom: 0.5rem">
+                            <br>
+                        </div>
+                    </div>
+
+                    <a class="link link-primary link-sm" tabindex="-1" href="javascript:;" style="color: #FB4F28 !important;" v-on:click="addToAddress()">
+                        <i class="fas fa-plus" style="margin-left: 5px; margin-right: 5px;"></i>
+                        {{ __('contenttypes::strings.shippments.add_offloading_address') }}
+                    </a>
                 </div>
 
-                <div class="form-group mt-2">
-                    <button type="submit" class="btn btn-md btn-primary">
-                        <span>{{ __('ui::strings.save') }}</span>
+                @include('ui::components.input', [
+                    'options' => [
+                        'view'        => 'INLINE',
+                        'type'        => 'hidden',
+                        'name'        => 'is_draft',
+                        'value'       => '',
+                        'attributes'  => [
+                            'v-model' => 'is_draft',
+                            ':name'   => "'is_draft'",
+                        ]
+                    ],
+                ])
+
+                <div class="form-group mt-2 d-flex justify-between">
+                    <a href="{{ route('ShippmentsController@index') }}" class="btn btn-md btn-dim btn-secondary" v-show="step == 1">
+                        <em class="icon ni ni-cross-circle"></em>
+                        <span>{{ __('ui::strings.cancel') }}</span>
+                    </a>
+                    <button type="button" class="btn btn-md btn-dim btn-secondary" v-show="step == 2" v-on:click="switchStep(1)">
+                        <em class="icon ni ni-exchange"></em>
+                        <span>{{ __('ui::strings.previous') }}</span>
                     </button>
+                    <div>
+                        <button type="button" class="btn btn-md btn-primary" v-show="step == 1" v-on:click="switchStep(2)">
+                            <em class="icon ni ni-exchange"></em>
+                            <span>{{ __('ui::strings.next') }}</span>
+                        </button>
+                        <button type="button" id="save_as_draft" class="btn btn-md btn-secondary" v-show="step == 2" data-type="submit">
+                            <em class="icon ni ni-done"></em>
+                            <span>{{ __('contenttypes::strings.shippments.save_as_draft') }}</span>
+                        </button>
+                        <button type="button" id="save_and_send" class="btn btn-md btn-primary" v-show="step == 2" data-type="submit">
+                            <em class="icon ni ni-done"></em>
+                            <span>{{ __('contenttypes::strings.shippments.save_and_send') }}</span>
+                        </button>
+                    </div>
                 </div>
             @endcomponent
 
@@ -171,8 +999,385 @@
 
 @push('script')
     <script>
+        var companyMap = null;
+
+        const HeaderApp = new Vue({
+            el: '#vue-header',
+            data: {
+                step: 1,
+            },
+            methods: {
+                switchStep: function(step) {
+                    this.step = step
+                }
+            }
+        });
+
         const CrudApp = new Vue({
             el: '#vue-form',
+            data: {
+                total_weight     : Number('{{ $model->total_weight }}'),
+                step             : 1,
+                loading_type     : '{{ $model->type }}',
+                is_draft         : 'N',
+                loading_address : {
+                    id      : {{ $model->loadingLocation->id ?? 'null' }},
+                    city    : @json([
+                        'id'   => $model->fromCity->id ?? null,
+                        'text' => $model->fromCity->{'name_' . app()->getLocale()} ?? null,
+                    ]),
+                    lat     : Number('{{ $model->loadingLocation?->lat ?? config('address.map.lat') }}'),
+                    lng     : Number('{{ $model->loadingLocation?->lng ?? config('address.map.lng') }}'),
+                    latlng  : `${Number('{{ $model->loadingLocation?->lat ?? config('address.map.lat') }}')},${Number('{{ $model->loadingLocation?->lng ?? config('address.map.lng') }}')}`,
+                },
+                to_address : {
+                    city : @json([
+                        'id'   => $model->toCity->id ?? null,
+                        'text' => $model->toCity->{'name_' . app()->getLocale()} ?? null,
+                    ]),
+                },
+                to_addresses : {!! $addresses->toJson() !!},
+            },
+            methods: {
+                setLatlng: function(value, item = undefined) {
+                    let _latlng = value.split(',');
+                    if (_latlng.length != 2) {
+                        return;
+                    }
+
+                    if (item) {
+                        item.lat    = _latlng[0];
+                        item.lng    = _latlng[1];
+                        item.latlng = value;
+                        item.map.placeMarker(new google.maps.LatLng(item.lat, item.lng));
+                    } else {
+                        this.loading_address.lat    = _latlng[0];
+                        this.loading_address.lng    = _latlng[1];
+                        this.loading_address.latlng = value;
+                        companyMap.placeMarker(new google.maps.LatLng(this.loading_address.lat, this.loading_address.lng));
+                    }
+                },
+                switchStep: function(step) {
+                    this.step = step
+                    HeaderApp.switchStep(step);
+                    // scroll to top
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth' // or 'auto' for instant scroll
+                    });
+                },
+                citySelected: function(selected, item = undefined) {
+                    if (item) {
+                        item.city = selected || null;
+                    }
+                    this.loading_address.city = selected;
+                },
+                toCitySelected: function(selected, item = undefined) {
+                    this.to_address.city = selected || null;
+                },
+                citySelectOptions: function(options) {
+                    options.ajax = {
+                        delay: 250,
+                        url: function (params) {
+                            return '{{ route('CitiesController@select') }}';
+                        },
+                        data: function (params) {
+                            return {
+                                nullable    : 'true',
+                                search      : params.term,
+                                page        : params.page || 1,
+                                country_id  : 191
+                            };
+                        },
+                        processResults: function (data) {
+                            return data;
+                        }
+                    };
+                },
+                addToAddress: function() {
+                    const notRemoved = this.to_addresses.filter(address => address.removed == 'N');
+                    if (this.loading_type == 'CITY_TO_CITY' && notRemoved.length >= 1) {
+                        return;
+                    }
+                    const el = 'geo_map_' + this.to_addresses.length + 1;
+                    const address = {
+                        el                           : el,
+                        id                           : null,
+                        primary_contact_company_name : null,
+                        primary_contact_name         : null,
+                        primary_contact_email        : null,
+                        primary_contact_phone_number : null,
+                        lat                          : null,
+                        lng                          : null,
+                        latlng                       : null,
+                        round_trip                   : 'NO',
+                        full_address                 : null,
+                        public_notes                 : null,
+                        private_notes                : null,
+                        removed                      : 'N',
+                        map: () => {
+                            address.map = createGeoMap({
+                                el      : el,
+                                lat     : Number('{{ config("address.map.lat") }}'),
+                                lng     : Number('{{ config("address.map.lng") }}'),
+                                zoom    : Number('{{ config("address.map.zoom") }}'),
+                                selected: null,
+                                onMapReady: () => {
+                                    console.log('mapReady');
+                                },
+                                onReverseGeocode: (lat, lng, state) => {
+                                    address.lat    = lat;
+                                    address.lng    = lng;
+                                    address.latlng = `${lat},${lng}`
+                                    console.log('deliveryAddress: onReverseGeocode', `${lat},${lng}`);
+                                }
+                            })
+                        }
+                    }
+
+                    this.to_addresses.push(address)
+                    this.$nextTick(() => {
+                        address.map();
+                        address.map.init();
+                    });
+                },
+                removeToAddress: function(index) {
+                    if (! confirm('{{ __('contenttypes::strings.shippments.remove_offloading_address_confirm') }}')) {
+                        return;
+                    }
+                    if (this.to_addresses[index].removed == 'Y') {
+                        return;
+                    }
+                    this.to_addresses[index].removed = 'Y';
+                },
+                leaveOnlyTheFirstAddress: function() {
+                    this.to_addresses.filter(address => address.removed == 'N').forEach((address, index) => {
+                        if (index > 0) {
+                            address.removed = 'Y';
+                        } else {
+                            address.removed = 'N';
+                        } 
+                    });
+                },
+                submit: function() {
+                    this.$nextTick(() => {
+                        $('#shippment_form').submit();
+                    });
+                },
+                setMapForPreloadedAddresses: function() {
+                    this.to_addresses.forEach((address, index) => {
+                        address.map = createGeoMap({
+                            el      : address.el,
+                            lat     : Number(address.lat),
+                            lng     : Number(address.lng),
+                            zoom    : Number('{{ config("address.map.zoom") }}'),
+                            selected: {
+                                lat: address.lat,
+                                lng: address.lng,
+                            },
+                            onMapReady: () => {
+                                console.log('mapReady');
+                            },
+                            onReverseGeocode: (lat, lng, state) => {
+                                address.lat    = lat;
+                                address.lng    = lng;
+                                address.latlng = `${lat},${lng}`
+                                console.log('deliveryAddress: onReverseGeocode', `${lat},${lng}`);
+                            }
+                        });
+                        this.$nextTick(() => {
+                            address.map.init();
+                        })
+                    });
+                }
+            },
+        });
+
+        const slider = document.getElementById('weightRange');
+        const wrapper = document.getElementById('weightSliderWrapper');
+
+        function updateSliderDirection() {
+            const min = +slider.min;
+            const max = +slider.max;
+            const val = +slider.value;
+            const percent = ((val - min) / (max - min)) * 100;
+            const dir = wrapper.getAttribute('dir');
+
+            const gradientDir = dir === 'rtl' ? 'to left' : 'to right';
+            slider.setAttribute(
+                'style',
+                `background: linear-gradient(${gradientDir}, #ff5a3c 0%, #ff5a3c ${percent}%, #e2e6f0 ${percent}%, #e2e6f0 100%);`
+            );
+        }
+
+        slider.addEventListener('input', updateSliderDirection);
+        updateSliderDirection(); // Initial render
+
+        var commodity_id_jsSelect2 = $('#commodity_id_select').select2({
+            ajax: {
+                delay: 250,
+                url: function (params) {
+                    return '{{ route('CategoryController@select') }}';
+                },
+                data: function (params) {
+                    var query = {
+                        nullable    : 'N',
+                        search      : params.term,
+                        type        : 'commodity',
+                        page        : params.page || 1
+                    }
+                    return query;
+                },
+                processResults: function (data) {
+                    return data;
+                }
+            }
+        })
+        .on("select2:select", function() {});
+
+        var truck_type_id_jsSelect2 = $('#truck_type_id_select').select2({
+            ajax: {
+                delay: 250,
+                url: function (params) {
+                    return '{{ route('CategoryController@select') }}';
+                },
+                data: function (params) {
+                    var query = {
+                        nullable    : 'N',
+                        search      : params.term,
+                        type        : 'truck-type',
+                        page        : params.page || 1
+                    }
+                    return query;
+                },
+                processResults: function (data) {
+                    return data;
+                }
+            }
+        })
+        .on("select2:select", function() {});
+
+        $(document).on('change', '[name=loading_type]', function() {
+            console.log($(this).val());
+            CrudApp.$data.loading_type = $(this).val();
+            if (CrudApp.$data.loading_type == 'CITY_TO_CITY') {
+                CrudApp.leaveOnlyTheFirstAddress();
+            }
+        });
+
+        function createGeoMap(options) {
+            const state = {
+                el       : options.el,
+                lat      : Number(options.lat ?? 25.2048),
+                lng      : Number(options.lng ?? 55.2708),
+                zoom     : Number(options.zoom ?? 10),
+                selected : options.selected ?? null,
+                map      : null,
+                marker   : null,
+            };
+
+            const methods = {
+                init: async function () {
+                    const { Map } = await google.maps.importLibrary("maps");
+
+                    state.map = new Map(document.getElementById(state.el), {
+                        center: { lat: state.lat, lng: state.lng },
+                        zoom  : state.zoom,
+                    });
+
+                    state.map.addListener("click", (e) => {
+                        methods.placeMarker(e.latLng, true);
+                    });
+
+                    if (state.selected) {
+                        methods.placeMarker(new google.maps.LatLng(
+                            state.selected.lat,
+                            state.selected.lng
+                        ));
+                    }
+
+                    if (typeof options.onMapReady === 'function') {
+                        options.onMapReady();
+                    }
+                },
+
+                placeMarker: function (coordinates, runReverse = false) {
+                    methods.clearMarker();
+
+                    state.lat = coordinates.lat();
+                    state.lng = coordinates.lng();
+                    state.zoom = 18.25;
+                    state.selected = { lat: state.lat, lng: state.lng };
+
+                    state.marker = new google.maps.Marker({
+                        position: coordinates,
+                        map     : state.map,
+                    });
+
+                    state.map.panTo(coordinates);
+                    state.map.setZoom(state.zoom);
+
+                    if (runReverse && typeof options.onReverseGeocode === 'function') {
+                        options.onReverseGeocode(state.lat, state.lng, state);
+                    }
+                },
+
+                clearMarker: function () {
+                    if (state.marker) {
+                        state.marker.setMap(null);
+                        state.marker = null;
+                    }
+                },
+
+                focusMap: function (lat, lng, zoom = 15) {
+                    state.map.panTo(new google.maps.LatLng(lat, lng));
+                    state.map.setZoom(zoom);
+                },
+
+                getState: function () {
+                    return { ...state };
+                }
+            };
+
+            return methods;
+        }
+
+        $(document).ready(function() {
+            const loadingAddress = @json($model->loadingLocation);
+            companyMap = createGeoMap({
+                el      : 'geo_map',
+                lat     : Number(loadingAddress && loadingAddress.lat ? loadingAddress.lat : '{{ config("address.map.lat") }}'),
+                lng     : Number(loadingAddress && loadingAddress.lng ? loadingAddress.lng : '{{ config("address.map.lng") }}'),
+                zoom    : Number('{{ config("address.map.zoom") }}'),
+                selected: {!! ! $model->loadingLocation?->lat || ! $model->loadingLocation?->lng ? 'null' : json_encode([
+                    'lat' => $model->loadingLocation?->lat,
+                    'lng' => $model->loadingLocation?->lng,
+                ]) !!},
+                onMapReady: () => {
+                    // CrudApp.mapReady();
+                    console.log('mapReady');
+                },
+                onReverseGeocode: (lat, lng) => {
+                    // CrudApp.addressReverse(lat, lng);
+                    // CrudApp.latlng = `${lat},${lng}`;
+                    CrudApp.loading_address.latlng = `${lat},${lng}`
+                    CrudApp.loading_address.lat    = lat;
+                    CrudApp.loading_address.lng    = lng;
+                    console.log('companyMap: onReverseGeocode', `${lat},${lng}`);
+                }
+            });
+
+            companyMap.init();
+            CrudApp.setMapForPreloadedAddresses();
+        });
+
+        $(document).on('click', '#save_as_draft', function() {
+            CrudApp.$data.is_draft = 'Y';
+            CrudApp.submit();
+        });
+        $(document).on('click', '#save_and_send', function() {
+            CrudApp.$data.is_draft = 'N';
+            CrudApp.submit();
         });
     </script>
 @endpush

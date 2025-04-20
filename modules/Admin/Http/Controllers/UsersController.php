@@ -73,7 +73,7 @@ class UsersController extends SystemCoreHttpController
     public function profile(Request $Request, ActionResponse $Response, UserService $UserService)
     {
         $this->data['model'] = auth()->user();
-        if ($this->data['model']->type == 'DEFAULT' || $this->data['model']->type == 'TRANSOPRTER') {
+        if ($this->data['model']->type == 'DEFAULT' || $this->data['model']->type == 'TRANSPORTER') {
             $this->data['model']->load(['company' => function($rel) {
                 $rel->withTrashed();
                 $rel->with(['address' => function($rel) {

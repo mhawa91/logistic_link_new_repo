@@ -99,15 +99,43 @@
                     'class' => ['fit']
                 ],
                 [
+                    'label' => '<span class="sub-text">' . __('contenttypes::inputs.client.label') . '</span>', 
+                    'class' => []
+                ],
+                [
+                    'label' => '<span class="sub-text">' . __('contenttypes::inputs.transportar.label') . '</span>', 
+                    'class' => []
+                ],
+                [
+                    'label' => '<span class="sub-text">' . __('contenttypes::inputs.from.label') . '</span>', 
+                    'class' => []
+                ],
+                [
+                    'label' => '<span class="sub-text">' . __('contenttypes::inputs.to.label') . '</span>', 
+                    'class' => []
+                ],
+                [
+                    'label' => '<span class="sub-text">' . __('contenttypes::inputs.loading_type.label') . '</span>', 
+                    'class' => ['fit']
+                ],
+                [
+                    'label' => '<span class="sub-text">' . __('contenttypes::inputs.waybill.label') . '</span>', 
+                    'class' => ['fit']
+                ],
+                [
                     'label' => '<span class="sub-text">' . __('admin::inputs.status.label') . '</span>', 
                     'class' => ['fit']
+                ],
+                [
+                    'label' => '<span class="sub-text">' . __('contenttypes::inputs.status_updated_at.label') . '</span>',
+                    'class' => ['fit'],
                 ],
                 [
                     'label' => '<span class="sub-text">' . __('ui::inputs.created_at.label') . '</span>',
                     'class' => ['fit'],
                 ],
                 [
-                    'label' => '<span class="sub-text">' . __('ui::inputs.updated_at.label') . '</span>',
+                    'label' => '<span class="sub-text">' . __('contenttypes::inputs.is_rfq.label') . '</span>',
                     'class' => ['fit'],
                 ],
                 [
@@ -159,25 +187,159 @@
                             }
                         },
                         {
-                            className  : BS.CONFIG('lgTableCellClass'),
-                            data       : "sys_status",
-                            name       : 'sys_status',
+                            className  : BS.CONFIG('defaultTableCellClass'),
+                            data       : 'client_company_name',
+                            name       : 'client_company_name',
+                            orderable  : true,
+                            searchable : true,
+                            visible    : {{ auth()->check() && (auth()->user()->type == 'TRANSPORTER' || ! in_array(auth()->user()->type, ['TRANSPORTER', 'DEFAULT'])) ? 'true' : 'false' }},
                             render     : function(data,type,Row,meta) {
-                                if (Row.sys_status == 'ACTIVE') {
-                                    return `<span class="badge badge-dot badge-success">{{ __('ui::inputs.status.options.ACTIVE') }}</span>`;
-                                } 
-                                else if (Row.sys_status == 'DISABLED') {
-                                    return `<span class="badge badge-dot badge-warning">{{ __('ui::inputs.status.options.DISABLED') }}</span>`;
-                                } 
-                                return `<span class="badge badge-dot badge-danger">${Row.sys_status ?? 'N/A'}</span>`;
+                                return `
+                                    <div class="user-card">
+                                        <div class="user-avatar sq sm bg-light">
+                                            <img src="${Row.client_company_logo}" alt="${Row.client_company_name}">
+                                        </div>
+                                        <div class="user-name">
+                                            <span>${Row.client_company_name}</span>
+                                            <br>
+                                            <span class="text-muted" dir="ltr">${Row.client_company_email || Row.client_user_email || '---------'}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        },
+                        {
+                            className  : BS.CONFIG('defaultTableCellClass'),
+                            data       : 'transportar_company_name',
+                            name       : 'transportar_company_name',
+                            orderable  : true,
+                            searchable : true,
+                            visible    : {{ auth()->check() && (auth()->user()->type == 'DEFAULT' || ! in_array(auth()->user()->type, ['TRANSPORTER', 'DEFAULT'])) ? 'true' : 'false' }},
+                            render     : function(data,type,Row,meta) {
+                                if (! Row.transporter_user_id) {
+                                    return `
+                                        <div class="user-card">
+                                            <div class="user-avatar sq sm bg-light">
+                                                T
+                                            </div>
+                                            <div class="user-name">
+                                                <span>{{ __('contenttypes::strings.shippments.unspecified_yet') }}</span>
+                                                <br>
+                                                <span class="text-muted" dir="ltr">${'---------'}</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                                return `
+                                    <div class="user-card">
+                                        <div class="user-avatar sq sm bg-light">
+                                            <img src="${Row.transportar_company_logo}" alt="${Row.transportar_company_name}">
+                                        </div>
+                                        <div class="user-name">
+                                            <span>${Row.transportar_company_name}</span>
+                                            <br>
+                                            <span class="text-muted" dir="ltr">${Row.transportar_company_email || Row.transportar_user_email || '---------'}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        },
+                        {
+                            className  : BS.CONFIG('defaultTableCellClass'),
+                            data       : 'from_city_name',
+                            name       : 'from_city_name',
+                            orderable  : true,
+                            searchable : true,
+                            // visible    : false,
+                            render     : function(data,type,Row,meta) {
+                                return `<div>
+                                    <span>${Row.from_city_name}</span> <br>
+                                    <strong class="text-primary">${Row.from_country_name}</strong>
+                                </div>`;
+                            }
+                        },
+                        {
+                            className  : BS.CONFIG('defaultTableCellClass'),
+                            data       : 'to_city_name',
+                            name       : 'to_city_name',
+                            orderable  : true,
+                            searchable : true,
+                            // visible    : false,
+                            render     : function(data,type,Row,meta) {
+                                return `<div>
+                                    <strong>${Row.to_city_name}</strong> <br>
+                                    <strong class="text-primary">${Row.to_country_name}</strong>
+                                </div>`;
+                            }
+                        },
+                        {
+                            className  : BS.CONFIG('defaultTableCellClass'),
+                            data       : 'type',
+                            name       : 'type',
+                            orderable  : true,
+                            searchable : true,
+                            // visible    : false,
+                            render     : function(data,type,Row,meta) {
+                                var label     = '';
+                                var roundTrip = '';
+                                if (Row.type == 'CITY_TO_CITY') {
+                                    label = '<strong>{{ __('contenttypes::inputs.loading_type.options_short.CITY_TO_CITY') }}</strong>'; 
+                                }
+                                if (Row.type == 'CITY_TO_CITY_MULTIPLE_LOCATIONS') {
+                                    label = `
+                                        <strong>{{ __('contenttypes::inputs.loading_type.options_short.CITY_TO_CITY') }}</strong> 
+                                        <small>({{ __('contenttypes::inputs.loading_type.options_short.MULTIPLE_LOCATIONS') }})</small>
+                                    `; 
+                                }
+                                if (Row.round_trip == 'YES') {
+                                    roundTrip = '<small class="text-primary">({{ __('contenttypes::inputs.loading_type.options_short.ROUND_TRIP.YES') }})</small>'; 
+                                }
+                                return `<div>
+                                    ${label} <br>
+                                    <strong style="color: #FB4F28 !important;">${Row.offloading_locations_count} {{ __('contenttypes::inputs.loading_type.options_short.locations') }}</strong>
+                                    ${roundTrip}
+                                </div>`;
+                            }
+                        },
+                        {
+                            className  : BS.CONFIG('defaultTableCellClass'),
+                            data       : 'waybill_path',
+                            name       : 'waybill_path',
+                            orderable  : true,
+                            searchable : true,
+                            // visible    : false,
+                            render     : function(data,type,Row,meta) {
+                                if (Row.waybill_path) {
+                                    return `<span>
+                                        <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="${Row.waybill_path}" target="_blank">
+                                            <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
+                                            {{ __('contenttypes::inputs.files.options.view') }}
+                                        </a>
+                                    </span>`;
+                                }
+                                @if(auth()->check() && auth()->user()->type == 'TRANSPORTER')
+                                    return `<span>
+                                        <a class="link link-primary link-sm text-orange underline" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="javascript:;">
+                                            <i class="fas fa-upload" style="margin-left: 5px; margin-right: 5px;"></i>
+                                            {{ __('contenttypes::inputs.waybill.upload') }}
+                                        </a>
+                                    </span>`;
+                                @else
+                                    return `<span>
+                                        <a class="link link-muted link-sm text-muted" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="javascript:;">
+                                            <i class="fas fa-info-circle" style="margin-left: 5px; margin-right: 5px;"></i>
+                                            {{ __('contenttypes::inputs.waybill.pending_upload') }}
+                                        </a>
+                                    </span>`;
+                                @endif
                             }
                         },
                         {
                             className  : BS.CONFIG('lgTableCellClass'),
-                            data       : "created_at",
-                            name       : 'created_at',
+                            data       : "sys_status",
+                            name       : 'sys_status',
                             render     : function(data,type,Row,meta) {
-                                return `<span>${Row.new_created_at || Row.created_at}</span>`;
+                                return `<span class="badge badge-dot badge-${Row.new_status_color}">${Row.new_status ?? 'N/A'}</span>`;
                             }
                         },
                         {
@@ -185,7 +347,23 @@
                             data       : "updated_at",
                             name       : 'updated_at',
                             render     : function(data,type,Row,meta) {
-                                return `<span>${Row.new_updated_at || Row.updated_at}</span>`;
+                                return `<span dir="ltr">${Row.new_updated_at || Row.updated_at}</span>`;
+                            }
+                        },
+                        {
+                            className  : BS.CONFIG('lgTableCellClass'),
+                            data       : "created_at",
+                            name       : 'created_at',
+                            render     : function(data,type,Row,meta) {
+                                return `<span dir="ltr">${Row.new_created_at || Row.created_at}</span>`;
+                            }
+                        },
+                        {
+                            className  : BS.CONFIG('lgTableCellClass'),
+                            data       : "new_is_rfq",
+                            name       : 'new_is_rfq',
+                            render     : function(data,type,Row,meta) {
+                                return `<span class="badge badge-md badge-${Row.new_is_rfq_color}">${Row.new_is_rfq ?? 'N/A'}</span>`;
                             }
                         },
                         {
@@ -206,6 +384,7 @@
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-right">
                                                         <ul class="link-list-plain no-bdr sm">
+                                                            ${(! Row.actions['read']        ? `` : `<li><a href="${Row.actions['read']['action']}"><em class="icon ni ni-eye"></em><span>${Row.actions['read']['label']}</span></a></li>`)}
                                                             ${(! Row.actions['update']      ? `` : `<li><a href="${Row.actions['update']['action']}"><em class="icon ni ni-update"></em><span>${Row.actions['update']['label']}</span></a></li>`)}
                                                             <li class="divider"></li>
                                                             ${(! Row.actions['delete']      ? `` : `<li><a href="javascript:;" onclick="BS.ajaxDelete('{{ route('ShippmentsController@postDelete') }}', ${Row.id}, datatable)"><em class="icon ni ni-delete"></em><span>${Row.actions['delete']['label']}</span></a></li>`)}

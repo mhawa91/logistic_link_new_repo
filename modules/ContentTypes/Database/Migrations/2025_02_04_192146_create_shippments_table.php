@@ -28,7 +28,7 @@ class CreateShippmentsTable extends Migration
 
             $table->integer('number_of_trucks')->unsigned();
             $table->integer('truck_type_id')->unsigned()->index();
-            $table->decimal('temperature', 3, 2)->default(0)->comment('temperature in celsius');
+            $table->decimal('temperature', 5, 2)->default(0)->comment('temperature in celsius');
             $table->timestamp('delivery_required_at')->nullable();
 
             $table->text('public_notes')->nullable();
@@ -46,7 +46,7 @@ class CreateShippmentsTable extends Migration
             $table->decimal('pre_additional_location_price', 16, 2);
             $table->decimal('total_price', 16, 2);
 
-            $table->string('sys_status', 50)->index()->default('DRAFT')->comment('DRAFT | PENDING_TRANSPORTER_APPROVAL | TRANSPORTER_APPROVED_WITH_PRICE_CHANGE | PENDING_PICKUP | PENDING_DELIVERY | DELIVERED_PENDING_PAYMENT | COMPLETED | CANCELLED');
+            $table->string('sys_status', 50)->index()->default('DRAFT')->comment('DRAFT | MATCHING | PENDING_TRANSPORTER_APPROVAL | TRANSPORTER_APPROVED_WITH_PRICE_CHANGE | PENDING_PICKUP | PENDING_DELIVERY | DELIVERED_PENDING_PAYMENT | COMPLETED | CANCELLED');
             $table->integer('created_by_user_id')->unsigned()->nullable();
             $table->integer('updated_by_user_id')->unsigned()->nullable();
             $table->softDeletes();
@@ -136,7 +136,7 @@ class CreateShippmentsTable extends Migration
             $table->decimal('pre_additional_location_price', 16, 2);
             $table->decimal('total_price', 16, 2);
 
-            $table->enum('status', ['PENDING', 'RESPONSE_DELAYED', 'ACCEPTED', 'REJECTED'])->default('PENDING')->index();
+            $table->enum('status', ['PENDING', 'PENDING_RESPONSE', 'RESPONSE_DELAYED', 'ACCEPTED', 'REJECTED'])->default('PENDING')->index();
             $table->timestamp('requested_at');
             $table->timestamp('responded_at')->nullable();
 
@@ -144,7 +144,6 @@ class CreateShippmentsTable extends Migration
             ->references('id')->on('lgl_shippments')
             ->onUpdate('cascade')
             ->onDelete('cascade');
-
         });
     }
 

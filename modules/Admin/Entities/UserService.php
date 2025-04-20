@@ -337,7 +337,7 @@ class UserService extends ModelService
         // $data['first_name']   = strtolower($data['first_name']);
         // $data['last_name']    = strtolower($data['last_name']);
         $data['email']        = strtolower($data['email']);
-        $data['username']     = strtolower($data['username']);
+        // $data['username']     = strtolower($data['username']);
         $data['phone_number'] = app(\Modules\SystemCore\System\Classes\Helpers::class)->parsePhoneNumber(strtolower($data['phone_number']));
         if (empty($data['new_password'])) {
             unset($data['password']);

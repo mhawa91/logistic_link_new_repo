@@ -219,4 +219,14 @@ class TransporterContract extends Model
         
         return $query;
     }
+
+    public function scopeOnlyActiveByStartDate($query)
+    {
+        $query->where('order_start_date', '<=', now()->format('Y-m-d'));
+        $query->where('order_end_date'  , '>=', now()->format('Y-m-d'));
+        $query->where('sys_status'      , 'ACTIVE');
+        // $query->where('is_rfq'          , 'NO');
+        
+        return $query;
+    }
 }

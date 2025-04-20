@@ -198,4 +198,14 @@ class TransporterContractInstance extends Model
 
         return $query;
     }
+
+    public function scopeOnlyActiveByStartDate($query)
+    {
+        $query->where('lgl_transporters_contracts_instances.order_start_date', '<=', now()->format('Y-m-d'));
+        $query->where('lgl_transporters_contracts_instances.order_end_date'  , '>=', now()->format('Y-m-d'));
+        $query->where('lgl_transporters_contracts_instances.sys_status'      , 'ACTIVE');
+        // $query->where('is_rfq'          , 'NO');
+        
+        return $query;
+    }
 }

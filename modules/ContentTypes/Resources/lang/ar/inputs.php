@@ -170,6 +170,15 @@ return [
             'CITY_TO_CITY_MULTIPLE_LOCATIONS' => 'من مدينة إلى مدينة بعدة مواقع',
             'CITY_TO_CITY_ROUND_TRIP'         => 'من مدينة إلى مدينة ذهاب وإياب',
         ],
+        'options_short'     => [
+            'CITY_TO_CITY'        => 'مدينة إلى مدينة',
+            'MULTIPLE_LOCATIONS'  => 'بعدة مواقع',
+            'ROUND_TRIP'          => [
+                'YES' => 'ذهاب وإياب',
+                'NO'  => 'بدون ذهاب وإياب',
+            ],
+            'locations' => 'مواقع',
+        ],
     ],
     'from_city_id' => [
         'label'       => 'مدينة المصدر',
@@ -364,5 +373,93 @@ return [
         'label'       => 'سند الشحن',
         'placeholder' => 'أدخل سند الشحن',
         'description' => 'سند الشحن',
+    ],
+    'address_name' => [
+        'label'       => 'اسم الشركة / المصدر',
+        'placeholder' => 'أدخل اسم الشركة / المصدر',
+        'description' => 'اسم الشركة / المصدر',
+    ],
+    'address_primary_contact' => [
+        'label'       => 'جهة الاتصال الرئيسية',
+        'placeholder' => 'أدخل جهة الاتصال الرئيسية',
+        'description' => 'جهة الاتصال الرئيسية',
+    ],
+    'address_email' => [
+        'label'       => 'البريد الإلكتروني',
+        'placeholder' => 'أدخل البريد الإلكتروني',
+        'description' => 'البريد الإلكتروني',
+    ],
+    'address_phone_number_ext' => [
+        'label'       => 'Ext',
+        'placeholder' => '+966',
+        'description' => 'Ext',
+    ],
+    'address_phone_number' => [
+        'label'       => 'رقم الهاتف',
+        'placeholder' => 'أدخل رقم الهاتف',
+        'description' => 'رقم الهاتف',
+    ],
+    'round_trip' => [
+        'label'       => 'ذهاب وإياب',
+        'placeholder' => 'حدد ذهاب وإياب',
+        'description' => 'ذهاب وإياب',
+        'options'     => [
+            'YES' => 'نعم',
+            'NO'  => 'لا',
+        ],
+    ],
+    'shippment_status' => [
+        'label'       => 'حالة الشحنة',
+        'placeholder' => 'حدد حالة الشحنة',
+        'description' => 'حالة الشحنة',
+        'options'     => [
+            'DRAFT'                       => 'مسودة',
+            'MATCHING'                    => 'جاري مطابقة شركة النقل',
+            'NO_MATCHING_CONTRACTS'       => 'لا توجد عقود مطابقة',
+            'PENDING_TRANSPORTER_APPROVAL'=> 'في انتظار موافقة الناقل',
+            'TRANSPORTER_APPROVED_WITH_PRICE_CHANGE' => 'تمت الموافقة من قبل الناقل مع تغيير السعر',
+            'PENDING_PICKUP'              => 'في انتظار الاستلام',
+            'PENDING_DELIVERY'            => 'في انتظار التسليم',
+            'DELIVERED_PENDING_PAYMENT'   => 'تم التسليم في انتظار الدفع',
+            'COMPLETED'                   => 'مكتمل',
+            'CANCELLED'                   => 'ملغي',
+        ],
+    ],
+    'from' => [
+        'label'       => 'من',
+        'placeholder' => 'حدد من',
+        'description' => 'من',
+    ],
+    'to' => [
+        'label'       => 'إلى',
+        'placeholder' => 'حدد إلى',
+        'description' => 'إلى',
+    ],
+    'waybill' => [
+        'label'          => 'سند الشحن',
+        'placeholder'    => 'أدخل سند الشحن',
+        'description'    => 'سند الشحن',
+        'upload'         => 'رفع سند الشحن',
+        'download'       => 'تحميل سند الشحن',
+        'pending_upload' => 'بانتظار الرفع',
+    ],
+    'status_updated_at' => [
+        'label'       => 'تاريخ تحديث الحالة',
+        'placeholder' => 'أدخل تاريخ تحديث الحالة',
+        'description' => 'تاريخ تحديث الحالة',
+    ],
+    'is_rfq' => [
+        'label'       => 'نوع التسعير',
+        'placeholder' => 'حدد نوع التسعير',
+        'description' => 'نوع التسعير',
+        'options'     => [
+            'YES'  => 'طلب عرض سعر',
+            'NO'   => 'عقد محدد السعر',
+        ],
+    ],
+    'actions' => [
+        'APPROVE'                   => 'قبول الشحنة',
+        'APPROVE_WITH_PRICE_CHANGE' => 'موافقة مع تغيير السعر',
+        'DECLINE'                   => 'رفض الشحنة',
     ],
 ];

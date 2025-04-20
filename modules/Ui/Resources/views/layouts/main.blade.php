@@ -255,6 +255,16 @@
             font-weight: 500;
             color: #1a202c;
         }
+
+        .bg-orange {
+            background-color: #FB4F28 !important;
+        }
+        .text-orange {
+            color: #FB4F28 !important;
+        }
+        .underline {
+            text-decoration: underline !important;
+        }
     </style>
     @if ($_DIR_ == 'rtl')
         <style>

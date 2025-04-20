@@ -2,14 +2,14 @@
 
 @component('ui::components.breadcrumb', [
     'options' => [
-        'title' => __('contenttypes::strings.transporters.list'),
+        'title' => __('contenttypes::strings.contracts.list'),
         'items' => [
             [
-                'title' => __('contenttypes::strings.transporters.menu'),
+                'title' => __('contenttypes::strings.contracts.menu'),
                 'link'  => route('TransportersController@index')
             ],
             [
-                'title' => __('contenttypes::strings.transporters.list'),
+                'title' => __('contenttypes::strings.contracts.list'),
                 'link'  => route('TransportersController@index')
             ]
         ],

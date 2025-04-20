@@ -84,7 +84,9 @@ class S3GraphManager
 
     public function src($size, $folder, $file)
     {
-        if (empty($file)) return $this->defaultSrc($size, $folder);
+        if (empty($file) && $file !== '-SQL-') return $this->defaultSrc($size, $folder);
+
+        $file = str_replace('-SQL-', '', $file);
 
         return $this->baseUrl 
         . '/'

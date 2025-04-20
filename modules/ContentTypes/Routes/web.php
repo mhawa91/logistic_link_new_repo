@@ -42,6 +42,11 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::post('perma-delete'  , 'ShippmentsController@postPermaDelete')->name('ShippmentsController@postPermaDelete');
         Route::post('status-update' , 'ShippmentsController@postStatus')->name('ShippmentsController@postStatus');
         Route::get('select'         , 'ShippmentsController@select')->name('ShippmentsController@select');
+
+        Route::get('transportar-approve'                , 'ShippmentsController@transportarApprove')->name('ShippmentsController@transportarApprove');
+        Route::get('transportar-approve-with-new-price' , 'ShippmentsController@transportarApproveWithPriceChange')->name('ShippmentsController@transportarApproveWithPriceChange');
+        Route::get('transportar-reject'                 , 'ShippmentsController@transportarReject')->name('ShippmentsController@transportarReject');
+
         Route::post('export'        , 'ShippmentsController@postExport')->name('ShippmentsController@postExport');
         Route::get('{model}'        , 'ShippmentsController@read')->name('ShippmentsController@read');
         Route::post('{model}'       , 'ShippmentsController@postRead')->name('ShippmentsController@postRead');

@@ -14,8 +14,8 @@ class UpdateShippmentsAddEquipmentLength extends Migration
     public function up()
     {
         Schema::table('lgl_shippments', function (Blueprint $table) {
-            $table->decimal('equipment_length', 3, 2)->default(0)->comment('length in meters')->after('temperature');
-            $table->decimal('equipment_width', 3, 2)->default(0)->comment('width in meters')->after('equipment_length');
+            $table->decimal('equipment_length', 5, 2)->default(0)->comment('length in meters')->after('temperature');
+            $table->decimal('equipment_width', 5, 2)->default(0)->comment('width in meters')->after('equipment_length');
         });
     }
 

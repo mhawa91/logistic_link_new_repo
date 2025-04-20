@@ -37,5 +37,48 @@ return [
             'id'    => 'CITY_TO_CITY_ROUND_TRIP',
             'label' => 'contenttypes::inputs.loading_type.options.CITY_TO_CITY_ROUND_TRIP',
         ],
-    ]
+    ],
+
+    'shippmentStatus' => [
+        [
+            'id'    => 'DRAFT',
+            'label' => 'contenttypes::inputs.shippment_status.options.DRAFT',
+        ],
+        [
+            'id'    => 'MATCHING',
+            'label' => 'contenttypes::inputs.shippment_status.options.MATCHING',
+        ],
+        [
+            'id'    => 'NO_MATCHING_CONTRACTS',
+            'label' => 'contenttypes::inputs.shippment_status.options.NO_MATCHING_CONTRACTS',
+        ],
+        [
+            'id'    => 'PENDING_TRANSPORTER_APPROVAL',
+            'label' => 'contenttypes::inputs.shippment_status.options.PENDING_TRANSPORTER_APPROVAL',
+        ],
+        [
+            'id'    => 'TRANSPORTER_APPROVED_WITH_PRICE_CHANGE',
+            'label' => 'contenttypes::inputs.shippment_status.options.TRANSPORTER_APPROVED_WITH_PRICE_CHANGE',
+        ],
+        [
+            'id'    => 'PENDING_PICKUP',
+            'label' => 'contenttypes::inputs.shippment_status.options.PENDING_PICKUP',
+        ],
+        [
+            'id'    => 'PENDING_DELIVERY',
+            'label' => 'contenttypes::inputs.shippment_status.options.PENDING_DELIVERY',
+        ],
+        [
+            'id'    => 'DELIVERED_PENDING_PAYMENT',
+            'label' => 'contenttypes::inputs.shippment_status.options.DELIVERED_PENDING_PAYMENT',
+        ],
+        [
+            'id'    => 'COMPLETED',
+            'label' => 'contenttypes::inputs.shippment_status.options.COMPLETED',
+        ],
+        [
+            'id'    => 'CANCELLED',
+            'label' => 'contenttypes::inputs.shippment_status.options.CANCELLED',
+        ],
+    ],
 ];

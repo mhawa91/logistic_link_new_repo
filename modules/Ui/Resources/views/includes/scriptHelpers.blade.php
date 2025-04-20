@@ -86,7 +86,8 @@
         tinymce.triggerSave();
         $Event.preventDefault();
         var $Form   = $($Event.target);
-            _SUBMIT = $Form.find('[type=submit]'),
+            _SUBMIT    = $Form.find('[type=submit]'),
+            _AS_SUBMIT = $Form.find('[data-type=submit]'),
             _URL    = $Form.attr('action') || 'javascript:;',
             _METHOD = $Form.attr('method') || 'POST';
             _DATA   = new FormData($Event.target); //_NODE_.serialize(); 
@@ -97,6 +98,7 @@
 
         BS.RESET_FORM_VALIDATION_ERRORS($Form);
         BS.BTN_TOGGLE_LOADING(_SUBMIT);
+        BS.BTN_TOGGLE_LOADING(_AS_SUBMIT);
 
         $.ajax({
             contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
@@ -124,14 +126,17 @@
                     if (data.status) {
                         if (! _OPT.keepLoadingOnSuccess) {
                             BS.BTN_TOGGLE_LOADING(_SUBMIT);
+                            BS.BTN_TOGGLE_LOADING(_AS_SUBMIT);
                         }
                     }
                     else if(data.code == '422') {
                         BS.SHOW_FORM_VALIDATION_ERRORS($Form, data.errors.invalid_fields);
                         BS.BTN_TOGGLE_LOADING(_SUBMIT);
+                        BS.BTN_TOGGLE_LOADING(_AS_SUBMIT);
                     }
                     else {
                         BS.BTN_TOGGLE_LOADING(_SUBMIT);
+                        BS.BTN_TOGGLE_LOADING(_AS_SUBMIT);
                     }
                 },
                 500: function(XHR) {
@@ -151,6 +156,7 @@
         })
         .fail(function(XHR) {
             BS.BTN_TOGGLE_LOADING(_SUBMIT);
+            BS.BTN_TOGGLE_LOADING(_AS_SUBMIT);
             var data = JSON.parse(XHR.responseText);
             if ($Callbacks['fail']) {
                 $Callbacks['fail'].apply(data, [$Form, _SUBMIT]);

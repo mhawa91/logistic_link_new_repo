@@ -7,14 +7,14 @@
 
 @component('ui::components.breadcrumb', [
     'options' => [
-        'title' => __('contenttypes::strings.transporters.update'),
+        'title' => __('contenttypes::strings.contracts.update'),
         'items' => [
             [
-                'title' => __('contenttypes::strings.transporters.menu'),
+                'title' => __('contenttypes::strings.contracts.menu'),
                 'link'  => route('TransportersController@index')
             ],
             [
-                'title' => __('contenttypes::strings.transporters.update'),
+                'title' => __('contenttypes::strings.contracts.update'),
                 'link'  => route('TransportersController@update', ['model' => $model->id])
             ]
         ],

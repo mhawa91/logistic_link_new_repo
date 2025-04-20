@@ -67,6 +67,12 @@ return [
         'create' => 'اضافة ناقل جديد',
         'update' => 'تعديل الناقل',
     ],
+    'contracts' => [
+        'menu'   => 'عقود النقل',
+        'list'   => 'قائمة عقود النقل',
+        'create' => 'اضافة عقد نقل جديد',
+        'update' => 'تعديل بيانات العقد',
+    ],
     'billing' => [
         'menu'   => 'الفواتير',
         'list'   => 'قائمة الفواتير',
@@ -99,11 +105,34 @@ return [
         'list'   => 'قائمة الشحنات',
         'create' => 'اضافة شحنة جديدة',
         'update' => 'تعديل الشحنة',
-        'steps' => [
+        'steps'  => [
             'step1'      => 'معلومات الشحنة',
             'step1_desc' => 'قم بتعبئة معلومات الشحنة الاساسية',
             'step2'      => 'معلومات العنوان',
             'step2_desc' => 'قم بتعبئة معلومات العنوان',
+        ],
+        'loading_address'                   => 'عنوان التحميل',
+        'offloading_address'                => 'عنوان / عناوين التوصيل',
+        'add_offloading_address'            => 'اضافة عنوان',
+        'remove_offloading_address'         => 'ازالة العنوان',
+        'remove_offloading_address_confirm' => 'هل انت متأكد من ازالة هذا العنوان؟',
+        'save_as_draft'                     => 'حفظ كمسودة',
+        'save_and_send'                     => 'حفظ وارسال الى شركة الشحن المناسبة',
+        'unspecified_yet'                   => 'غير محدد بعد',
+        'destination'                       => 'الوجهة',
+    ],
+    'messages' => [
+        'transportarApprove'                => [
+            'title'       => 'تمت الموافقة على الشحنة',
+            'description' => 'تمت الموافقة على الشحنة بنجاح وابلاغ العميل',
+        ],
+        'transportarApproveWithPriceChange' => [
+            'title'       => 'تمت الموافقة على الشحنة مع تغيير السعر',
+            'description' => 'تمت الموافقة على الشحنة بنجاح وابلاغ العميل بتغيير السعر',
+        ],
+        'transportarReject'                 => [
+            'title'       => 'تم رفض الشحنة',
+            'description' => 'تم رفض الشحنة بنجاح وابلاغ العميل',
         ],
     ],
 ];
