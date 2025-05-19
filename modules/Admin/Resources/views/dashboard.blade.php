@@ -18,18 +18,20 @@
         </a>
         <div class="toggle-expand-content" data-content="pageMenu">
             <ul class="nk-block-tools g-3">
+                @if (auth()->check() && auth()->user()->type == 'DEFAULT')
+                   <li>
+                        <a href="{{ route('ShippmentsController@create') }}" class="btn btn-white btn-outline-light">
+                            <em class="icon ni ni-plus"></em><span>{{ __('contenttypes::dashboard.add_new_order') }}</span>
+                        </a>
+                    </li> 
+                @endif
                 <li>
-                    <a href="#" class="btn btn-white btn-outline-light">
-                        <em class="icon ni ni-plus"></em><span>{{ __('contenttypes::dashboard.add_new_order') }}</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="btn btn-white btn-outline-light">
+                    <a href="{{ route('ShippmentsController@index') }}" class="btn btn-white btn-outline-light">
                         <em class="icon ni ni-eye"></em><span>{{ __('contenttypes::dashboard.view_order') }}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="btn btn-danger">
+                    <a href="{{ route('TransportersController@index') }}" class="btn btn-danger">
                         <em class="icon ni ni-edit"></em><span>{{ __('contenttypes::dashboard.congigure_your_contracts') }}</span>
                     </a>
                 </li>
@@ -46,7 +48,7 @@
             <div class="col-lg-4">
                 <div class="nk-block nk-block-lg">
                     <div class="card card-bordered">
-                        <div class="card-inner">
+                        <div class="card-inner p-4">
                             <h4>
                                 <img src="{{ asset('images/icons/user.svg') }}" alt="">
                                 {{ __('contenttypes::dashboard.company_profile') }}
@@ -59,8 +61,8 @@
                                     <img width="59%" src="{{ asset('images/icons/test_pie.png') }}" alt="">
                                 </div>
                             </div>
-                            <div class="mt-4">
-                                <a href="#">
+                            <div class="mt-3">
+                                <a href="{{ route('UsersController@profile') }}">
                                     <button class="btn btn-primary">
                                         {{ __('contenttypes::dashboard.create_your_profile') }}
                                     </button>
@@ -73,7 +75,7 @@
             <div class="col-lg-4">
                 <div class="nk-block nk-block-lg">
                     <div class="card card-bordered">
-                        <div class="card-inner">
+                        <div class="card-inner p-4">
                             <h4>
                                 <img src="{{ asset('images/icons/company_contracts.svg') }}" alt="">
                                 {{ __('contenttypes::dashboard.company_contracts') }}
@@ -86,8 +88,8 @@
                                     <img width="55%" src="{{ asset('images/icons/company_contracts_1.svg') }}" alt="">
                                 </div>
                             </div>
-                            <div class="mt-4">
-                                <a href="#">
+                            <div class="mt-3">
+                                <a href="{{ route('TransportersController@index') }}">
                                     <button class="btn btn-primary">
                                         {{ __('contenttypes::dashboard.add_your_first_transporter') }}
                                     </button>
@@ -100,7 +102,7 @@
             <div class="col-lg-4">
                 <div class="nk-block nk-block-lg">
                     <div class="card card-bordered">
-                        <div class="card-inner company-shipments">
+                        <div class="card-inner company-shipments p-4">
                             <h4>
                                 <img src="{{ asset('images/icons/truck_2.svg') }}" alt="">
                                 {{ __('contenttypes::dashboard.company_shipments') }}
@@ -113,10 +115,10 @@
                                     <img width="65%" src="{{ asset('images/icons/truck_1.svg') }}" alt="">
                                 </div>
                             </div>
-                            <div class="mt-6">
-                                <a href="#">
+                            <div class="mt-5">
+                                <a href="{{ route('ShippmentsController@index') }}">
                                     <button class="btn btn-primary">
-                                        {{ __('contenttypes::dashboard.add_your_first_transporter') }}
+                                        {{ __('contenttypes::dashboard.view_order') }}
                                     </button>
                                 </a>
                             </div>
@@ -130,7 +132,7 @@
     <div class="card card-full mt-4 how-it-works">
         <div class="card-inner">
             <div class="card-title-group">
-                <div class="card-title">
+                <div class="card-title py-3 px-5">
                     <h4 class="title">{{ __('contenttypes::dashboard.how_it_works') }}</h4>
                 </div>
             </div>

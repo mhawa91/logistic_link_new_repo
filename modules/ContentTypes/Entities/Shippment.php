@@ -57,7 +57,11 @@ class Shippment extends Model
         'updated_total_price',
         'sys_status',
         'created_by_user_id',
-        'updated_by_user_id'
+        'updated_by_user_id',
+        'invoice_number',
+        'invoice_date',
+        'invoice_amount',
+        'invoice_file'
     ];
 
     public function loadingLocation()
@@ -461,6 +465,32 @@ class Shippment extends Model
 
         $query->leftJoin('users AS transportar_user', 'transportar_user.id', '=', 'lgl_shippments_rfqs.transporter_user_id');
         $query->leftJoin('lgl_company_profile AS transportar', 'transportar.user_id', '=', 'lgl_shippments_rfqs.transporter_user_id');
+
+        return $query;
+    }
+
+    public function scopeWithTransportarFinance($query)
+    {
+        $query->addSelect([
+            DB::raw('SUM((
+                SELECT lgl_shippments.total_price
+                FROM lgl_shippments AS sub_lgl_shippments
+                WHERE sub_lgl_shippments.id = lgl_shippments.id
+                AND sub_lgl_shippments.sys_status IN ("PENDING_PICKUP", "PENDING_DELIVERY", "PENDING_DELIVERY")
+            )) AS open_amount_total'),
+            DB::raw('SUM((
+                SELECT lgl_shippments.total_price
+                FROM lgl_shippments AS sub_lgl_shippments
+                WHERE sub_lgl_shippments.id = lgl_shippments.id
+                AND sub_lgl_shippments.sys_status IN ("DELIVERED_PENDING_PAYMENT")
+            )) AS due_amount_total'),
+            DB::raw('COUNT((
+                SELECT lgl_shippments.id
+                FROM lgl_shippments AS sub_lgl_shippments
+                WHERE sub_lgl_shippments.id = lgl_shippments.id
+                AND sub_lgl_shippments.sys_status IN ("PENDING_PICKUP", "PENDING_DELIVERY", "PENDING_DELIVERY", "DELIVERED_PENDING_PAYMENT")
+            )) AS shippments_count'),
+        ]);
 
         return $query;
     }

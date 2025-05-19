@@ -112,7 +112,7 @@ class ShippmentSendToTransportar implements ShouldQueue
             $this->start();
         });
 
-        ShippmentCheckTransportaAcceptance::dispatch($this->shippment, $this->matchedTransportar)->delay(now()->addMinutes(2));
+        ShippmentCheckTransportaAcceptance::dispatch($this->shippment, $this->matchedTransportar)->delay(now()->addMinutes(15));
     }
 
     public function start()

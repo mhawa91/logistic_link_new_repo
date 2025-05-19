@@ -633,20 +633,20 @@ class ContentTypesServiceProvider extends ServiceProvider
                 ],
                 'show'      => $isConsumer,
             ]);
-            app('Ui')->registerMainMenuItem([
-                'id'        => 'consumer/billing',
-                'parent_id' => 'AdminDashboardController',
-                'ordering'  => 0,
-                'type'      => 'MENU', //MENU | HEADER
-                'link'      => 'javascript:void(0);',
-                'text'      => __('contenttypes::strings.billing.menu'),
-                'icon'      => [
-                    'name' => 'DEFAULT',
-                    'type' => 'em', //em | i | svg | span
-                    'data' => 'icon ni ni-tranx',
-                ],
-                'show'      => $isConsumer,
-            ]);
+            // app('Ui')->registerMainMenuItem([
+            //     'id'        => 'consumer/billing',
+            //     'parent_id' => 'AdminDashboardController',
+            //     'ordering'  => 0,
+            //     'type'      => 'MENU', //MENU | HEADER
+            //     'link'      => 'javascript:void(0);',
+            //     'text'      => __('contenttypes::strings.billing.menu'),
+            //     'icon'      => [
+            //         'name' => 'DEFAULT',
+            //         'type' => 'em', //em | i | svg | span
+            //         'data' => 'icon ni ni-tranx',
+            //     ],
+            //     'show'      => $isConsumer,
+            // ]);
             app('Ui')->registerMainMenuItem([
                 'id'        => 'consumer/reports',
                 'parent_id' => 'AdminDashboardController',

@@ -2,7 +2,7 @@
 
 return [
     'add_new_order'                     => 'إضافة طلب جديد',
-    'view_order'                        => 'عرض الطلب',
+    'view_order'                        => 'عرض الطلبات',
     'congigure_your_contracts'          => 'تكوين عقودك',
     'create_your_profile'               => 'إنشاء ملفك الشخصي',
     'company_profile'                   => 'ملف الشركة',

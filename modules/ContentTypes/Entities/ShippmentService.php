@@ -241,6 +241,46 @@ class ShippmentService extends ModelService
         return $table;
     }
 
+    public function companiesDataTable($Filter = null)
+    {
+        $this->model()->select([
+            'lgl_shippments.*',
+        ])
+        ->withSelectMeta()
+        ->WithClientSelect()
+        ->WithTransportarSelect()
+        ->WithCountryAndCitySelect()
+        ->WithLocationsCountSelect()
+        ->WithWaybillSelect()
+        ->when(auth()->check() && auth()->user()->type == 'DEFAULT', function($query) {
+            $query->where('lgl_shippments.company_user_id', auth()->id());
+        })
+        ->when(auth()->check() && auth()->user()->type == 'TRANSPORTER', function($query) {
+            $query->where(function($query) {
+                $query->whereHas('matchedTransportars', function($rel) {
+                    $rel->where('transporter_user_id', auth()->id());
+                    $rel->whereIn('status', ['PENDING_RESPONSE', 'ACCEPTED']);
+                });
+                $query->orWhereHas('rfqs', function($rel) {
+                    $rel->where('transporter_user_id', auth()->id());
+                    $rel->whereIn('status', ['PENDING_RESPONSE', 'PENDING_ACCEPTANCE', 'ACCEPTED']);
+                });
+            });
+        })
+        ->when(auth()->check() && auth()->user()->type != 'DEFAULT' && auth()->user()->type != 'TRANSPORTER', function($query) {
+            $query;
+        });
+
+        $helper = app(\Modules\SystemCore\System\Classes\Helpers::class);
+        $table  = parent::dataTable($Filter);
+
+        $table->addColumn('formated_total_price', function($row) use($helper) {
+            return $helper->moneyFormat($row->total_price, 2)->abs;
+        });
+
+        return $table;
+    }
+
     public function export($filter = null)
     {
         if (! $this->can('read')) {
