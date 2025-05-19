@@ -18,8 +18,19 @@ RUN chmod -R 775 /app/storage /app/bootstrap/cache
 # Run artisan command as the last step (after all setup)
 USER root
 
+# Install required PHP extensions for queue processing
+RUN apk add --no-cache \
+    bash \
+    curl \
+    git \
+    zip \
+    unzip \
+    supervisor \
+    && docker-php-ext-install pdo_mysql \
+    && rm -rf /var/cache/apk/*
+
 # Set the runtime user back to www-data
 USER www-data
 
 # Command to run the queue listener
-CMD php artisan queue:listen --verbose --tries=3 --timeout=90
+CMD ["php", "artisan", "queue:listen", "--verbose", "--tries=3", "--timeout=90"]
