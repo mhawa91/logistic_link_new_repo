@@ -22,12 +22,18 @@ class TransporterContract extends Model
         'company_user_id',
         'transporter_user_id',
         'is_rfq',
+        'shippment_id',
         'order_start_date',
         'order_end_date',
         'sys_status',
         'created_by_user_id',
         'updated_by_user_id',
     ];
+
+    public function shippment()
+    {
+        return $this->belongsTo(Shippment::class, 'shippment_id', 'id');
+    }
 
     public function client()
     {

@@ -210,17 +210,19 @@ class UsersController extends SystemCoreHttpController
             if ($Request->tax_identification_number && !is_string($Request->tax_identification_number)) {
                 $Company->tax_identification_number               = app('GraphManager')->process('files', $Request->tax_identification_number);
             }
-            $Company->user_id                        = auth()->user()->id;
-            $Company->profile_type_category_id       = $Role->id;
-            $Company->registration_type_category_id  = $Request->registration_type_category_id;
-            $Company->company_name                   = $Request->company_name;
-            $Company->contact_name                   = $Request->contact_name;
-            $Company->company_email                  = $Request->company_email;
-            $Company->company_phone_number_ext       = $phone ? $phone->ext    : null;
-            $Company->company_phone_number           = $phone ? $phone->number : null;
-            $Company->sys_status                     = 'ACTIVE';
-            $Company->created_by_user_id             = auth()->check() ? auth()->user()->id : null;
-            $Company->updated_by_user_id             = auth()->check() ? auth()->user()->id : null;
+            $Company->registration_number_string       = $Request->registration_number_string       ?? null;
+            $Company->tax_identification_number_string = $Request->tax_identification_number_string ?? null;
+            $Company->user_id                          = auth()->id();
+            $Company->profile_type_category_id         = $Role->id;
+            $Company->registration_type_category_id    = $Request->registration_type_category_id;
+            $Company->company_name                     = $Request->company_name;
+            $Company->contact_name                     = $Request->contact_name;
+            $Company->company_email                    = $Request->company_email;
+            $Company->company_phone_number_ext         = $phone ? $phone->ext    : null;
+            $Company->company_phone_number             = $phone ? $phone->number : null;
+            $Company->sys_status                       = 'ACTIVE';
+            $Company->created_by_user_id               = auth()->id() ?? null;
+            $Company->updated_by_user_id               = auth()->id() ?? null;
             $Company->save();
 
             $latlng  = explode(',', $Request->lat_lng);

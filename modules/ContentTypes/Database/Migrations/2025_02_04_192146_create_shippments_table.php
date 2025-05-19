@@ -36,7 +36,7 @@ class CreateShippmentsTable extends Migration
 
             $table->enum('type', ['CITY_TO_CITY', 'CITY_TO_CITY_MULTIPLE_LOCATIONS'])->index();
 
-            // PIVOT: has many file [file_tag=ADDITIONAL_DATA, file_tag=WAY_BILL]
+            // PIVOT: has many file [file_tag=ATTACHMENT_1,ATTACHMENT_2,ATTACHMENT_3,ATTACHMENT_4, file_tag=WAYBILL]
             // PIVOT: has one loading point address [address_tag=SHIPPMENT_LOADING_POINT]
             // PIVOT: has many offloading point address [address_tag=SHIPPMENT_OFFLOADING_POINT]
 
@@ -46,7 +46,7 @@ class CreateShippmentsTable extends Migration
             $table->decimal('pre_additional_location_price', 16, 2);
             $table->decimal('total_price', 16, 2);
 
-            $table->string('sys_status', 50)->index()->default('DRAFT')->comment('DRAFT | MATCHING | PENDING_TRANSPORTER_APPROVAL | TRANSPORTER_APPROVED_WITH_PRICE_CHANGE | PENDING_PICKUP | PENDING_DELIVERY | DELIVERED_PENDING_PAYMENT | COMPLETED | CANCELLED');
+            $table->string('sys_status', 50)->index()->default('DRAFT')->comment('DRAFT | MATCHING | RFQ_PENDING_TRANSPORTER_SELECTION | RFQ_PENDING_TRANSPORTER_OFFER | PENDING_TRANSPORTER_APPROVAL | TRANSPORTER_APPROVED_WITH_PRICE_CHANGE | PENDING_PICKUP | PENDING_DELIVERY | DELIVERED_PENDING_PAYMENT | COMPLETED | CANCELLED');
             $table->integer('created_by_user_id')->unsigned()->nullable();
             $table->integer('updated_by_user_id')->unsigned()->nullable();
             $table->softDeletes();

@@ -76,6 +76,370 @@
         @endcomponent
     @endcomponent
 
+    @component('ui::components.form', [
+        'options' => [
+            'id'                => 'supplier-waybill-and-driver-app',
+            'action'            => route('ShippmentsController@postDriverAndWaybill'),
+            'method'            => 'POST',
+            'class'             => '',
+            'attributes'        => [
+                'onsubmit'                     => 'postDriverAndWaybill(event)',
+                'data-keep-loading-on-success' => 'false',
+            ],
+        ],
+    ])
+
+        @component('ui::components.modal', [
+            'options' => [
+                'id'        => 'supplier-waybill-and-driver-modal',
+                'title'     => __('contenttypes::inputs.waybill.label'),
+                'size'      => 'lg',
+                'fit'       => false,
+            ]
+        ])
+
+            @include('ui::components.input', [
+                'options' => [
+                    'view'        => 'INLINE',
+                    'type'        => 'hidden',
+                    'name'        => 'mode',
+                    'attributes'  => [
+                        'v-model' => 'mode',
+                    ]
+                ],
+            ])
+
+            @include('ui::components.input', [
+                'options' => [
+                    'view'        => 'INLINE',
+                    'type'        => 'hidden',
+                    'name'        => 'model',
+                    'value'       => null,
+                    'attributes'  => [
+                        'v-model' => 'model',
+                    ]
+                ],
+            ])
+            
+            <div class="text-center m-5" v-if="is_loading">
+                <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status"></div>
+            </div>
+
+            <div v-show="!is_loading">
+                <div class="row gy-3">
+                    <div class="col-lg-12">
+                        @include('ui::components.radios', [
+                            'options' => [
+                                'view'              => 'DEFAULT',
+                                'type'              => 'radio',
+                                'name'              => 'driver_mode',
+                                'label'             => __('contenttypes::inputs.driver_mode.description'),
+                                'placeholder'       => __('contenttypes::inputs.driver_mode.placeholder'),
+                                'attributes'        => [],
+                                'value'             => null,
+                                'search'            => true,
+                                'multiple'          => false,
+                                'options'           => [
+                                    [
+                                        'id'       => 'driver_mode_cs_1',
+                                        'value'    => 'existing',
+                                        'label'    => __('contenttypes::inputs.driver_mode.options.existing'),
+                                        'selected' => true,
+                                    ],
+                                    [
+                                        'id'       => 'driver_mode_cs_2',
+                                        'value'    => 'new',
+                                        'label'    => __('contenttypes::inputs.driver_mode.options.new'),
+                                        'selected' => false,
+                                    ],
+                                ],
+                                'option_id'         => function($key, $option)                   { return $option['id']; },
+                                'option_text'       => function($key, $option)                   { return $option['label']; },
+                                'option_sub_text'   => function($key, $option)                   { return null; },
+                                'option_value'      => function($key, $option)                   { return $option['value']; },
+                                'option_attributes' => function($key, $option)                   { 
+                                    return [
+                                        'v-model' => 'mode',
+                                    ]; 
+                                },
+                                'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
+                                'disabled'          => function($options, $key, $option, $value) { return false; },
+                            ],
+                        ])
+                    </div>
+
+                    <div class="col-lg-6" v-if="mode == 'new'">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'text',
+                                'name'        => 'driver_name',
+                                'label'       => __('contenttypes::inputs.driver_name.label'),
+                                'placeholder' => __('contenttypes::inputs.driver_name.placeholder'),
+                                'attributes'  => []
+                            ],
+                        ])
+                    </div>
+                    <div class="col-lg-6" v-if="mode == 'new'">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'text',
+                                'name'        => 'driver_id_number',
+                                'label'       => __('contenttypes::inputs.driver_id_number.label'),
+                                'placeholder' => __('contenttypes::inputs.driver_id_number.placeholder'),
+                                'attributes'  => []
+                            ],
+                        ])
+                    </div>
+                    <div class="col-md-6" v-show="mode == 'new'">
+                        @include('ui::components.select', [
+                            'options' => [
+                                'id'                => 'country_select',
+                                'jsSelect2'         => 'countryJsSelect2',
+                                'view'              => 'DEFAULT',
+                                'name'              => 'driver_nationality_country_id',
+                                'label'             => __('contenttypes::inputs.driver_nationality_country_id.label'),
+                                'placeholder'       => __('contenttypes::inputs.driver_nationality_country_id.placeholder'),
+                                'attributes'        => [],
+                                'value'             => null,
+                                'search'            => true,
+                                'multiple'          => false,
+                                'options'           => [],
+                                'option_text'       => function($key, $option)                   { return $option['text']; },
+                                'option_value'      => function($key, $option)                   { return $option['id']; },
+                                'option_attributes' => function($key, $option)                   { return []; },
+                                'selected'          => function($options, $key, $option, $value) { return $option['id'] == $value; },
+                                'disabled'          => function($options, $key, $option, $value) { return false; },
+                            ],
+                        ])
+                    </div>
+
+                    <div class="col-md-6" v-show="mode == 'existing'">
+                        @include('ui::components.select', [
+                            'options' => [
+                                'id'                => 'driver_id_select',
+                                'jsSelect2'         => 'driver_id_select2',
+                                'view'              => 'DEFAULT',
+                                'name'              => 'driver_id',
+                                'label'             => __('contenttypes::inputs.driver_id.label'),
+                                'placeholder'       => __('contenttypes::inputs.driver_id.placeholder'),
+                                'attributes'        => [],
+                                'value'             => null,
+                                'search'            => true,
+                                'multiple'          => false,
+                                'options'           => [],
+                                'option_text'       => function($key, $option)                   { return $option['text']; },
+                                'option_value'      => function($key, $option)                   { return $option['id']; },
+                                'option_attributes' => function($key, $option)                   { return []; },
+                                'selected'          => function($options, $key, $option, $value) { return $option['id'] == $value; },
+                                'disabled'          => function($options, $key, $option, $value) { return false; },
+                            ],
+                        ])
+                    </div>
+
+                    <div class="col-lg-6">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'text',
+                                'name'        => 'car_plate',
+                                'label'       => __('contenttypes::inputs.car_plate.label'),
+                                'placeholder' => __('contenttypes::inputs.car_plate.placeholder'),
+                                'attributes'  => [
+                                    'v-model' => 'car_plate',
+                                ]
+                            ],
+                        ])
+                    </div>
+
+                    <div class="col-lg-6">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'file',
+                                'name'        => 'WAYBILL',
+                                'label'       => __('contenttypes::inputs.waybill.label'),
+                                'description' => __('contenttypes::inputs.attachment_1.description'),
+                                'placeholder' => null,
+                                'value'       => null,
+                            ],
+                        ])
+                    </div>
+                    <div class="col-lg-6" v-if="waybill">
+                        <div class="form-group">
+                            <label>{{ __('contenttypes::inputs.waybill.label') }}</label>
+                            <div class="form-control-wrap">
+                                <a :href="waybill.path" class="btn btn-sm btn-success btn-block" target="_blank">
+                                    <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
+                                    <span>{{ __('contenttypes::inputs.waybill.view_file') }}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <x-slot name="footer">
+                <div v-if="!is_loading && mode != 'existing'">
+                    <button type="submit" class="btn btn-sm btn-success">
+                        <span>{{ __('contenttypes::inputs.waybill.upload') }}</span>
+                    </button>
+                </div>
+                <div v-if="!is_loading && mode == 'existing'">
+                    <button type="submit" class="btn btn-sm btn-success">
+                        <span>{{ __('contenttypes::inputs.waybill.upload') }}</span>
+                    </button>
+                </div>
+
+                <button type="button" data-dismiss="modal" class="btn btn-sm btn-danger">
+                    <span>{{ __('ui::strings.cancel') }}</span>
+                </button>
+            </x-slot>
+        @endcomponent
+    @endcomponent
+
+    @component('ui::components.form', [
+        'options' => [
+            'id'                => 'supplier-waybill-and-driver-view-app',
+            'action'            => route('ShippmentsController@postDriverAndWaybill'),
+            'method'            => 'POST',
+            'class'             => '',
+            'attributes'        => [
+                'onsubmit'                     => 'BS.AJAX_FORM(event)',
+                'data-keep-loading-on-success' => 'false',
+            ],
+        ],
+    ])
+
+        @component('ui::components.modal', [
+            'options' => [
+                'id'        => 'supplier-waybill-and-driver-view-modal',
+                'title'     => __('contenttypes::inputs.waybill.label'),
+                'size'      => 'lg',
+                'fit'       => false,
+            ]
+        ])
+
+            @include('ui::components.input', [
+                'options' => [
+                    'view'        => 'INLINE',
+                    'type'        => 'hidden',
+                    'name'        => 'mode',
+                    'attributes'  => [
+                        'v-model' => 'mode',
+                    ]
+                ],
+            ])
+
+            @include('ui::components.input', [
+                'options' => [
+                    'view'        => 'INLINE',
+                    'type'        => 'hidden',
+                    'name'        => 'model',
+                    'value'       => null,
+                    'attributes'  => [
+                        'v-model' => 'model',
+                    ]
+                ],
+            ])
+            
+            <div class="text-center m-5" v-if="is_loading">
+                <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status"></div>
+            </div>
+
+            <div v-show="!is_loading">
+                <div class="row gy-3">
+                    <div class="col-lg-6">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'text',
+                                'name'        => 'driver_name',
+                                'label'       => __('contenttypes::inputs.driver_name.label'),
+                                'placeholder' => __('contenttypes::inputs.driver_name.placeholder'),
+                                'attributes'  => [
+                                    ':value'   => 'driver ? driver.name : null',
+                                    'disabled' => 'true',
+                                ]
+                            ],
+                        ])
+                    </div>
+                    <div class="col-lg-6">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'text',
+                                'name'        => 'driver_id_number',
+                                'label'       => __('contenttypes::inputs.driver_id_number.label'),
+                                'placeholder' => __('contenttypes::inputs.driver_id_number.placeholder'),
+                                'attributes'  => [
+                                    ':value'   => 'driver ? driver.id_number : null',
+                                    'disabled' => 'true',
+                                ]
+                            ],
+                        ])
+                    </div>
+                    <div class="col-lg-6">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'text',
+                                'name'        => 'driver_nationality_country_id',
+                                'label'       => __('contenttypes::inputs.driver_nationality_country_id.label'),
+                                'placeholder' => __('contenttypes::inputs.driver_nationality_country_id.placeholder'),
+                                'attributes'  => [
+                                    ':value'   => 'driver && driver.nationality ? (driver.nationality.name_en + \' / \' + driver.nationality.name_ar) : null',
+                                    'disabled' => 'true',
+                                ]
+                            ],
+                        ])
+                    </div>
+                    <div class="col-lg-6">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'text',
+                                'name'        => 'car_plate',
+                                'label'       => __('contenttypes::inputs.car_plate.label'),
+                                'placeholder' => __('contenttypes::inputs.car_plate.placeholder'),
+                                'attributes'  => [
+                                    ':value'   => 'car_plate',
+                                    'disabled' => 'true',
+                                ]
+                            ],
+                        ])
+                    </div>
+
+                    <div class="col-lg-6" v-if="waybill">
+                        <div class="form-group">
+                            <label>{{ __('contenttypes::inputs.waybill.label') }}</label>
+                            <div class="form-control-wrap">
+                                <a :href="waybill.path" class="btn btn-sm btn-success btn-block" target="_blank">
+                                    <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
+                                    <span>{{ __('contenttypes::inputs.waybill.view_file') }}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <x-slot name="footer">
+                @if (auth()->check() && auth()->user()->type == 'TRANSPORTER')
+                    <div v-if="!is_loading">
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#supplier-waybill-and-driver-modal" onclick="supplierWaybillAndDriverViewApp.openEditModal()" data-dismiss="modal">
+                            <span>{{ __('contenttypes::inputs.waybill.edit') }}</span>
+                        </button>
+                    </div>
+                @endif
+                <button type="button" data-dismiss="modal" class="btn btn-sm btn-danger">
+                    <span>{{ __('ui::strings.cancel') }}</span>
+                </button>
+            </x-slot>
+        @endcomponent
+    @endcomponent
+
     @component('ui::components.datatable', [
         'options' => [
             'id'           => null,
@@ -116,6 +480,10 @@
                 ],
                 [
                     'label' => '<span class="sub-text">' . __('contenttypes::inputs.loading_type.label') . '</span>', 
+                    'class' => ['fit']
+                ],
+                [
+                    'label' => '<span class="sub-text">' . __('contenttypes::inputs.shippment_total_price.label') . '</span>', 
                     'class' => ['fit']
                 ],
                 [
@@ -303,6 +671,19 @@
                         },
                         {
                             className  : BS.CONFIG('defaultTableCellClass'),
+                            data       : 'total_price',
+                            name       : 'total_price',
+                            orderable  : true,
+                            searchable : true,
+                            // visible    : false,
+                            render     : function(data,type,Row,meta) {
+                                return `<div>
+                                    <strong>${Row.formated_total_price}</strong> SAR
+                                </div>`;
+                            }
+                        },
+                        {
+                            className  : BS.CONFIG('defaultTableCellClass'),
                             data       : 'waybill_path',
                             name       : 'waybill_path',
                             orderable  : true,
@@ -311,7 +692,7 @@
                             render     : function(data,type,Row,meta) {
                                 if (Row.waybill_path) {
                                     return `<span>
-                                        <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="${Row.waybill_path}" target="_blank">
+                                        <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="javascript:;" data-toggle="modal" data-target="#supplier-waybill-and-driver-view-modal" onclick="fetchWaybillAndDriverView(${Row.id})">
                                             <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
                                             {{ __('contenttypes::inputs.files.options.view') }}
                                         </a>
@@ -319,7 +700,7 @@
                                 }
                                 @if(auth()->check() && auth()->user()->type == 'TRANSPORTER')
                                     return `<span>
-                                        <a class="link link-primary link-sm text-orange underline" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="javascript:;">
+                                        <a class="link link-primary link-sm text-orange underline" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="javascript:;" data-toggle="modal" data-target="#supplier-waybill-and-driver-modal" onclick="fetchWaybillAndDriver(${Row.id})">
                                             <i class="fas fa-upload" style="margin-left: 5px; margin-right: 5px;"></i>
                                             {{ __('contenttypes::inputs.waybill.upload') }}
                                         </a>
@@ -347,7 +728,7 @@
                             data       : "updated_at",
                             name       : 'updated_at',
                             render     : function(data,type,Row,meta) {
-                                return `<span dir="ltr">${Row.new_updated_at || Row.updated_at}</span>`;
+                                return `<small dir="ltr">${Row.new_updated_at || Row.updated_at}</small>`;
                             }
                         },
                         {
@@ -355,7 +736,7 @@
                             data       : "created_at",
                             name       : 'created_at',
                             render     : function(data,type,Row,meta) {
-                                return `<span dir="ltr">${Row.new_created_at || Row.created_at}</span>`;
+                                return `<small dir="ltr">${Row.new_created_at || Row.created_at}</small>`;
                             }
                         },
                         {
@@ -385,6 +766,7 @@
                                                     <div class="dropdown-menu dropdown-menu-right">
                                                         <ul class="link-list-plain no-bdr sm">
                                                             ${(! Row.actions['read']        ? `` : `<li><a href="${Row.actions['read']['action']}"><em class="icon ni ni-eye"></em><span>${Row.actions['read']['label']}</span></a></li>`)}
+                                                            ${(! Row.actions['rfq_list']    ? `` : `<li><a href="${Row.actions['rfq_list']['action']}"><em class="icon ni ni-list"></em><span>${Row.actions['rfq_list']['label']}</span></a></li>`)}
                                                             ${(! Row.actions['update']      ? `` : `<li><a href="${Row.actions['update']['action']}"><em class="icon ni ni-update"></em><span>${Row.actions['update']['label']}</span></a></li>`)}
                                                             <li class="divider"></li>
                                                             ${(! Row.actions['delete']      ? `` : `<li><a href="javascript:;" onclick="BS.ajaxDelete('{{ route('ShippmentsController@postDelete') }}', ${Row.id}, datatable)"><em class="icon ni ni-delete"></em><span>${Row.actions['delete']['label']}</span></a></li>`)}
@@ -402,6 +784,178 @@
                         },
                     ],
                 });
+
+                const supplierWaybillAndDriverApp = new Vue({
+                    el: '#supplier-waybill-and-driver-app',
+                    data: {
+                        form       : 'edit',
+                        mode       : 'existing',
+                        model      : null,
+                        is_loading : false,
+                        driver     : null,
+                        waybill    : null,
+                        car_plate  : null,
+                    },
+                    methods: {
+                        changeMode: function(mode) {
+                            this.mode = mode;
+                        },
+                        resetForm: function() {
+                            this.mode = 'existing';
+                            this.model = null;
+                        },
+                        fetchWaybillAndDriver: function(model) {
+                            const vm = this;
+                            vm.is_loading = true;
+                            vm.model      = model;
+                            $.get('{{ route('ShippmentsController@driverAndWaybill') }}', {
+                                model : vm.model,
+                            }, function(data) {
+                                if (data['redirect_url'] || data['redirect']) {
+                                    window.location = data['redirect_url'] || data['redirect'];
+                                    return;
+                                }
+                                if (data['toastr']) {
+                                    NioApp.Toast('<h5>'+ data['toastr']['title'] +'</h5><p>'+ data['toastr']['description'] +'</p>', data['toastr']['type'], {ui: 'is-dark'});
+                                }
+                                if(data['driver']) {
+                                    vm.driver  = data['driver'];
+                                }
+                                if(data['waybill']) {
+                                    vm.waybill = data['waybill'];
+                                }
+                                if(data['car_plate']) {
+                                    vm.car_plate = data['car_plate'];
+                                }
+                                vm.is_loading = false;
+                            })
+                        },
+                        reload: function() {
+                            if (this.model) {
+                                this.fetchWaybillAndDriver(this.model);
+                            }
+                        },
+                    }
+                });
+
+                const fetchWaybillAndDriver = function(model) {
+                    supplierWaybillAndDriverApp.fetchWaybillAndDriver(model);
+                }
+
+                const supplierWaybillAndDriverViewApp = new Vue({
+                    el: '#supplier-waybill-and-driver-view-app',
+                    data: {
+                        form       : 'edit',
+                        mode       : 'existing',
+                        model      : null,
+                        is_loading : false,
+                        driver     : null,
+                        waybill    : null,
+                        car_plate  : null,
+                    },
+                    methods: {
+                        openEditModal: function() {
+                            fetchWaybillAndDriver(this.model);
+                        },
+                        changeMode: function(mode) {
+                            this.mode = mode;
+                        },
+                        resetForm: function() {
+                            this.mode = 'existing';
+                            this.model = null;
+                        },
+                        fetchWaybillAndDriver: function(model) {
+                            const vm = this;
+                            vm.is_loading = true;
+                            vm.model      = model;
+                            $.get('{{ route('ShippmentsController@driverAndWaybill') }}', {
+                                model : vm.model,
+                            }, function(data) {
+                                if (data['redirect_url'] || data['redirect']) {
+                                    window.location = data['redirect_url'] || data['redirect'];
+                                    return;
+                                }
+                                if (data['toastr']) {
+                                    NioApp.Toast('<h5>'+ data['toastr']['title'] +'</h5><p>'+ data['toastr']['description'] +'</p>', data['toastr']['type'], {ui: 'is-dark'});
+                                }
+                                if(data['driver']) {
+                                    vm.driver  = data['driver'];
+                                }
+                                if(data['waybill']) {
+                                    vm.waybill = data['waybill'];
+                                }
+                                if(data['car_plate']) {
+                                    vm.car_plate = data['car_plate'];
+                                }
+                                vm.is_loading = false;
+                            })
+                        },
+                        reload: function() {
+                            if (this.model) {
+                                this.fetchWaybillAndDriver(this.model);
+                            }
+                        },
+                    }
+                });
+
+                const fetchWaybillAndDriverView = function(model) {
+                    supplierWaybillAndDriverViewApp.fetchWaybillAndDriver(model);
+                }
+
+                var countryJsSelect2 = $('#country_select').select2({
+                    ajax: {
+                        delay: 250,
+                        url: function (params) {
+                            return '{{ route('CountriesController@select') }}';
+                        },
+                        data: function (params) {
+                            var query = {
+                                nullable : 'true',
+                                search   : params.term,
+                                page     : params.page || 1
+                            }
+                            return query;
+                        },
+                        processResults: function (data) {
+                            return data;
+                        }
+                    }
+                })
+                .on("select2:select", function() {
+                    let _data = $(this).select2('data')[0];
+                });
+
+                var driver_id_select2 = $('#driver_id_select').select2({
+                    ajax: {
+                        delay: 250,
+                        url: function (params) {
+                            return '{{ route('ShippmentsController@driversSelect') }}';
+                        },
+                        data: function (params) {
+                            var query = {
+                                search   : params.term,
+                                page     : params.page || 1
+                            }
+                            return query;
+                        },
+                        processResults: function (data) {
+                            return data;
+                        }
+                    }
+                })
+                .on("select2:select", function() {
+                    let _data = $(this).select2('data')[0];
+                });
+
+                const postDriverAndWaybill = function(event) {
+                    BS.AJAX_FORM(event, {
+                        200: (data) => {
+                            datatable.ajax.reload();
+                            supplierWaybillAndDriverApp.reload();
+                            supplierWaybillAndDriverViewApp.reload();
+                        }
+                    });
+                }
             </script>
         </x-slot>
     @endcomponent

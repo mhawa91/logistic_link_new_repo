@@ -57,6 +57,10 @@ return [
             'label' => 'contenttypes::inputs.shippment_status.options.PENDING_TRANSPORTER_APPROVAL',
         ],
         [
+            'id'    => 'CANCELED_DUE_DELAYED_TRANSPORTER_APPROVAL',
+            'label' => 'contenttypes::inputs.shippment_status.options.CANCELED_DUE_DELAYED_TRANSPORTER_APPROVAL',
+        ],
+        [
             'id'    => 'TRANSPORTER_APPROVED_WITH_PRICE_CHANGE',
             'label' => 'contenttypes::inputs.shippment_status.options.TRANSPORTER_APPROVED_WITH_PRICE_CHANGE',
         ],
@@ -80,5 +84,13 @@ return [
             'id'    => 'CANCELLED',
             'label' => 'contenttypes::inputs.shippment_status.options.CANCELLED',
         ],
+        [
+            'id'    => 'RFQ_PENDING_TRANSPORTER_SELECTION',
+            'label' => 'contenttypes::inputs.shippment_status.options.RFQ_PENDING_TRANSPORTER_SELECTION',
+        ],
+        [
+            'id'    => 'RFQ_PENDING_TRANSPORTER_OFFER',
+            'label' => 'contenttypes::inputs.shippment_status.options.RFQ_PENDING_TRANSPORTER_OFFER',
+        ]
     ],
 ];

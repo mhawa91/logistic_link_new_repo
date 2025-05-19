@@ -15,6 +15,7 @@ use Modules\SystemCore\Entities\Country;
 use Modules\SystemCore\Entities\City;
 use Modules\ContentTypes\Entities\Company;
 use Modules\ContentManager\Entities\Content;
+use DB;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -158,5 +159,18 @@ class User extends Authenticatable implements JWTSubject
     public function city()
     {
         return $this->belongsTo(City::class, 'city_id', 'id');
+    }
+
+    public function contracts()
+    {
+        return $this->hasMany(\Modules\ContentTypes\Entities\TransporterContract::class, 'transporter_user_id', 'id');
+    }
+
+    public function scopeWithReviewsStates($query)
+    {
+        return $query->addSelect([
+            DB::raw('(SELECT COUNT(*) FROM lgl_shippments_reviews WHERE lgl_shippments_reviews.transportar_user_id = users.id) as reviews_count'),
+            DB::raw('(SELECT AVG(rate) FROM lgl_shippments_reviews WHERE lgl_shippments_reviews.transportar_user_id = users.id) as reviews_rate'),
+        ]);
     }
 }

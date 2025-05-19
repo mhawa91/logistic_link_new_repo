@@ -1,20 +1,4 @@
-<div class="col-lg-12 mb-4 shipments-items">
-    <div class="row">
-        <div class="col-lg-12 mt-4 mb-4">
-            <div class="progress-container">
-                <div class="progress-bar"></div>
-                <div class="progress-fill" style="width: 25%;"></div>
-                <div class="step-points">
-                    <div class="step active"><span class="title">Source</span></div>
-                    <div class="step active"><span class="title">Destination #1</span></div>
-                    <div class="step"><span class="title">Destination #2</span></div>
-                    <div class="step"><span class="title">b</span></div>
-                    <div class="step"><span class="title">b</span></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+<div class="col-lg-12 mb-4 shipments-items">    
     <div class="row">
         <div class="col-lg-12 mb-4">
             <h4 class="custom-title-2">
@@ -76,19 +60,64 @@
         </div>
     </div>
     <div class="row">
-        @if($to->public_notes)
-            <div class="col-lg-4 mb-4">
-                <img src="{{ asset('images/icons/private_notes.svg') }}" alt="">
-                <span class="name">{{__('contenttypes::orders.public_notes')}}</span>
-                <p class="value">{{ $to->public_notes }}</p>
+        <div class="col-lg-4 mb-4">
+            <img src="{{ asset('images/icons/private_notes.svg') }}" alt="">
+            <span class="name">{{__('contenttypes::orders.public_notes')}}</span>
+            <p class="value">
+                {{ $to->public_notes ?? '----' }}
+            </p>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <img src="{{ asset('images/icons/private_notes.svg') }}" alt="">
+            <span class="name">{{__('contenttypes::orders.private_notes')}}</span>
+            <p class="value">
+                {{ $to->private_notes ?? '----' }}
+            </p>
+        </div>
+        
+        @if(! $from->delivered_at && $index == 0)
+            <div class="col-lg-4 mb-4 mt-4 d-flex justify-end">
+                @component('ui::components.form', [
+                    'options' => [
+                        'id'                => 'location-delivery-app' . $from->id,
+                        'action'            => route('ShippmentsController@locationDelivery', ['model' => $shippment->id, 'address_id' => $from->id]),
+                        'method'            => 'GET',
+                        'class'             => '',
+                        'attributes'        => [
+                            'onsubmit'                     => 'BS.AJAX_FORM(event)',
+                            'data-keep-loading-on-success' => 'false',
+                        ],
+                    ],
+                ])
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        <i class="fas fa-check" style="margin-left: 5px; margin-right: 5px;"></i>
+                        <span>{{ __('contenttypes::inputs.actions.PICKEDUP') }}</span>
+                    </button>
+                @endcomponent
             </div>
         @endif
-        @if($to->public_notes)
-            <div class="col-lg-8 mb-4">
-                <img src="{{ asset('images/icons/private_notes.svg') }}" alt="">
-                <span class="name">{{__('contenttypes::orders.private_notes')}}</span>
-                <p class="value">{{ $to->private_notes }}</p>
-            </div>
+        @if($from->delivered_at)
+            @if(! $to->delivered_at)
+                <div class="col-lg-4 mb-4 mt-4 d-flex justify-end">
+                    @component('ui::components.form', [
+                        'options' => [
+                            'id'                => 'location-delivery-app' . $to->id,
+                            'action'            => route('ShippmentsController@locationDelivery', ['model' => $shippment->id, 'address_id' => $to->id]),
+                            'method'            => 'GET',
+                            'class'             => '',
+                            'attributes'        => [
+                                'onsubmit'                     => 'BS.AJAX_FORM(event)',
+                                'data-keep-loading-on-success' => 'false',
+                            ],
+                        ],
+                    ])
+                        <button type="submit" class="btn btn-sm btn-success btn-block">
+                            <i class="fas fa-check" style="margin-left: 5px; margin-right: 5px;"></i>
+                            <span>{{ __('contenttypes::inputs.actions.DELIVERED') }}</span>
+                        </button>
+                    @endcomponent
+                </div>
+            @endif
         @endif
     </div>
 </div>

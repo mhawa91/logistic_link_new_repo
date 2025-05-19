@@ -65,7 +65,16 @@ class ShippmentSendToTransportar implements ShouldQueue
             'transporterUser.company' => function($query) {
                 $query->withTrashed();
             },
-            'ADDITIONAL_DATA' => function($query) {
+            'ATTACHMENT_1' => function($query) {
+                $query->withTrashed();
+            },
+            'ATTACHMENT_2' => function($query) {
+                $query->withTrashed();
+            },
+            'ATTACHMENT_3' => function($query) {
+                $query->withTrashed();
+            },
+            'ATTACHMENT_4' => function($query) {
                 $query->withTrashed();
             },
             'fromCity' => function($query) {

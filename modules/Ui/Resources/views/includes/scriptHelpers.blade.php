@@ -111,7 +111,6 @@
 
                     if ($Callbacks[ data.code ]) {
                         $Callbacks[ data.code ].apply(data, [$Form, _SUBMIT]);
-                        return;
                     }
 
                     if (data['redirect_url'] || data['redirect']) {

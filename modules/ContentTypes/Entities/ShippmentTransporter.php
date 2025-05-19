@@ -25,10 +25,14 @@ class ShippmentTransporter extends Model
         'transporter_user_id',
         'contract_id',
         'contract_instance_id',
+        'contract_instance_pricing_id',
         'approved_contract_instance_id',
         'price',
         'pre_additional_location_price',
         'total_price',
+        'updated_price',
+        'updated_pre_additional_location_price',
+        'updated_total_price',
         'status',
         'requested_at',
         'responded_at',
@@ -57,6 +61,11 @@ class ShippmentTransporter extends Model
     public function contractInstance()
     {
         return $this->belongsTo(TransporterContractInstance::class, 'contract_instance_id', 'id');
+    }
+
+    public function contractInstancePricing()
+    {
+        return $this->belongsTo(TransporterContractInstancePrice::class, 'contract_instance_pricing_id', 'id');
     }
 
     public function approvedContractInstance()

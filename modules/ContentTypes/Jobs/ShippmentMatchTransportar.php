@@ -49,6 +49,17 @@ class ShippmentMatchTransportar implements ShouldQueue
         ->orderBy('price', 'ASC')
         ->first();
 
+        $this->shippment->transporter_user_id                   = $transportarMatched ? $transportarMatched->transporter_user_id           : null;
+        $this->shippment->price                                 = $transportarMatched ? $transportarMatched->price                         : null;
+        $this->shippment->pre_additional_location_price         = $transportarMatched ? $transportarMatched->pre_additional_location_price : null;
+        $this->shippment->total_price                           = $transportarMatched ? $transportarMatched->total_price                   : null;
+        $this->shippment->updated_price                         = null;
+        $this->shippment->updated_pre_additional_location_price = null;
+        $this->shippment->updated_total_price                   = null;
+        $this->shippment->contract_id                           = $transportarMatched ? $transportarMatched->contract_id                   : null;
+        $this->shippment->contract_instance_id                  = $transportarMatched ? $transportarMatched->contract_instance_id          : null;
+        $this->shippment->save();
+
         if ($transportarMatched) {
             ShippmentSendToTransportar::dispatch($this->shippment, $transportarMatched);
         }
@@ -56,6 +67,10 @@ class ShippmentMatchTransportar implements ShouldQueue
 
     public function start()
     {
+        $this->shippment->allAddressess()->update([
+            'delivered_at' => null,
+        ]);
+        
         $suitableContracts = $this->suitableContracts();
 
         if ($suitableContracts->isEmpty()) {
@@ -68,17 +83,21 @@ class ShippmentMatchTransportar implements ShouldQueue
 
         $matchedTransportars = $suitableContracts->map(function($contract) {
             return [
-                'shippment_id'                  => $this->shippment->id,
-                'company_user_id'               => $this->shippment->company_user_id,
-                'transporter_user_id'           => $contract->transporter_user_id,
-                'contract_id'                   => $contract->contract_id,
-                'contract_instance_id'          => $contract->contract_instance_id,
-                'price'                         => $contract->price,
-                'pre_additional_location_price' => $contract->pre_additional_location_price,
-                'total_price'                   => ($this->shippment->number_of_trucks * $contract->price) + (($this->shippment->offloadingLocations->count() - 1) * $contract->pre_additional_location_price),
-                'status'                        => 'PENDING',
-                'requested_at'                  => now()->format('Y-m-d H:i:s'),
-                'responded_at'                  => null,
+                'shippment_id'                          => $this->shippment->id,
+                'company_user_id'                       => $this->shippment->company_user_id,
+                'transporter_user_id'                   => $contract->transporter_user_id,
+                'contract_id'                           => $contract->contract_id,
+                'contract_instance_id'                  => $contract->contract_instance_id,
+                'contract_instance_pricing_id'          => $contract->id,
+                'price'                                 => $contract->price,
+                'pre_additional_location_price'         => $contract->pre_additional_location_price,
+                'total_price'                           => ($this->shippment->number_of_trucks * $contract->price) + (($this->shippment->offloadingLocations->count() - 1) * $contract->pre_additional_location_price),
+                'updated_price'                         => null,
+                'updated_pre_additional_location_price' => null,
+                'updated_total_price'                   => null,
+                'status'                                => 'PENDING',
+                'requested_at'                          => now()->format('Y-m-d H:i:s'),
+                'responded_at'                          => null,
             ];
         });
 
@@ -97,15 +116,17 @@ class ShippmentMatchTransportar implements ShouldQueue
         ->whereHas('contractInstance', function($query) {
             $query->select('lgl_transporters_contracts_instances.*');
             $query->onlyActiveByStartDate();
-            $query->where('is_current', 'YES');
-            $query->where('sys_status', 'ACTIVE');
+            $query->where('lgl_transporters_contracts_instances.is_rfq'    , 'NO');
+            $query->where('lgl_transporters_contracts_instances.is_current', 'YES');
+            $query->where('lgl_transporters_contracts_instances.sys_status', 'ACTIVE');
         })
         ->with([
             'contractInstance' => function($query) {
                 $query->select('lgl_transporters_contracts_instances.*');
                 $query->onlyActiveByStartDate();
-                $query->where('is_current', 'YES');
-                $query->where('sys_status', 'ACTIVE');
+                $query->where('lgl_transporters_contracts_instances.is_rfq'    , 'NO');
+                $query->where('lgl_transporters_contracts_instances.is_current', 'YES');
+                $query->where('lgl_transporters_contracts_instances.sys_status', 'ACTIVE');
             },
         ])
         ->where('type', $type)
@@ -116,7 +137,6 @@ class ShippmentMatchTransportar implements ShouldQueue
         ->where('to_city_id', $this->shippment->to_city_id)
         ->orderBy('id', 'ASC')
         ->orderBy('price', 'ASC')
-        ->orderBy('pre_additional_location_price', 'ASC')
         ->get();
 
         return $suitableContracts;

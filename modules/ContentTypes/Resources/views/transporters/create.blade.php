@@ -384,10 +384,10 @@
                                                     @endcomponent
                                                 </td>
                                                 <td style="vertical-align: middle;">
-                                                    <small class="text-danger">
+                                                    @{{ item.from_city.name_ar }}<br>
+                                                    <small class="text-primary">
                                                         @{{ item.from_city?.country.name_ar }}
-                                                    </small><br>
-                                                    @{{ item.from_city.name_ar }}
+                                                    </small>
                                                     @component('ui::components.input', [
                                                         'options' => [
                                                             'type'        => 'hidden',
@@ -401,10 +401,10 @@
                                                     @endcomponent
                                                 </td>
                                                 <td style="vertical-align: middle;">
-                                                    <small class="text-danger">
+                                                    @{{ item.to_city.name_ar }}<br>
+                                                    <small class="text-primary">
                                                         @{{ item.to_city?.country.name_ar }}
-                                                    </small><br>
-                                                    @{{ item.to_city.name_ar }}
+                                                    </small>
                                                     @component('ui::components.input', [
                                                         'options' => [
                                                             'type'        => 'hidden',
