@@ -129,7 +129,7 @@
                                     </div>
                                     <div class="user-info d-none d-md-block">
                                         <div class="user-status">{{ auth()->user()->Type->__('title') }}</div>
-                                        <div class="user-name dropdown-indicator">{{ auth()->user()->name ?? auth()->user()->username ?? auth()->user()->email ?? auth()->user()->phone_number }}</div>
+                                        <div class="user-name dropdown-indicator">{{ (auth()->user()->name ? ucwords(auth()->user()->name) : null) ?? auth()->user()->username ?? auth()->user()->email ?? auth()->user()->phone_number }}</div>
                                     </div>
                                 </div>
                             </a>
@@ -140,7 +140,7 @@
                                             <span>{{ app(\Modules\SystemCore\System\Classes\Helpers::class)->shortName(auth()->user()->name ?? auth()->user()->email ?? auth()->user()->phone_number ?? auth()->user()->username) }}</span>
                                         </div>
                                         <div class="user-info">
-                                            <span class="lead-text">{{ auth()->user()->name }}</span>
+                                            <span class="lead-text">{{ (auth()->user()->name ? ucwords(auth()->user()->name) : '-------') }}</span>
                                             <span class="sub-text">{{ auth()->user()->email ?? auth()->user()->phone_number ?? auth()->user()->username }}</span>
                                         </div>
                                     </div>
