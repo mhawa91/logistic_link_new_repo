@@ -163,12 +163,39 @@
                         @include('ui::components.input', [
                             'options' => [
                                 'view'        => 'DEFAULT',
+                                'type'        => 'text',
+                                'name'        => 'registration_number_string',
+                                'label'       => __('contenttypes::inputs.registration_number_string.label'),
+                                'description' => __('contenttypes::inputs.registration_number_string.description'),
+                                'placeholder' => __('contenttypes::inputs.registration_number_string.description'),
+                                'value'       => $model->company?->registration_number_string,
+                            ],
+                        ])
+                    </div>
+                    <div class="col-md-4">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
                                 'type'        => 'file',
                                 'name'        => 'registration_number',
                                 'label'       => __('contenttypes::inputs.registration_number.label'),
                                 'description' => __('contenttypes::inputs.registration_number.description'),
                                 'placeholder' => app('GraphManager')->defaultSrc('400x400', 'files'),
                                 'value'       => app('GraphManager')->src('400x400', 'files', $model->company?->registration_number),
+                            ],
+                        ])
+                    </div>
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'text',
+                                'name'        => 'tax_identification_number_string',
+                                'label'       => __('contenttypes::inputs.tax_identification_number_string.label'),
+                                'description' => __('contenttypes::inputs.tax_identification_number_string.description'),
+                                'placeholder' => __('contenttypes::inputs.tax_identification_number_string.description'),
+                                'value'       => $model->company?->tax_identification_number_string,
                             ],
                         ])
                     </div>

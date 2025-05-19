@@ -33,7 +33,6 @@ class CategoryController extends SystemCoreHttpController
         $this->data['Service']      = $this->service;
         return view($this->viewsFolderPath . '.transporter_details', $this->data);
         return view($this->viewsFolderPath . '.contracts_details', $this->data);
-        return view($this->viewsFolderPath . '.loads', $this->data);
 
     }
 

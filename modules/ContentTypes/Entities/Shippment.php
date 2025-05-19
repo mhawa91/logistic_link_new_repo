@@ -25,6 +25,8 @@ class Shippment extends Model
     protected $fillable = [
         'company_user_id',
         'transporter_user_id',
+        'driver_id',
+        'car_plate',
         'from_country_id',
         'from_city_id',
         'to_country_id',
@@ -50,6 +52,9 @@ class Shippment extends Model
         'price',
         'pre_additional_location_price',
         'total_price',
+        'updated_price',
+        'updated_pre_additional_location_price',
+        'updated_total_price',
         'sys_status',
         'created_by_user_id',
         'updated_by_user_id'
@@ -87,6 +92,13 @@ class Shippment extends Model
     public function truckType()
     {
         return $this->belongsTo(Content::class, 'truck_type_id', 'id')->where('base_type', 'CATEGORY')->where('type', 'truck-type');
+    }
+
+    
+    public function allAddressess()
+    {
+        return $this->hasOne(Address::class, 'related_id', 'id')
+        ->where('related_type', 'SHIPPMENT');
     }
 
     public function pickupAddress()
@@ -133,16 +145,53 @@ class Shippment extends Model
         return $this->belongsTo(City::class, 'to_city_id', 'id');
     }
 
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class, 'driver_id', 'id');
+    }
+
     public function matchedTransportars()
     {
         return $this->hasMany(ShippmentTransporter::class, 'shippment_id', 'id');
     }
 
-    public function ADDITIONAL_DATA()
+    public function currentTransportar()
+    {
+        return $this->hasOne(ShippmentTransporter::class, 'shippment_id', 'id')
+        ->whereColumn('lgl_shippments_matched_transporters.transporter_user_id', 'lgl_shippments.transporter_user_id');
+    }
+
+    public function rfqs()
+    {
+        return $this->hasMany(ShippmentRfqTransporter::class, 'shippment_id', 'id');
+    }
+
+    public function ATTACHMENT_1()
     {
         return $this->hasOne(UploadedFile::class, 'related_id', 'id')
         ->where('related_type', 'shippment')
-        ->where('file_tag', 'ADDITIONAL_DATA');
+        ->where('file_tag', 'ATTACHMENT_1');
+    }
+
+    public function ATTACHMENT_2()
+    {
+        return $this->hasOne(UploadedFile::class, 'related_id', 'id')
+        ->where('related_type', 'shippment')
+        ->where('file_tag', 'ATTACHMENT_2');
+    }
+
+    public function ATTACHMENT_3()
+    {
+        return $this->hasOne(UploadedFile::class, 'related_id', 'id')
+        ->where('related_type', 'shippment')
+        ->where('file_tag', 'ATTACHMENT_3');
+    }
+
+    public function ATTACHMENT_4()
+    {
+        return $this->hasOne(UploadedFile::class, 'related_id', 'id')
+        ->where('related_type', 'shippment')
+        ->where('file_tag', 'ATTACHMENT_4');
     }
 
     public function WAYBILL()
@@ -156,33 +205,39 @@ class Shippment extends Model
     {
         $query->addSelect([
             DB::raw('
-                DATE_FORMAT(lgl_shippments.created_at, "%b %d, %Y") AS new_created_at,
-                DATE_FORMAT(lgl_shippments.updated_at, "%b %d, %Y") AS new_updated_at
+                DATE_FORMAT(lgl_shippments.created_at, "%b %d, %Y | %h:%i %p") AS new_created_at,
+                DATE_FORMAT(lgl_shippments.updated_at, "%b %d, %Y | %h:%i %p") AS new_updated_at
             '),
             DB::raw('(CASE 
-                WHEN lgl_shippments.sys_status = "DRAFT"                                  THEN "'. __('contenttypes::inputs.shippment_status.options.DRAFT')   .'"
-                WHEN lgl_shippments.sys_status = "MATCHING"                               THEN "'. __('contenttypes::inputs.shippment_status.options.MATCHING')   .'"
-                WHEN lgl_shippments.sys_status = "NO_MATCHING_CONTRACTS"                  THEN "'. __('contenttypes::inputs.shippment_status.options.NO_MATCHING_CONTRACTS')   .'"
-                WHEN lgl_shippments.sys_status = "PENDING_TRANSPORTER_APPROVAL"           THEN "'. __('contenttypes::inputs.shippment_status.options.PENDING_TRANSPORTER_APPROVAL') .'"
-                WHEN lgl_shippments.sys_status = "TRANSPORTER_APPROVED_WITH_PRICE_CHANGE" THEN "'. __('contenttypes::inputs.shippment_status.options.TRANSPORTER_APPROVED_WITH_PRICE_CHANGE') .'"
-                WHEN lgl_shippments.sys_status = "PENDING_PICKUP"                         THEN "'. __('contenttypes::inputs.shippment_status.options.PENDING_PICKUP') .'"
-                WHEN lgl_shippments.sys_status = "PENDING_DELIVERY"                       THEN "'. __('contenttypes::inputs.shippment_status.options.PENDING_DELIVERY') .'"
-                WHEN lgl_shippments.sys_status = "DELIVERED_PENDING_PAYMENT"              THEN "'. __('contenttypes::inputs.shippment_status.options.DELIVERED_PENDING_PAYMENT') .'"
-                WHEN lgl_shippments.sys_status = "COMPLETED"                              THEN "'. __('contenttypes::inputs.shippment_status.options.COMPLETED')   .'"
-                WHEN lgl_shippments.sys_status = "CANCELLED"                              THEN "'. __('contenttypes::inputs.shippment_status.options.CANCELLED')   .'"
+                WHEN lgl_shippments.sys_status = "DRAFT"                                     THEN "'. __('contenttypes::inputs.shippment_status.options.DRAFT')   .'"
+                WHEN lgl_shippments.sys_status = "MATCHING"                                  THEN "'. __('contenttypes::inputs.shippment_status.options.MATCHING')   .'"
+                WHEN lgl_shippments.sys_status = "NO_MATCHING_CONTRACTS"                     THEN "'. __('contenttypes::inputs.shippment_status.options.NO_MATCHING_CONTRACTS')   .'"
+                WHEN lgl_shippments.sys_status = "PENDING_TRANSPORTER_APPROVAL"              THEN "'. __('contenttypes::inputs.shippment_status.options.PENDING_TRANSPORTER_APPROVAL') .'"
+                WHEN lgl_shippments.sys_status = "TRANSPORTER_APPROVED_WITH_PRICE_CHANGE"    THEN "'. __('contenttypes::inputs.shippment_status.options.TRANSPORTER_APPROVED_WITH_PRICE_CHANGE') .'"
+                WHEN lgl_shippments.sys_status = "CANCELED_DUE_DELAYED_TRANSPORTER_APPROVAL" THEN "'. __('contenttypes::inputs.shippment_status.options.CANCELED_DUE_DELAYED_TRANSPORTER_APPROVAL') .'"
+                WHEN lgl_shippments.sys_status = "PENDING_PICKUP"                            THEN "'. __('contenttypes::inputs.shippment_status.options.PENDING_PICKUP') .'"
+                WHEN lgl_shippments.sys_status = "PENDING_DELIVERY"                          THEN "'. __('contenttypes::inputs.shippment_status.options.PENDING_DELIVERY') .'"
+                WHEN lgl_shippments.sys_status = "DELIVERED_PENDING_PAYMENT"                 THEN "'. __('contenttypes::inputs.shippment_status.options.DELIVERED_PENDING_PAYMENT') .'"
+                WHEN lgl_shippments.sys_status = "COMPLETED"                                 THEN "'. __('contenttypes::inputs.shippment_status.options.COMPLETED')   .'"
+                WHEN lgl_shippments.sys_status = "CANCELLED"                                 THEN "'. __('contenttypes::inputs.shippment_status.options.CANCELLED')   .'"
+                WHEN lgl_shippments.sys_status = "RFQ_PENDING_TRANSPORTER_SELECTION"         THEN "'. __('contenttypes::inputs.shippment_status.options.RFQ_PENDING_TRANSPORTER_SELECTION')   .'"
+                WHEN lgl_shippments.sys_status = "RFQ_PENDING_TRANSPORTER_OFFER"             THEN "'. __('contenttypes::inputs.shippment_status.options.RFQ_PENDING_TRANSPORTER_OFFER')   .'"
                 ELSE "-----"
             END) AS new_status'),
             DB::raw('(CASE 
-                WHEN lgl_shippments.sys_status = "DRAFT"                                  THEN "muted"
-                WHEN lgl_shippments.sys_status = "MATCHING"                               THEN "info"
-                WHEN lgl_shippments.sys_status = "NO_MATCHING_CONTRACTS"                  THEN "danger"
-                WHEN lgl_shippments.sys_status = "PENDING_TRANSPORTER_APPROVAL"           THEN "warning"
-                WHEN lgl_shippments.sys_status = "TRANSPORTER_APPROVED_WITH_PRICE_CHANGE" THEN "warning"
-                WHEN lgl_shippments.sys_status = "PENDING_PICKUP"                         THEN "warning"
-                WHEN lgl_shippments.sys_status = "PENDING_DELIVERY"                       THEN "warning"
-                WHEN lgl_shippments.sys_status = "DELIVERED_PENDING_PAYMENT"              THEN "warning"
-                WHEN lgl_shippments.sys_status = "COMPLETED"                              THEN "success"
-                WHEN lgl_shippments.sys_status = "CANCELLED"                              THEN "danger"
+                WHEN lgl_shippments.sys_status = "DRAFT"                                     THEN "muted"
+                WHEN lgl_shippments.sys_status = "MATCHING"                                  THEN "info"
+                WHEN lgl_shippments.sys_status = "NO_MATCHING_CONTRACTS"                     THEN "danger"
+                WHEN lgl_shippments.sys_status = "PENDING_TRANSPORTER_APPROVAL"              THEN "warning"
+                WHEN lgl_shippments.sys_status = "TRANSPORTER_APPROVED_WITH_PRICE_CHANGE"    THEN "warning"
+                WHEN lgl_shippments.sys_status = "CANCELED_DUE_DELAYED_TRANSPORTER_APPROVAL" THEN "danger"
+                WHEN lgl_shippments.sys_status = "PENDING_PICKUP"                            THEN "warning"
+                WHEN lgl_shippments.sys_status = "PENDING_DELIVERY"                          THEN "warning"
+                WHEN lgl_shippments.sys_status = "DELIVERED_PENDING_PAYMENT"                 THEN "warning"
+                WHEN lgl_shippments.sys_status = "COMPLETED"                                 THEN "success"
+                WHEN lgl_shippments.sys_status = "CANCELLED"                                 THEN "danger"
+                WHEN lgl_shippments.sys_status = "RFQ_PENDING_TRANSPORTER_SELECTION"         THEN "warning"
+                WHEN lgl_shippments.sys_status = "RFQ_PENDING_TRANSPORTER_OFFER"             THEN "warning"
                 ELSE "danger"
             END) AS new_status_color'),
             DB::raw('(CASE 
@@ -291,12 +346,27 @@ class Shippment extends Model
         return $query;
     }
 
+    public function scopeWithDriverSelect($query)
+    {
+        $query->addSelect([
+            DB::raw('
+                driver.name AS driver_name,
+                driver.id_number AS driver_id_number,
+                driver.sys_status AS driver_sys_status
+            '),
+        ]);
+
+        $query->leftJoin('lgl_drivers AS driver', 'driver.id', '=', 'lgl_shippments.driver_id');
+
+        return $query;
+    }
+
     public function scopeWithWaybillSelect($query)
     {
         $query->addSelect([
             DB::raw('(
                 SELECT (CASE 
-                    WHEN waybill.file_path IS NOT NULL THEN CONCAT("'. app('GraphManager')->src('original', 'files', '-SQL-') .'", transportar.company_logo)
+                    WHEN waybill.file_path IS NOT NULL THEN CONCAT("'. app('GraphManager')->src('original', 'files', '-SQL-') .'", waybill.file_path)
                     ELSE NULL
                 END) FROM lgl_related_files AS waybill
                 WHERE waybill.related_id = lgl_shippments.id
@@ -304,6 +374,93 @@ class Shippment extends Model
                 AND waybill.file_tag = "WAYBILL"
             ) AS waybill_path'),
         ]);
+
+        return $query;
+    }
+
+    public function scopeWithCurrentTransportar($query)
+    {
+        $query->with([
+            'currentTransportar' => function($query) {},
+        ]);
+    }
+
+    public function scopeWithDriver($query)
+    {
+        $query->with([
+            'driver' => function($query) {},
+        ]);
+    }
+
+    public function scopeWithRfqSelectMeta($query)
+    {
+        $query->addSelect([
+            DB::raw('
+                DATE_FORMAT(lgl_shippments_rfqs.requested_at, "%b %d, %Y | %h:%i %p") AS new_requested_at,
+                DATE_FORMAT(lgl_shippments_rfqs.responded_at, "%b %d, %Y | %h:%i %p") AS new_responded_at
+            '),
+            DB::raw('
+                lgl_shippments_rfqs.total_price AS rfq_total_price
+            '),
+            DB::raw('(CASE 
+                WHEN lgl_shippments_rfqs.status = "PENDING"             THEN "'. __('contenttypes::inputs.rfq_status.options.PENDING')   .'"
+                WHEN lgl_shippments_rfqs.status = "PENDING_RESPONSE"    THEN "'. __('contenttypes::inputs.rfq_status.options.PENDING_RESPONSE')   .'"
+                WHEN lgl_shippments_rfqs.status = "RESPONSE_DELAYED"    THEN "'. __('contenttypes::inputs.rfq_status.options.RESPONSE_DELAYED')   .'"
+                WHEN lgl_shippments_rfqs.status = "PENDING_ACCEPTANCE"  THEN "'. __('contenttypes::inputs.rfq_status.options.PENDING_ACCEPTANCE')   .'"
+                WHEN lgl_shippments_rfqs.status = "ACCEPTED"            THEN "'. __('contenttypes::inputs.rfq_status.options.ACCEPTED')   .'"
+                WHEN lgl_shippments_rfqs.status = "REJECTED"            THEN "'. __('contenttypes::inputs.rfq_status.options.REJECTED')   .'"
+                ELSE "-----"
+            END) AS new_status'),
+            DB::raw('(CASE 
+                WHEN lgl_shippments_rfqs.status = "PENDING"   THEN "warning"
+                WHEN lgl_shippments_rfqs.status = "PENDING_RESPONSE"   THEN "warning"
+                WHEN lgl_shippments_rfqs.status = "RESPONSE_DELAYED"   THEN "danger"
+                WHEN lgl_shippments_rfqs.status = "PENDING_ACCEPTANCE" THEN "warning"
+                WHEN lgl_shippments_rfqs.status = "ACCEPTED"           THEN "success"
+                WHEN lgl_shippments_rfqs.status = "REJECTED"           THEN "danger"
+                ELSE "danger"
+            END) AS new_status_color'),
+            DB::raw('(CASE 
+                WHEN lgl_shippments.is_rfq = "YES" THEN "'. __('contenttypes::inputs.is_rfq.options.YES')   .'"
+                WHEN lgl_shippments.is_rfq = "NO"  THEN "'. __('contenttypes::inputs.is_rfq.options.NO')   .'"
+                ELSE "-----"
+            END) AS new_is_rfq'),
+            DB::raw('(CASE 
+                WHEN lgl_shippments.is_rfq = "YES" THEN "danger"
+                WHEN lgl_shippments.is_rfq = "NO"  THEN "primary"
+                ELSE "danger"
+            END) AS new_is_rfq_color'),
+        ]);
+
+        $query
+        ->join('lgl_shippments_rfq_transporters AS lgl_shippments_rfqs', 'lgl_shippments_rfqs.shippment_id', '=', 'lgl_shippments.id')
+        ->groupBy('lgl_shippments_rfqs.id');
+
+        return $query;
+    }
+
+    public function scopeWithRfqTransportarSelect($query)
+    {
+        $query->addSelect([
+            DB::raw('
+                transportar_user.name AS transportar_user_name,
+                transportar_user.email AS transportar_user_email,
+                transportar.company_name AS transportar_company_name,
+                transportar.company_email AS transportar_company_email,
+                (CASE 
+                    WHEN transportar.company_logo IS NULL THEN "'. app('GraphManager')->defaultSrc('400x400', 'company') .'"
+                    ELSE CONCAT("'. app('GraphManager')->src('400x400', 'company', '-SQL-') .'", transportar.company_logo)
+                END) AS transportar_company_logo,
+                transportar.company_phone_number_ext AS transportar_company_phone_number_ext,
+                transportar.company_phone_number AS transportar_company_phone_number,
+                transportar.registration_number AS transportar_registration_number,
+                transportar.tax_identification_number AS transportar_tax_identification_number,
+                transportar.sys_status AS transportar_sys_status
+            '),
+        ]);
+
+        $query->leftJoin('users AS transportar_user', 'transportar_user.id', '=', 'lgl_shippments_rfqs.transporter_user_id');
+        $query->leftJoin('lgl_company_profile AS transportar', 'transportar.user_id', '=', 'lgl_shippments_rfqs.transporter_user_id');
 
         return $query;
     }

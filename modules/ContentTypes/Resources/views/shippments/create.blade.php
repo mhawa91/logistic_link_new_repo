@@ -91,19 +91,19 @@
                                         name="total_weight"
                                         type="range"
                                         min="0"
-                                        max="250"
+                                        max="48"
                                         step="0.5"
                                         value="5"
                                         class="slider"
                                         id="weightRange"
                                         v-model="total_weight"
                                     />
-                                    <span class="max">250<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
+                                    <span class="max">48<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
                                 </div>
                                 <div class="marks">
                                     <span>5<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
-                                    <span>125<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
-                                    <span>250<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
+                                    <span>24<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
+                                    <span>48<span class="unit">{{ __('contenttypes::inputs.weight.tons') }}</span></span>
                                 </div>
                             </div>
                         </div>
@@ -270,26 +270,6 @@
                             ])
                         </div>
                         <div class="col-md-6">
-                            @component('ui::components.input', [
-                                'options' => [
-                                    'view'        => 'DEFAULT',
-                                    'type'        => 'number',
-                                    'step'       => '1',
-                                    'name'        => 'number_of_trucks',
-                                    'label'       => __('contenttypes::inputs.number_of_trucks.label'),
-                                    'placeholder' => __('contenttypes::inputs.number_of_trucks.placeholder'),
-                                    'description' => __('contenttypes::inputs.number_of_trucks.description'),
-                                    'attributes'  => [
-                                        'v-model' => 'number_of_trucks',
-                                    ]
-                                ],
-                            ])
-                                <x-slot name="after">
-                                    <div class="form-text-hint">
-                                        <small class="overline-title">{{ __('contenttypes::inputs.number_of_trucks.truck') }}</small>
-                                    </div>
-                                </x-slot>
-                            @endcomponent
                         </div>
                         <div class="col-md-6">
                             @component('ui::components.input', [
@@ -402,9 +382,42 @@
                                 'options' => [
                                     'view'        => 'DEFAULT',
                                     'type'        => 'file',
-                                    'name'        => 'ADDITIONAL_DATA',
+                                    'name'        => 'ATTACHMENT_1',
                                     'label'       => __('contenttypes::inputs.attachment_1.label'),
                                     'description' => __('contenttypes::inputs.attachment_1.description'),
+                                    'placeholder' => null,
+                                    'value'       => null,
+                                ],
+                            ])
+                            @include('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'file',
+                                    'name'        => 'ATTACHMENT_2',
+                                    'label'       => __('contenttypes::inputs.attachment_2.label'),
+                                    'description' => __('contenttypes::inputs.attachment_2.description'),
+                                    'placeholder' => null,
+                                    'value'       => null,
+                                ],
+                            ])
+                            @include('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'file',
+                                    'name'        => 'ATTACHMENT_3',
+                                    'label'       => __('contenttypes::inputs.attachment_3.label'),
+                                    'description' => __('contenttypes::inputs.attachment_3.description'),
+                                    'placeholder' => null,
+                                    'value'       => null,
+                                ],
+                            ])
+                            @include('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'file',
+                                    'name'        => 'ATTACHMENT_4',
+                                    'label'       => __('contenttypes::inputs.attachment_4.label'),
+                                    'description' => __('contenttypes::inputs.attachment_4.description'),
                                     'placeholder' => null,
                                     'value'       => null,
                                 ],
@@ -936,28 +949,70 @@
                     ],
                 ])
 
+                @include('ui::components.input', [
+                    'options' => [
+                        'view'        => 'INLINE',
+                        'type'        => 'hidden',
+                        'name'        => 'is_rfq',
+                        'value'       => '',
+                        'attributes'  => [
+                            'v-model' => 'is_rfq',
+                            ':name'   => "'is_rfq'",
+                        ]
+                    ],
+                ])
+
                 <div class="form-group mt-2 d-flex justify-between">
-                    <a href="{{ route('ShippmentsController@index') }}" class="btn btn-md btn-dim btn-secondary" v-show="step == 1">
+                    <a href="{{ route('ShippmentsController@index') }}" class="btn btn-md btn-wider btn-dim btn-secondary" v-show="step == 1">
                         <em class="icon ni ni-cross-circle"></em>
                         <span>{{ __('ui::strings.cancel') }}</span>
                     </a>
-                    <button type="button" class="btn btn-md btn-dim btn-secondary" v-show="step == 2" v-on:click="switchStep(1)">
-                        <em class="icon ni ni-exchange"></em>
+                    <button type="button" class="btn btn-md btn-dim btn-secondary btn-wider" v-show="step == 2" v-on:click="switchStep(1)">
+                        <em class="icon ni ni-arrow-left"></em>
                         <span>{{ __('ui::strings.previous') }}</span>
                     </button>
                     <div>
                         <button type="button" class="btn btn-md btn-primary" v-show="step == 1" v-on:click="switchStep(2)">
-                            <em class="icon ni ni-exchange"></em>
                             <span>{{ __('ui::strings.next') }}</span>
+                            <em class="icon ni ni-arrow-right"></em>
                         </button>
-                        <button type="button" id="save_as_draft" class="btn btn-md btn-secondary" v-show="step == 2" data-type="submit">
+                        {{-- <button type="button" id="save_as_draft" class="btn btn-md btn-secondary" v-show="step == 2" data-type="submit">
                             <em class="icon ni ni-done"></em>
                             <span>{{ __('contenttypes::strings.shippments.save_as_draft') }}</span>
                         </button>
                         <button type="button" id="save_and_send" class="btn btn-md btn-primary" v-show="step == 2" data-type="submit">
                             <em class="icon ni ni-done"></em>
                             <span>{{ __('contenttypes::strings.shippments.save_and_send') }}</span>
-                        </button>
+                        </button> --}}
+                        <div class="dropdown" v-show="step == 2">
+                            <button type="button" class="btn btn-primary btn-wider" data-toggle="dropdown" style="min-width: 275px;" data-type="submit">
+                                <span>{{ __('contenttypes::strings.shippments.save') }}</span>
+                                <em class="icon ni ni-chevron-down"></em>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-auto mt-1">
+                                <ul class="link-list-opt no-bdr">
+                                    <li>
+                                        <a href="javascript:;" id="save_as_draft" class="text-muted">
+                                            <em class="icon ni ni-alert"></em>
+                                            <span>{{ __('contenttypes::strings.shippments.save_as_draft') }}</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:;" id="save_and_send" class="text-success">
+                                            <em class="icon ni ni-done"></em>
+                                            <span>{{ __('contenttypes::strings.shippments.save_and_send') }}</span>
+                                        </a>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li>
+                                        <a href="javascript:;" id="save_and_send_rfq" class="text-danger">
+                                            <em class="icon ni ni-info"></em>
+                                            <span>{{ __('contenttypes::strings.shippments.save_and_send_rfq') }}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             @endcomponent
@@ -991,6 +1046,7 @@
                 step             : 1,
                 loading_type     : 'CITY_TO_CITY',
                 is_draft         : 'N',
+                is_rfq           : 'N',
                 loading_address : {
                     id      : null,
                     city    : null,
@@ -1308,9 +1364,16 @@
 
         $(document).on('click', '#save_as_draft', function() {
             CrudApp.$data.is_draft = 'Y';
+            CrudApp.$data.is_rfq   = 'N';
             CrudApp.submit();
         });
         $(document).on('click', '#save_and_send', function() {
+            CrudApp.$data.is_draft = 'N';
+            CrudApp.$data.is_rfq   = 'N';
+            CrudApp.submit();
+        });
+        $(document).on('click', '#save_and_send_rfq', function() {
+            CrudApp.$data.is_rfq   = 'Y';
             CrudApp.$data.is_draft = 'N';
             CrudApp.submit();
         });

@@ -9,6 +9,7 @@ use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract;
 use Astrotomic\Translatable\Translatable;
 use Modules\SystemCore\Entities\Helpers\TranslatableHelper;
 
+use DB;
 use Modules\SystemCore\Entities;
 
 class Address extends Model 
@@ -40,6 +41,7 @@ class Address extends Model
         'lng',
         'round_trip',
         'sys_status',
+        'delivered_at',
         'created_by_user_id',
         'updated_by_user_id',
     ];
@@ -52,5 +54,23 @@ class Address extends Model
     public function city()
     {
         return $this->belongsTo(Entities\City::class, 'city_id', 'id');
+    }
+
+    public function scopeWithCountryAndCitySelect($query)
+    {
+        $locale = in_array(app()->getLocale(), ['ar', 'en']) ? app()->getLocale() : 'en';
+
+        $query->addSelect([
+            DB::raw('
+                country.sortname AS country_code,
+                country.name_'. ($locale) .' AS country_name,
+                city.name_'. ($locale) .' AS city_name
+            '),
+        ]);
+
+        $query->leftJoin('countries AS country', 'country.id', '=', 'lgl_addressess.country_id');
+        $query->leftJoin('cities AS city', 'city.id', '=', 'lgl_addressess.city_id');
+
+        return $query;
     }
 }

@@ -24,6 +24,20 @@ class ShippmentService extends ModelService
                     'action' => route('ShippmentsController@read', ['model' => $Row->id]),
                 ];
             });
+            if(auth()->check() && auth()->user()->type == 'DEFAULT') {
+                $this->registerDataTableAction('rfq_read', function($Row) {
+                    return $Row->is_rfq == 'YES' ? [
+                        'label'  => __('ui::strings.read'),
+                        'action' => route('ShippmentsController@read', ['model' => $Row->id, 'rfq_user_id' => $Row->rfq_transporter_user_id]),
+                    ] : null;
+                });
+                $this->registerDataTableAction('rfq_list', function($Row) {
+                    return $Row->is_rfq == 'YES' ? [
+                        'label'  => __('contenttypes::strings.shippments_rfqs.menu'),
+                        'action' => route('RfqController@index', ['shippment_id' => $Row->id]),
+                    ] : null;
+                });
+            }
         }
         if ($this->can('update')) {
             $this->registerDataTableAction('update', function($Row) {
@@ -69,14 +83,14 @@ class ShippmentService extends ModelService
     public function validator($type = 'create', array $data = [])
     {
         $rules = [
-            'total_weight'          => 'required|numeric',
+            'total_weight'          => 'required|numeric|min:0.1|max:48',
             'commodity_id'          => 'required|array',
             'commodity_id.*'        => 'required|numeric',
             'declared_order_value'  => 'required|numeric',
             'load_size_id'          => 'required|numeric',
             'load_type_id'          => 'required|numeric',
             'number_of_pallets'     => 'required|numeric|min:1',
-            'number_of_trucks'      => 'required|numeric|min:1',
+            // 'number_of_trucks'      => 'required|numeric|min:1',
             'truck_type_id'         => 'required|numeric',
             'temperature'           => 'required|numeric',
             'equipment_length'      => 'required|numeric|min:0.1',
@@ -84,11 +98,14 @@ class ShippmentService extends ModelService
             'delivery_required_at'  => 'required|date_format:Y-m-d',
             'public_notes'          => 'nullable',
             'private_notes'         => 'nullable',
-            'ADDITIONAL_DATA'       => 'nullable|file',
+            'ATTACHMENT_1'          => 'nullable|file',
+            'ATTACHMENT_2'          => 'nullable|file',
+            'ATTACHMENT_3'          => 'nullable|file',
+            'ATTACHMENT_4'          => 'nullable|file',
 
             'from_city_id'          => 'required|numeric|exists:cities,id',
             'to_city_id'            => 'required|numeric|exists:cities,id',
-            'loading_type'          => 'required|required|in:' . collect(config('contenttypes.loadingTypes'))->pluck('id')->implode(','),
+            'loading_type'          => 'required|in:' . collect(config('contenttypes.loadingTypes'))->pluck('id')->implode(','),
 
             'loading_address'                                      => 'required|array',
             'loading_address.primary_contact_company_name'         => 'required',
@@ -126,18 +143,16 @@ class ShippmentService extends ModelService
     protected function keywordFilter($query, string $keyword = null)
     {
         $query->where(function($Model) use($keyword) {
-            $Model->whereHas('translations', function($Rel) use($keyword) {
-                $Rel->where('title', 'like', "%{$keyword}%");
-            });
         });
     }
 
     protected function advancedFilter($query, array $filter = [])
     {
-        if (! empty($filter['title'])) {
-            $query->whereHas('translations', function($Rel) use($filter) {
-                $Rel->where('title', 'like', "%{$filter['title']}%");
-            });
+        if (! empty($filter['is_rfq'])) {
+            $query->where('is_rfq', $filter['is_rfq']);
+        }
+        if (! empty($filter['shippment_id'])) {
+            $query->where('lgl_shippments_rfqs.shippment_id', $filter['shippment_id']);
         }
     }
 
@@ -153,19 +168,77 @@ class ShippmentService extends ModelService
         ->WithLocationsCountSelect()
         ->WithWaybillSelect()
         ->when(auth()->check() && auth()->user()->type == 'DEFAULT', function($query) {
-            $query->where('company_user_id', auth()->id());
+            $query->where('lgl_shippments.company_user_id', auth()->id());
         })
         ->when(auth()->check() && auth()->user()->type == 'TRANSPORTER', function($query) {
-            $query->whereHas('matchedTransportars', function($rel) {
-                $rel->where('transporter_user_id', auth()->id());
-                $rel->whereIn('status', ['PENDING_RESPONSE', 'ACCEPTED']);
+            $query->where(function($query) {
+                $query->whereHas('matchedTransportars', function($rel) {
+                    $rel->where('transporter_user_id', auth()->id());
+                    $rel->whereIn('status', ['PENDING_RESPONSE', 'ACCEPTED']);
+                });
+                $query->orWhereHas('rfqs', function($rel) {
+                    $rel->where('transporter_user_id', auth()->id());
+                    $rel->whereIn('status', ['PENDING_RESPONSE', 'PENDING_ACCEPTANCE', 'ACCEPTED']);
+                });
             });
         })
         ->when(auth()->check() && auth()->user()->type != 'DEFAULT' && auth()->user()->type != 'TRANSPORTER', function($query) {
             $query;
         });
 
-        return parent::dataTable($Filter);
+        $helper = app(\Modules\SystemCore\System\Classes\Helpers::class);
+        $table  = parent::dataTable($Filter);
+
+        $table->addColumn('formated_total_price', function($row) use($helper) {
+            return $helper->moneyFormat($row->total_price, 2)->abs;
+        });
+
+        return $table;
+    }
+
+    public function rfqDataTable($Filter = null)
+    {
+        $this->model()->select([
+            'lgl_shippments.*',
+            DB::raw('
+                lgl_shippments_rfqs.id AS rfq_id,
+                lgl_shippments_rfqs.transporter_user_id AS rfq_transporter_user_id
+            ')
+        ])
+        ->WithRfqSelectMeta()
+        ->WithClientSelect()
+        ->WithRfqTransportarSelect()
+        ->WithCountryAndCitySelect()
+        ->WithLocationsCountSelect()
+        ->where('lgl_shippments.is_rfq', 'YES')
+        ->where('lgl_shippments.sys_status', '!=', 'DRAFT')
+        ->when(auth()->check() && auth()->user()->type == 'DEFAULT', function($query) {
+            $query->where('lgl_shippments.company_user_id', auth()->id());
+        })
+        ->when(auth()->check() && auth()->user()->type == 'TRANSPORTER', function($query) {
+            $query->where(function($query) {
+                $query->whereHas('matchedTransportars', function($rel) {
+                    $rel->where('transporter_user_id', auth()->id());
+                    $rel->whereIn('status', ['PENDING_RESPONSE', 'ACCEPTED']);
+                });
+                $query->orWhereHas('rfqs', function($rel) {
+                    $rel->where('transporter_user_id', auth()->id());
+                    $rel->whereIn('status', ['PENDING_RESPONSE', 'PENDING_ACCEPTANCE', 'ACCEPTED']);
+                });
+            });
+        })
+        ->when(auth()->check() && auth()->user()->type != 'DEFAULT' && auth()->user()->type != 'TRANSPORTER', function($query) {
+            $query;
+        });
+
+        $helper = app(\Modules\SystemCore\System\Classes\Helpers::class);
+        $table  = parent::dataTable($Filter);
+
+        $table->addColumn('formated_total_price', function($row) use($helper) {
+            return $helper->moneyFormat($row->rfq_total_price, 2)->abs;
+        });
+
+        return $table;
     }
 
     public function export($filter = null)
@@ -195,13 +268,13 @@ class ShippmentService extends ModelService
             'to_country_id'        => 191,
             'to_city_id'           => $data['to_city_id'],
             'round_trip'           => 'NO',
-            'is_rfq'               => 'NO',
+            'is_rfq'               => $data['is_rfq'] == 'Y' ? 'YES' : 'NO',
             'total_weight'         => $data['total_weight'],
             'decalred_value'       => $data['declared_order_value'],
             'load_size_id'         => $data['load_size_id'],
             'load_type_id'         => $data['load_type_id'],
             'number_of_pallets'    => $data['number_of_pallets'],
-            'number_of_trucks'     => $data['number_of_trucks'],
+            'number_of_trucks'     => 1,
             'truck_type_id'        => $data['truck_type_id'],
             'temperature'          => $data['temperature'],
             'equipment_length'     => $data['equipment_length'],
@@ -212,12 +285,15 @@ class ShippmentService extends ModelService
             'type'                 => $data['loading_type'],
             'created_by_user_id'   => auth()->id(),
             'updated_by_user_id'   => null,
-            'sys_status'           => $data['is_draft'] == 'Y' ? 'DRAFT' : 'MATCHING',
+            'sys_status'           => $data['is_draft'] == 'Y' ? 'DRAFT' : ($data['is_rfq'] == 'Y' ? 'RFQ_PENDING_TRANSPORTER_SELECTION' : 'MATCHING'),
         ];
 
         $model = parent::create( $ModelData )->data();
 
-        $this->syncFile($model, 'ADDITIONAL_DATA', $data['ADDITIONAL_DATA'] ?? null);
+        $this->syncFile($model, 'ATTACHMENT_1', $data['ATTACHMENT_1'] ?? null);
+        $this->syncFile($model, 'ATTACHMENT_2', $data['ATTACHMENT_2'] ?? null);
+        $this->syncFile($model, 'ATTACHMENT_3', $data['ATTACHMENT_3'] ?? null);
+        $this->syncFile($model, 'ATTACHMENT_4', $data['ATTACHMENT_4'] ?? null);
 
         $commodities = collect($data['commodity_id'] ?? [])->map(function($id) use($model) {
             return [
@@ -292,13 +368,13 @@ class ShippmentService extends ModelService
             'to_country_id'        => 191,
             'to_city_id'           => $data['to_city_id'],
             'round_trip'           => 'NO',
-            'is_rfq'               => $this->data->is_rfq,
+            'is_rfq'               => $data['is_rfq'] == 'Y' ? 'YES' : 'NO',
             'total_weight'         => $data['total_weight'],
             'decalred_value'       => $data['declared_order_value'],
             'load_size_id'         => $data['load_size_id'],
             'load_type_id'         => $data['load_type_id'],
             'number_of_pallets'    => $data['number_of_pallets'],
-            'number_of_trucks'     => $data['number_of_trucks'],
+            'number_of_trucks'     => 1,
             'truck_type_id'        => $data['truck_type_id'],
             'temperature'          => $data['temperature'],
             'equipment_length'     => $data['equipment_length'],
@@ -309,12 +385,15 @@ class ShippmentService extends ModelService
             'type'                 => $data['loading_type'],
             'created_by_user_id'   => $this->data->created_by_user_id,
             'updated_by_user_id'   => auth()->id(),
-            'sys_status'           => $data['is_draft'] == 'Y' ? 'DRAFT' : 'MATCHING',
+            'sys_status'           => $data['is_draft'] == 'Y' ? 'DRAFT' : ($data['is_rfq'] == 'Y' ? 'RFQ_PENDING_TRANSPORTER_SELECTION' : 'MATCHING'),
         ];
 
         $model = parent::update( $ModelData )->data();
 
-        $this->syncFile($model, 'ADDITIONAL_DATA', $data['ADDITIONAL_DATA'] ?? null);
+        $this->syncFile($model, 'ATTACHMENT_1', $data['ATTACHMENT_1'] ?? null);
+        $this->syncFile($model, 'ATTACHMENT_2', $data['ATTACHMENT_2'] ?? null);
+        $this->syncFile($model, 'ATTACHMENT_3', $data['ATTACHMENT_3'] ?? null);
+        $this->syncFile($model, 'ATTACHMENT_4', $data['ATTACHMENT_4'] ?? null);
 
         $commodities = collect($data['commodity_id'] ?? [])->map(function($id) use($model) {
             return [

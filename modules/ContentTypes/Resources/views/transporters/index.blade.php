@@ -28,6 +28,11 @@
                                 <em class="icon ni ni-plus"></em><span>{{ __('contenttypes::strings.transporters.create') }}</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('PublicTransportarsController@index') }}" class="btn btn-primary">
+                                <em class="icon ni ni-list"></em><span>{{ __('contenttypes::strings.all_transporters') }}</span>
+                            </a>
+                        </li>
                         {{-- <li class="nk-block-tools-opt">
                             <a href="#" class="btn btn-white btn-outline-light">
                                 <em class="icon ni ni-download-cloud"></em><span>Export</span>

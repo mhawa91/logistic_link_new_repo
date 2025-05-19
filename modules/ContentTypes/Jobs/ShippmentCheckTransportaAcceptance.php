@@ -67,10 +67,28 @@ class ShippmentCheckTransportaAcceptance implements ShouldQueue
             if ($nextTransportar) {
                 $nextTransportar->status = 'PENDING_RESPONSE';
                 $nextTransportar->save();
-                $this->nextMatchedTransportar = $nextTransportar;
+
+                $this->shippment->transporter_user_id           = $nextTransportar->transporter_user_id;
+                $this->shippment->price                         = $nextTransportar->price;
+                $this->shippment->pre_additional_location_price = $nextTransportar->pre_additional_location_price;
+                $this->shippment->total_price                   = $nextTransportar->total_price;
+                $this->shippment->contract_id                   = $nextTransportar->contract_id;
+                $this->shippment->contract_instance_id          = $nextTransportar->contract_instance_id;
+                $this->shippment->save();
+
+                $this->nextMatchedTransportar                   = $nextTransportar;
             }
             else {
-                $this->shippment->sys_status = 'CANCELLED';
+                $this->shippment->transporter_user_id                   = null;
+                $this->shippment->price                                 = 0;
+                $this->shippment->pre_additional_location_price         = 0;
+                $this->shippment->total_price                           = 0;
+                $this->shippment->updated_price                         = 0;
+                $this->shippment->updated_pre_additional_location_price = 0;
+                $this->shippment->updated_total_price                   = 0;
+                $this->shippment->contract_id                           = null;
+                $this->shippment->contract_instance_id                  = null;
+                $this->shippment->sys_status                            = 'CANCELED_DUE_DELAYED_TRANSPORTER_APPROVAL';
                 $this->shippment->save();
             }
         }

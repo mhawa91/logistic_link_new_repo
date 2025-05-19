@@ -166,6 +166,9 @@ class ContentTypesServiceProvider extends ServiceProvider
             $isConsumer = function() {
                 return auth()->check() && (auth()->user()->isAn('DEFAULT') || auth()->user()->isAn('TRANSPORTER'));
             };
+            $isClient = function() {
+                return auth()->check() && (auth()->user()->isAn('DEFAULT'));
+            };
 
             app(\Modules\SystemCore\Entities\Contracts\SystemConfigInterface::class)->register([
                 'ordering'  => 0,
@@ -601,6 +604,20 @@ class ContentTypesServiceProvider extends ServiceProvider
                     'data' => 'icon ni ni-layers',
                 ],
                 'show'      => $isConsumer,
+            ]);
+            app('Ui')->registerMainMenuItem([
+                'id'        => 'consumer/shippments_rfqs',
+                'parent_id' => 'AdminDashboardController',
+                'ordering'  => 0,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('RfqController@index'),
+                'text'      => __('contenttypes::strings.shippments_rfqs.menu'),
+                'icon'      => [
+                    'name' => 'DEFAULT',
+                    'type' => 'em', //em | i | svg | span
+                    'data' => 'icon ni ni-list-index',
+                ],
+                'show'      => $isClient,
             ]);
             app('Ui')->registerMainMenuItem([
                 'id'        => 'consumer/transporters',

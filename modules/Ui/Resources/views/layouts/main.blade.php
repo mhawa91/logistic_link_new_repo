@@ -265,6 +265,9 @@
         .underline {
             text-decoration: underline !important;
         }
+        .form-control[readonly] {
+            background-color: #ffffff;
+        }
     </style>
     @if ($_DIR_ == 'rtl')
         <style>
