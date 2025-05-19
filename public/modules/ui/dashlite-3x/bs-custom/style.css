@@ -282,3 +282,16 @@ table th.fit, table td.fit {
     font-weight: 600;
     font-size: 14px;
 }
+.d-stastic-block1{
+    width: 60%;
+}
+.d-stastic-block2{
+    text-align: center;
+    width: 40%;
+}
+.company-shipments{
+    height: 230px;
+}
+.how-it-works .card-inner{
+    border: 1px solid #DBDFEA;
+}
