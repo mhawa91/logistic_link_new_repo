@@ -15,6 +15,9 @@ use Bouncer;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
+use Illuminate\Support\Facades\Crypt;
+use Modules\ContentTypes\Jobs\SendTransportarInvitationEmail;
+
 class TransporterService extends ModelService
 {
     public function register() 
@@ -370,8 +373,13 @@ class TransporterService extends ModelService
                 'sys_status'   => 'ACTIVE',
             ]);
             Bouncer::assign('TRANSPORTER')->to($user);
-            // TO DO: Send email to user with call to action to complete his profile
+            $userHash = Crypt::encryptString(json_encode([
+                'id'    => $user->id,
+                'email' => $user->email,
+            ]));
+            SendTransportarInvitationEmail::dispatch($user, $userHash);
         }
+        
         return $user;
     }
 
