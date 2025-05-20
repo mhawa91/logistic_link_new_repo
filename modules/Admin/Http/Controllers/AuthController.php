@@ -27,6 +27,17 @@ class AuthController extends SystemCoreHttpController
 
     public function login(Request $Request)
     {
+        if ($Request->hash) {
+            try {
+                $userData = Crypt::decryptString($Request->hash);
+                $userData = json_decode($userData, true);
+                if (! empty($userData['id'])) {
+                    Auth::loginUsingId($userData['id'], true);
+                    return redirect()->route('AdminDashboardController@index');
+                }
+            } 
+            catch (Exception $e) { }
+        }
         return view('ui::auth.login', $this->data);
     }
 
