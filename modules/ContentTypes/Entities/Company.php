@@ -84,18 +84,19 @@ class Company extends Model
 
     public function scopeOnlySuitableForShippment($query, $shippment)
     {
-        return $query->whereHas('user', function($query) use($shippment) {
+        $type = $shippment->round_trip == 'YES' ? 'CITY_TO_CITY_ROUND_TRIP' : $shippment->type;
+        return $query->whereHas('user', function($query) use($shippment, $type) {
             $query->where('users.type', 'TRANSPORTER');
             $query->where('users.sys_status', 'ACTIVE');
-            $query->whereHas('contracts', function($query) use($shippment) {
-                $query->whereHas('instances', function($query) use($shippment) {
-                    $query->whereHas('pricing',function($query) use($shippment) {
+            $query->whereHas('contracts', function($query) use($shippment, $type) {
+                $query->whereHas('instances', function($query) use($shippment, $type) {
+                    $query->whereHas('pricing',function($query) use($shippment, $type) {
                         $query->where('truck_type_id', $shippment->truck_type_id);
                         $query->where('from_country_id', $shippment->from_country_id);
                         $query->where('from_city_id', $shippment->from_city_id);
                         $query->where('to_country_id', $shippment->to_country_id);
                         $query->where('to_city_id', $shippment->to_city_id);
-                        $query->where('type', $shippment->type);
+                        $query->where('type', $type);
                     });
                 });
             });
