@@ -159,6 +159,11 @@ class Shippment extends Model
         return $this->hasMany(ShippmentTransporter::class, 'shippment_id', 'id');
     }
 
+    public function matchedTransportar()
+    {
+        return $this->hasOne(ShippmentTransporter::class, 'shippment_id', 'id');
+    }
+
     public function currentTransportar()
     {
         return $this->hasOne(ShippmentTransporter::class, 'shippment_id', 'id')

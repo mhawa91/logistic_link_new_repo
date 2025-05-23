@@ -208,7 +208,7 @@ class TransporterService extends ModelService
     }
 
     public function update(array $data = [])
-    {        
+    {
         $ModelData = [
             'company_user_id'     => $this->data->company_user_id,
             'transporter_user_id' => $this->data->transporter_user_id,
@@ -379,7 +379,6 @@ class TransporterService extends ModelService
             ]));
             SendTransportarInvitationEmail::dispatch($user, $userHash);
         }
-        
         return $user;
     }
 

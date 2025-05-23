@@ -19,14 +19,6 @@ class SendTransportarInvitationEmail implements ShouldQueue
 
     public $hash;
 
-    // $data = [
-    //     'full_name' => $Request->full_name,
-    //     'email'     => $Request->email,
-    //     'password'  => $Request->password,
-    //     'type'      => $Request->type,
-    //     'code'      => config('app.env', 'production') == 'production' ? rand(1000, 9999) : 1111,
-    // ];
-
     /**
      * Create a new job instance.
      *

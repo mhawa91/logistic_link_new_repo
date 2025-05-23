@@ -112,7 +112,12 @@ class ShippmentSendToTransportar implements ShouldQueue
             $this->start();
         });
 
-        ShippmentCheckTransportaAcceptance::dispatch($this->shippment, $this->matchedTransportar)->delay(now()->addMinutes(15));
+        if($this->shippment && $this->matchedTransportar) {
+            ShippmentCheckTransportaAcceptance::dispatch($this->shippment, $this->matchedTransportar)->delay(now()->addMinutes(15));
+            SendTransportarShippmentRequestEmail::dispatch($this->matchedTransportar->transporterUser, [
+                $this->shippment->id
+            ]);
+        }
     }
 
     public function start()
@@ -121,9 +126,9 @@ class ShippmentSendToTransportar implements ShouldQueue
         $this->matchedTransportar->requested_at = now()->format('Y-m-d H:i:s');
         $this->matchedTransportar->responded_at = null;
         $this->matchedTransportar->save();
-        // TO DO: Send email to transporter with shippment details
 
         $this->shippment->updated_at = now()->format('Y-m-d H:i:s');
         $this->shippment->save();
+
     }
 }

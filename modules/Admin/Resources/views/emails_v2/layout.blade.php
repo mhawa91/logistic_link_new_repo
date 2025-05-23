@@ -82,7 +82,7 @@
     <center style="width: 100%; background-color: #f5f6fa;">
         <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#f5f6fa">
             <tr>
-               <td style="padding: 40px 0;">
+                <td style="padding: 40px 0;">
                     <table style="width:100%;max-width:620px;margin:0 auto;">
                         <tbody>
                             <tr>
