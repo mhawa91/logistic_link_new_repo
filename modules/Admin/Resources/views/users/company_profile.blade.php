@@ -98,7 +98,7 @@
                                 ])
                             </div>
                             <div class="col-md-6">
-                                @include('ui::components.input', [
+                                @component('ui::components.input', [
                                     'options' => [
                                         'view'        => 'DEFAULT',
                                         'type'        => 'text',
@@ -106,10 +106,16 @@
                                         'label'       => __('contenttypes::inputs.company_phone_number.label'),
                                         'placeholder' => __('contenttypes::inputs.company_phone_number.placeholder'),
                                         'description' => __('contenttypes::inputs.company_phone_number.description'),
-                                        'value'       => $model->company?->company_phone_number ? '+' . $model->company?->company_phone_number_ext . $model->company?->company_phone_number : null,
+                                        'value'       => $model->company?->company_phone_number ?? null,
                                         'attributes'  => ['dir' => 'ltr', 'style' => 'text-align: ' . ($_DIR_ == 'ltr' ? 'left' : 'right')],
                                     ],
                                 ])
+                                    <x-slot name="after">
+                                        <div class="form-text-hint">
+                                            <strong class="overline-title" dir="ltr">+966</strong>
+                                        </div>
+                                    </x-slot>
+                                @endcomponent
                             </div>
                         </div>
                     </div>

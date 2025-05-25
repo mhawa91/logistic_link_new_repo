@@ -186,7 +186,7 @@ class UsersController extends SystemCoreHttpController
         $this->data['ValidatorCompany']->validate();
 
         DB::transaction(function() use($Request, $UserService, $Company) {
-            $phone = strtolower($Request->company_phone_number);
+            $phone = strtolower('+966' . $Request->company_phone_number);
             $phone = app(\Modules\SystemCore\System\Classes\Helpers::class)->phoneNumberParts($phone);
             $UserService->updateProfile($this->data['UserData']);
             
