@@ -115,4 +115,6 @@ return [
     'signup_confirm' => 'Confirm your account',
     'signup_confirm_note' => 'Enter the code sent to your email to confirm your account',
     'confirm' => 'Confirm',
+    'next'        => 'Next Step',
+    'previous'    => 'Previous Step',
 ];
