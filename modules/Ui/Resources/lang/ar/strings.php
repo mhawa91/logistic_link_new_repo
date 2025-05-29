@@ -2,7 +2,7 @@
 
 return [
     'app' => [
-        'name'  => 'Beyond 360'
+        'name'  => 'Logistic Link'
     ],
     'powered_by'               => 'مقدم من قبل',
     'all_rights_reserved'      => 'جميع الحقوق محفوظة',
