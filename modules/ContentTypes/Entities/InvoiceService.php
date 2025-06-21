@@ -84,13 +84,14 @@ class InvoiceService extends ModelService
                 'ATTACHMENT' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             ];
         }
-        if (auth()->user()->isAn('TRANSPORTER') && $this->data->sys_status == 'PENDING_SUPPLIER_REVIEW') {
-            $rules = [];
-        }
+        
         if ($type == 'create') {
             return Validator::make($data, $rules);
         }
         if ($type == 'update') {
+            if (auth()->user()->isAn('TRANSPORTER') && $this->data->sys_status == 'PENDING_SUPPLIER_REVIEW') {
+                $rules = [];
+            }
             return Validator::make($data, $rules);
         }
     }
