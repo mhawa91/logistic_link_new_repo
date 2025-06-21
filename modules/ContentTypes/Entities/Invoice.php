@@ -131,9 +131,9 @@ class Invoice extends Model
             DB::raw('
                 DATE_FORMAT(lgl_invoices.created_at, "%b %d, %Y | %h:%i %p")  AS new_created_at,
                 DATE_FORMAT(lgl_invoices.updated_at, "%b %d, %Y | %h:%i %p")  AS new_updated_at,
-                DATE_FORMAT(lgl_invoices.invoiced_at, "%b %d, %Y | %h:%i %p") AS new_invoiced_at,
-                DATE_FORMAT(lgl_invoices.due_at, "%b %d, %Y | %h:%i %p")      AS new_due_at,
-                DATE_FORMAT(lgl_invoices.paid_at, "%b %d, %Y | %h:%i %p")     AS new_paid_at
+                DATE_FORMAT(lgl_invoices.invoiced_at, "%b %d, %Y") AS new_invoiced_at,
+                DATE_FORMAT(lgl_invoices.due_at, "%b %d, %Y")      AS new_due_at,
+                DATE_FORMAT(lgl_invoices.paid_at, "%b %d, %Y")     AS new_paid_at
             '),
             DB::raw('(CASE 
                 WHEN lgl_invoices.sys_status = "PENDING"                   THEN "'. __('contenttypes::inputs.invoice_status.options.PENDING')   .'"
