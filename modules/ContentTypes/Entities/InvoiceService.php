@@ -260,6 +260,12 @@ class InvoiceService extends ModelService
                 'sys_status'         => 'PAID',
             ];
             $model = parent::update( $ModelData )->data();
+            $shippments = Shippment::whereIn('id', $model->items()->pluck('shippment_id')->toArray())->get();
+            $shippments->each(function($shippment) use($model) {
+                $shippment->sys_status = 'COMPLETED';
+                $shippment->invoice_id = $model->id;
+                $shippment->save();
+            });
             return $model;
         }
 
