@@ -381,8 +381,8 @@ class User extends Authenticatable implements JWTSubject
             '),
         ]);
 
-        $query->join('users AS transportar_user', 'transportar_user.id', '=', 'invoices.company_user_id');
-        $query->join('lgl_company_profile AS transportar', 'transportar.user_id', '=', 'invoices.company_user_id');
+        $query->join('users AS transportar_user', 'transportar_user.id', '=', 'invoices.transportar_user_id');
+        $query->join('lgl_company_profile AS transportar', 'transportar.user_id', '=', 'invoices.transportar_user_id');
 
         return $query;
     }
