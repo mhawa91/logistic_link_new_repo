@@ -289,15 +289,27 @@ class ShippmentsController extends SystemCoreHttpController
 
     public function postCreate(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
     {
-        $this->data['Validator'] = $ShippmentService->validator('create', $Request->all());
+        $this->data['Validator']  = $ShippmentService->validator('create', $Request->all());
         $this->data['Validator']->validate();
-        $shippment = DB::transaction(function() use($Request, $ShippmentService) {
-            return $ShippmentService->create($Request->all());
+        $this->data['shippments'] = collect([]);
+        
+        DB::transaction(function() use($Request, $ShippmentService) {
+            if($Request->number_of_trucks && $Request->number_of_trucks > 0) {
+                for($i = 0; $i < $Request->number_of_trucks; $i++) {
+                    $this->data['shippments']->push(
+                        $ShippmentService->create($Request->all())
+                    );
+                }
+            }
         });
 
-        if($shippment->sys_status == 'MATCHING') {
-            Jobs\ShippmentMatchTransportar::dispatch($shippment);
-        }
+        $this->data['shippments']->each(function($shippment) {
+            if($shippment->sys_status == 'MATCHING') {
+                Jobs\ShippmentMatchTransportar::dispatch($shippment);
+            }
+        });
+
+        $shippment = $this->data['shippments']->first();
 
         if($Request->is_rfq == 'Y') {
             return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([

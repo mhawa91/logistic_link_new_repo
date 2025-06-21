@@ -338,7 +338,7 @@ return [
     'number_of_trucks' => [
         'label'       => 'عدد الشاحنات',
         'placeholder' => 'أدخل عدد الشاحنات',
-        'description' => 'عدد الشاحنات',
+        'description' => 'يرجى الملاحظة ان النظام سيقوم بانشاء شحنة لكل شاحنة مطلوبة',
         'truck'       => 'شاحنة',
     ],
     'temperature' => [
@@ -446,7 +446,8 @@ return [
             'CANCELED_DUE_DELAYED_TRANSPORTER_APPROVAL' => 'ملغي بسبب تأخر موافقة الناقل',
             'PENDING_PICKUP'                            => 'في انتظار الاستلام',
             'PENDING_DELIVERY'                          => 'في انتظار التسليم',
-            'DELIVERED_PENDING_PAYMENT'                 => 'تم التسليم في انتظار الدفع',
+            'DELIVERED_PENDING_PAYMENT'                 => 'تم التسليم في انتظار الفوترة',
+            'INVOICED'                                  => 'تمت الفوترة بانتظار الدفع',
             'COMPLETED'                                 => 'مكتمل',
             'CANCELLED'                                 => 'ملغي',
             'RFQ_PENDING_TRANSPORTER_SELECTION'         => 'في انتظار اختيار الناقل',
@@ -633,6 +634,84 @@ return [
             'PENDING_ACCEPTANCE'=> 'بانتظار قبول العميل',
             'ACCEPTED'          => 'مقبول',
             'REJECTED'          => 'مرفوض',
+        ],
+    ],
+    'invoice_number' => [
+        'label'       => 'رقم الفاتورة',
+        'placeholder' => 'أدخل رقم الفاتورة',
+        'description' => 'رقم الفاتورة',
+    ],
+    'invoice_file' => [
+        'label'       => 'ملف الفاتورة',
+        'placeholder' => 'أدخل ملف الفاتورة',
+        'description' => 'ملف الفاتورة',
+        'upload'      => 'رفع ملف الفاتورة',
+        'download'    => 'تحميل ملف الفاتورة',
+        'view_file'   => 'عرض ملف الفاتورة',
+    ],
+    'invoice_note' => [
+        'label'       => 'ملاحظة الفاتورة',
+        'placeholder' => 'أدخل ملاحظة الفاتورة',
+        'description' => 'ملاحظة الفاتورة',
+    ],
+    'invoiced_at' => [
+        'label'       => 'تاريخ الفوترة',
+        'placeholder' => 'أدخل تاريخ الفوترة',
+        'description' => 'تاريخ الفوترة',
+    ],
+    'invoice_due_at' => [
+        'label'       => 'تاريخ الاستحقاق',
+        'placeholder' => 'أدخل تاريخ الاستحقاق',
+        'description' => 'تاريخ الاستحقاق',
+    ],
+    'invoice_paid_at' => [
+        'label'       => 'تاريخ الدفع',
+        'placeholder' => 'أدخل تاريخ الدفع',
+        'description' => 'تاريخ الدفع',
+    ],
+    'invoice_created_at' => [
+        'label'       => 'تاريخ الإنشاء',
+        'placeholder' => 'أدخل تاريخ الإنشاء',
+        'description' => 'تاريخ الإنشاء',
+    ],
+    'invoice_sub_total' => [
+        'label'       => 'المجموع الفرعي',
+        'placeholder' => 'أدخل المجموع الفرعي',
+        'description' => 'المجموع الفرعي للفاتورة',
+    ],
+    'invoice_discounts_total' => [
+        'label'       => 'إجمالي الخصومات',
+        'placeholder' => 'أدخل إجمالي الخصومات',
+        'description' => 'إجمالي الخصومات المطبقة على الفاتورة',
+    ],
+    'invoice_total' => [
+        'label'       => 'المجموع الكلي',
+        'placeholder' => 'أدخل المجموع الكلي',
+        'description' => 'المجموع الكلي للفاتورة بعد الخصومات',
+    ],
+    'sub_cost' => [
+        'label'       => 'التكلفة الفرعية',
+        'placeholder' => 'أدخل التكلفة الفرعية',
+        'description' => 'التكلفة الفرعية للعنصر',
+    ],
+    'discount' => [
+        'label'       => 'الخصم',
+        'placeholder' => 'أدخل الخصم',
+        'description' => 'الخصم المطبق على العنصر',
+    ],
+    'cost' => [
+        'label'       => 'التكلفة النهائية',
+        'placeholder' => 'أدخل التكلفة النهائية',
+        'description' => 'التكلفة النهائية للعنصر بعد الخصم',
+    ],
+    'invoice_status' => [
+        'label'       => 'حالة الفاتورة',
+        'placeholder' => 'حدد حالة الفاتورة',
+        'description' => 'حالة الفاتورة',
+        'options'     => [
+            'PENDING'                => 'بانتظار الدفع',
+            'PENDING_SUPPLIER_REVIEW'=> 'بانتظار مراجعة المورد',
+            'PAID'                   => 'تم الدفع',
         ],
     ],
 ];

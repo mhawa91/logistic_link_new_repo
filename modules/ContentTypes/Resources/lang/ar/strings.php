@@ -73,7 +73,7 @@ return [
         'create' => 'اضافة عقد نقل جديد',
         'update' => 'تعديل بيانات العقد',
     ],
-    'billing' => [
+    'invoices' => [
         'menu'   => 'الفواتير',
         'list'   => 'قائمة الفواتير',
         'create' => 'اضافة فاتورة جديدة',
@@ -180,6 +180,10 @@ return [
             'title'       => 'تم رفض طلب التسعير',
             'description' => 'تم رفض طلب التسعير بنجاح وابلاغ الناقل برفض الطلب',
         ],
+        'not_allowed' => [
+            'title'       => 'غير مسموح',
+            'description' => 'لا يمكنك تنفيذ هذا الإجراء',
+        ],
     ],
     'public-transportars' => [
         'menu'   => 'شركات النقل',
@@ -196,4 +200,31 @@ return [
     'company_profile'       => 'حساب الشركة',
     'all_transporters'      => 'جميع الناقلين بالمنصة',
     'send_rfq_for_selected' => 'ارسال طلب تسعير',
+    'invoice_items' => [
+        'no_items'      => 'لا توجد عناصر في الفاتورة',
+        'no_items_desc' => 'لا توجد عناصر في الفاتورة, يرجى اضافة عناصر جديدة للفاتورة بالضغط على الزر ادناه',
+        'add_new'       => 'اضافة عنصر جديد',
+    ],
+    'finance' => [
+        'shippments_uninvoiced_count' => 'الشحنات غير المفوترة',
+        'shippments_uninvoiced_total' => 'قيمة الشحنات غير المفوترة',
+        'shippments_invoiced_count'   => 'الفواتير المستحقة',
+        'shippments_invoiced_total'   => 'قيمة الفواتير المستحقة',
+        'invoices_dues_count'         => 'الفواتير المتأخرة',
+        'invoices_dues_total'         => 'قيمة الفواتير المتأخرة',
+    ],
+    'clients' => [
+        'menu'   => 'العملاء',
+        'list'   => 'قائمة العملاء',
+        'create' => 'اضافة عميل جديد',
+        'update' => 'تعديل بيانات العميل',
+    ],
+    'finance_section' => [
+        'menu'   => 'المالية',
+        'list'   => 'قائمة السجلات المالية',
+        'create' => 'اضافة سجل مالي جديد',
+        'update' => 'تعديل السجل المالي',
+    ],
+    'invoice_pay' => 'دفع الفاتورة',
+    'confirm_payment' => 'تأكيد الدفع',
 ];

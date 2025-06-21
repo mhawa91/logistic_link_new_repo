@@ -81,4 +81,26 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::get('{model}'                            , 'ShippmentsController@read')->name('ShippmentsController@read');
         Route::post('{model}'                           , 'ShippmentsController@postRead')->name('ShippmentsController@postRead');
     });
+
+    Route::prefix('invoices')->group(function() {
+        Route::get('list'           , 'InvoicesController@index')->name('InvoicesController@index');
+        Route::post('list'          , 'InvoicesController@postIndex')->name('InvoicesController@postIndex');
+        Route::get('create'         , 'InvoicesController@create')->name('InvoicesController@create');
+        Route::post('create'        , 'InvoicesController@postCreate')->name('InvoicesController@postCreate');
+        Route::get('update/{model}' , 'InvoicesController@update')->name('InvoicesController@update');
+        Route::post('update'        , 'InvoicesController@postUpdate')->name('InvoicesController@postUpdate');
+        Route::post('delete'        , 'InvoicesController@postDelete')->name('InvoicesController@postDelete');
+        Route::post('restore'       , 'InvoicesController@postRestore')->name('InvoicesController@postRestore');
+        Route::post('perma-delete'  , 'InvoicesController@postPermaDelete')->name('InvoicesController@postPermaDelete');
+        Route::post('status-update' , 'InvoicesController@postStatus')->name('InvoicesController@postStatus');
+        Route::get('select'         , 'InvoicesController@select')->name('InvoicesController@select');
+        Route::post('export'        , 'InvoicesController@postExport')->name('InvoicesController@postExport');
+        Route::get('{model}'        , 'InvoicesController@read')->name('InvoicesController@read');
+        Route::post('{model}'       , 'InvoicesController@postRead')->name('InvoicesController@postRead');
+    });
+
+    Route::prefix('clients/invoices')->group(function() {
+        Route::get('list'           , 'InvoicesController@groupedIndex')->name('InvoicesController@groupedIndex');
+        Route::post('list'          , 'InvoicesController@postGroupedIndexIndex')->name('InvoicesController@postGroupedIndexIndex');
+    });
 });

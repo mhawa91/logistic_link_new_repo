@@ -77,6 +77,10 @@ return [
             'label' => 'contenttypes::inputs.shippment_status.options.DELIVERED_PENDING_PAYMENT',
         ],
         [
+            'id'    => 'INVOICED',
+            'label' => 'contenttypes::inputs.shippment_status.options.INVOICED',
+        ],
+        [
             'id'    => 'COMPLETED',
             'label' => 'contenttypes::inputs.shippment_status.options.COMPLETED',
         ],

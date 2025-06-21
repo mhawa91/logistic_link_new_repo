@@ -633,20 +633,42 @@ class ContentTypesServiceProvider extends ServiceProvider
                 ],
                 'show'      => $isConsumer,
             ]);
-            // app('Ui')->registerMainMenuItem([
-            //     'id'        => 'consumer/billing',
-            //     'parent_id' => 'AdminDashboardController',
-            //     'ordering'  => 0,
-            //     'type'      => 'MENU', //MENU | HEADER
-            //     'link'      => 'javascript:void(0);',
-            //     'text'      => __('contenttypes::strings.billing.menu'),
-            //     'icon'      => [
-            //         'name' => 'DEFAULT',
-            //         'type' => 'em', //em | i | svg | span
-            //         'data' => 'icon ni ni-tranx',
-            //     ],
-            //     'show'      => $isConsumer,
-            // ]);
+            app('Ui')->registerMainMenuItem([
+                'id'        => 'consumer/invoices',
+                'parent_id' => 'AdminDashboardController',
+                'ordering'  => 0,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('InvoicesController@index'),
+                'text'      => __('contenttypes::strings.finance_section.menu'),
+                'icon'      => [
+                    'name' => 'DEFAULT',
+                    'type' => 'em', //em | i | svg | span
+                    'data' => 'icon ni ni-tranx',
+                ],
+                'show'      => $isConsumer,
+            ])
+            ->registerMainMenuItem([
+                'id'        => 'consumer/invoices/clients',
+                'parent_id' => 'consumer/invoices',
+                'ordering'  => 0,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('InvoicesController@groupedIndex'),
+                'text'      => __('contenttypes::strings.clients.menu'),
+                'icon'      => app('Ui')->defaultIcon(),
+                'show'      => $isConsumer,
+            ])
+            ->registerMainMenuItem([
+                'id'        => 'consumer/invoices/list',
+                'parent_id' => 'consumer/invoices',
+                'ordering'  => 1,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('InvoicesController@index'),
+                'text'      => __('contenttypes::strings.invoices.menu'),
+                'icon'      => app('Ui')->defaultIcon(),
+                'show'      => $isConsumer,
+            ]);
+
+
             app('Ui')->registerMainMenuItem([
                 'id'        => 'consumer/reports',
                 'parent_id' => 'AdminDashboardController',

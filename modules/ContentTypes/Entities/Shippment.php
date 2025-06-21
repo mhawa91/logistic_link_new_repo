@@ -58,10 +58,7 @@ class Shippment extends Model
         'sys_status',
         'created_by_user_id',
         'updated_by_user_id',
-        'invoice_number',
-        'invoice_date',
-        'invoice_amount',
-        'invoice_file'
+        'invoice_id',
     ];
 
     public function loadingLocation()
@@ -227,6 +224,7 @@ class Shippment extends Model
                 WHEN lgl_shippments.sys_status = "PENDING_PICKUP"                            THEN "'. __('contenttypes::inputs.shippment_status.options.PENDING_PICKUP') .'"
                 WHEN lgl_shippments.sys_status = "PENDING_DELIVERY"                          THEN "'. __('contenttypes::inputs.shippment_status.options.PENDING_DELIVERY') .'"
                 WHEN lgl_shippments.sys_status = "DELIVERED_PENDING_PAYMENT"                 THEN "'. __('contenttypes::inputs.shippment_status.options.DELIVERED_PENDING_PAYMENT') .'"
+                WHEN lgl_shippments.sys_status = "INVOICED"                                  THEN "'. __('contenttypes::inputs.shippment_status.options.INVOICED') .'"
                 WHEN lgl_shippments.sys_status = "COMPLETED"                                 THEN "'. __('contenttypes::inputs.shippment_status.options.COMPLETED')   .'"
                 WHEN lgl_shippments.sys_status = "CANCELLED"                                 THEN "'. __('contenttypes::inputs.shippment_status.options.CANCELLED')   .'"
                 WHEN lgl_shippments.sys_status = "RFQ_PENDING_TRANSPORTER_SELECTION"         THEN "'. __('contenttypes::inputs.shippment_status.options.RFQ_PENDING_TRANSPORTER_SELECTION')   .'"
@@ -243,6 +241,7 @@ class Shippment extends Model
                 WHEN lgl_shippments.sys_status = "PENDING_PICKUP"                            THEN "warning"
                 WHEN lgl_shippments.sys_status = "PENDING_DELIVERY"                          THEN "warning"
                 WHEN lgl_shippments.sys_status = "DELIVERED_PENDING_PAYMENT"                 THEN "warning"
+                WHEN lgl_shippments.sys_status = "INVOICED"                                  THEN "danger"
                 WHEN lgl_shippments.sys_status = "COMPLETED"                                 THEN "success"
                 WHEN lgl_shippments.sys_status = "CANCELLED"                                 THEN "danger"
                 WHEN lgl_shippments.sys_status = "RFQ_PENDING_TRANSPORTER_SELECTION"         THEN "warning"

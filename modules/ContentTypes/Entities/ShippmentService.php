@@ -119,20 +119,22 @@ class ShippmentService extends ModelService
             'loading_address.public_notes'                         => 'nullable',
             'loading_address.private_notes'                        => 'nullable',
 
+            // required_if
             'offloading_address'                                   => 'required|array',
-            'offloading_address.*.primary_contact_company_name'    => 'required',
-            'offloading_address.*.primary_contact_name'            => 'required',
-            'offloading_address.*.primary_contact_email'           => 'required|email',
-            'offloading_address.*.primary_contact_phone_number'    => 'required',
-            'offloading_address.*.lat_lng'                         => 'required',
-            'offloading_address.*.lat'                             => 'required',
-            'offloading_address.*.lng'                             => 'required',
-            'offloading_address.*.full_address'                    => 'required',
+            'offloading_address.*.primary_contact_company_name'    => 'required_if:offloading_address.*.removed,N',
+            'offloading_address.*.primary_contact_name'            => 'required_if:offloading_address.*.removed,N',
+            'offloading_address.*.primary_contact_email'           => 'required_if:offloading_address.*.removed,N',
+            'offloading_address.*.primary_contact_phone_number'    => 'required_if:offloading_address.*.removed,N',
+            'offloading_address.*.lat_lng'                         => 'required_if:offloading_address.*.removed,N',
+            'offloading_address.*.lat'                             => 'required_if:offloading_address.*.removed,N',
+            'offloading_address.*.lng'                             => 'required_if:offloading_address.*.removed,N',
+            'offloading_address.*.full_address'                    => 'required_if:offloading_address.*.removed,N',
             'offloading_address.*.public_notes'                    => 'nullable',
             'offloading_address.*.private_notes'                   => 'nullable',
-            'offloading_address.*.round_trip'                      => 'required|in:YES,NO',
+            'offloading_address.*.round_trip'                      => 'required_if:offloading_address.*.removed,N|in:YES,NO',
         ];
         if ($type == 'create') {
+            $rules['number_of_trucks'] = 'required|numeric|min:1';
             return Validator::make($data, $rules);
         }
         if ($type == 'update') {
@@ -184,6 +186,12 @@ class ShippmentService extends ModelService
         })
         ->when(auth()->check() && auth()->user()->type != 'DEFAULT' && auth()->user()->type != 'TRANSPORTER', function($query) {
             $query;
+        })
+        ->when(request()->force_client == 'YES', function($query) {
+            $query->where('lgl_shippments.company_user_id', empty(request()->client_id) ? 0 : request()->client_id);
+        })
+        ->when(request()->force_invoice == 'YES', function($query) {
+            $query->where('lgl_shippments.sys_status', 'DELIVERED_PENDING_PAYMENT');
         });
 
         $helper = app(\Modules\SystemCore\System\Classes\Helpers::class);
@@ -229,6 +237,9 @@ class ShippmentService extends ModelService
         })
         ->when(auth()->check() && auth()->user()->type != 'DEFAULT' && auth()->user()->type != 'TRANSPORTER', function($query) {
             $query;
+        })
+        ->when(request()->force_client == 'YES', function($query) {
+            $query->where('lgl_shippments.company_user_id', empty(request()->client_id) ? 0 : request()->client_id);
         });
 
         $helper = app(\Modules\SystemCore\System\Classes\Helpers::class);

@@ -73,7 +73,7 @@ return [
         'create' => 'Add New Transport Contract',
         'update' => 'Edit Contract Details',
     ],
-    'billing' => [
+    'invoices' => [
         'menu'   => 'Invoices',
         'list'   => 'Invoice List',
         'create' => 'Add New Invoice',
@@ -180,6 +180,10 @@ return [
             'title'       => 'RFQ Rejected',
             'description' => 'RFQ rejected successfully and the transporter has been notified',
         ],
+        'not_allowed' => [
+            'title'       => 'Not Allowed',
+            'description' => 'You are not allowed to perform this action',
+        ],
     ],
     'public-transportars' => [
         'menu'   => 'Transport Companies',
@@ -196,4 +200,31 @@ return [
     'company_profile'       => 'Company Profile',
     'all_transporters'      => 'All Platform Transporters',
     'send_rfq_for_selected' => 'Send RFQ',
+    'invoice_items' => [
+        'no_items'      => 'No Items',
+        'no_items_desc' => 'No items in the invoice, please add new items by clicking the button below',
+        'add_new'       => 'Add New Item',
+    ],
+    'finance' => [
+        'shippments_uninvoiced_count' => 'Uninvoiced Shipments Count',
+        'shippments_uninvoiced_total' => 'Uninvoiced Shipments Total',
+        'shippments_invoiced_count'   => 'Invoiced Shipments Count',
+        'shippments_invoiced_total'   => 'Invoiced Shipments Total',
+        'invoices_dues_count'         => 'Overdue Invoices Count',
+        'invoices_dues_total'         => 'Overdue Invoices Total',
+    ],
+    'clients' => [
+        'menu'   => 'Clients',
+        'list'   => 'Client List',
+        'create' => 'Add New Client',
+        'update' => 'Edit Client',
+    ],
+    'finance_section' => [
+        'menu'   => 'Finance',
+        'list'   => 'Finance List',
+        'create' => 'Add New Finance Record',
+        'update' => 'Edit Finance Record',
+    ],
+    'invoice_pay'     => 'Pay Invoice',
+    'confirm_payment' => 'Confirm Payment',
 ];

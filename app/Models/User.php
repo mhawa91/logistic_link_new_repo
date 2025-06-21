@@ -173,4 +173,217 @@ class User extends Authenticatable implements JWTSubject
             DB::raw('(SELECT AVG(rate) FROM lgl_shippments_reviews WHERE lgl_shippments_reviews.transportar_user_id = users.id) as reviews_rate'),
         ]);
     }
+
+    public function shippmentsAsClient()
+    {
+        return $this->hasMany(\Modules\ContentTypes\Entities\Shippment::class, 'company_user_id', 'id');
+    }
+
+    public function shippmentsAsTransportar()
+    {
+        return $this->hasMany(\Modules\ContentTypes\Entities\Shippment::class, 'transporter_user_id', 'id');
+    }
+
+    public function scopeWithMetaSelect($query)
+    {
+        $query->addSelect([
+            DB::raw('
+                company.company_name AS company_name,
+                company.company_email AS company_email,
+                (CASE 
+                    WHEN company.company_logo IS NULL THEN "'. app('GraphManager')->defaultSrc('400x400', 'company') .'"
+                    ELSE CONCAT("'. app('GraphManager')->src('400x400', 'company', '-SQL-') .'", company.company_logo)
+                END) AS company_logo,
+                company.company_phone_number_ext AS company_phone_number_ext,
+                company.company_phone_number AS company_phone_number,
+                company.registration_number AS registration_number,
+                company.tax_identification_number AS tax_identification_number,
+                company.sys_status AS company_sys_status
+            '),
+        ]);
+
+        $query->join('lgl_company_profile AS company', 'company.user_id', '=', 'users.id');
+
+        return $query;
+    }
+
+    public function scopeWithTransportarInvoicesFinanceSelect($query)
+    {
+        $query->addSelect([
+            DB::raw('
+                IFNULL(COUNT(invoices.id), 0)            AS invoices_count,
+                IFNULL(SUM(invoices.sub_total), 0)       AS invoices_sub_total,
+                IFNULL(SUM(invoices.discounts_total), 0) AS invoices_discounts_total,
+                IFNULL(SUM(invoices.total), 0)           AS invoices_total
+            '),
+            DB::raw('
+                IFNULL(SUM(
+                    CASE 
+                        WHEN invoices.sys_status != "PAID" AND invoices.due_at >= NOW() THEN 1 
+                        ELSE 0
+                    END
+                ), 0) AS shippments_invoiced_count
+            '),
+            DB::raw('
+                IFNULL(SUM(
+                    CASE 
+                        WHEN invoices.sys_status != "PAID" AND invoices.due_at >= NOW() THEN invoices.total 
+                        ELSE 0
+                    END
+                ), 0) AS shippments_invoiced_total
+            '),
+            DB::raw('
+                IFNULL(SUM(
+                    CASE 
+                        WHEN invoices.sys_status != "PAID" AND invoices.due_at < NOW() THEN 1 
+                        ELSE 0
+                    END
+                ), 0) AS invoices_dues_count
+            '),
+            DB::raw('
+                IFNULL(SUM(
+                    CASE 
+                        WHEN invoices.sys_status != "PAID" AND invoices.due_at < NOW() THEN invoices.total 
+                        ELSE 0
+                    END
+                ), 0) AS invoices_dues_total
+            '),
+            DB::raw('(
+                SELECT COUNT(*)
+                FROM lgl_shippments AS shippments
+                WHERE shippments.transporter_user_id = users.id
+                AND shippments.company_user_id = invoices.company_user_id
+                AND shippments.sys_status = "DELIVERED_PENDING_PAYMENT"
+                AND shippments.deleted_at IS NULL
+            ) shippments_uninvoiced_count'),
+            DB::raw('(
+                SELECT SUM(shippments.total_price)
+                FROM lgl_shippments AS shippments
+                WHERE shippments.transporter_user_id = users.id
+                AND shippments.company_user_id = invoices.company_user_id
+                AND shippments.sys_status = "DELIVERED_PENDING_PAYMENT"
+                AND shippments.deleted_at IS NULL
+            ) shippments_uninvoiced_total'),
+        ]);
+
+        $query->join('lgl_invoices AS invoices', 'invoices.transportar_user_id', '=', 'users.id');
+
+        return $query;
+    }
+
+    public function scopeWithTransportarShippmentsFinanceSelect($query)
+    {
+        $query->addSelect([
+            DB::raw('
+                client_user.name AS client_user_name,
+                client_user.email AS client_user_email,
+                client.company_name AS client_company_name,
+                client.company_email AS client_company_email,
+                (CASE 
+                    WHEN client.company_logo IS NULL THEN "'. app('GraphManager')->defaultSrc('400x400', 'company') .'"
+                    ELSE CONCAT("'. app('GraphManager')->src('400x400', 'company', '-SQL-') .'", client.company_logo)
+                END) AS client_company_logo,
+                client.company_phone_number_ext AS client_company_phone_number_ext,
+                client.company_phone_number AS client_company_phone_number,
+                client.registration_number AS client_registration_number,
+                client.tax_identification_number AS client_tax_identification_number,
+                client.sys_status AS client_sys_status
+            '),
+        ]);
+
+        $query->join('users AS client_user', 'client_user.id', '=', 'invoices.company_user_id');
+        $query->join('lgl_company_profile AS client', 'client.user_id', '=', 'invoices.company_user_id');
+
+        return $query;
+    }
+
+    public function scopeWithClientInvoicesFinanceSelect($query)
+    {
+        $query->addSelect([
+            DB::raw('
+                IFNULL(COUNT(invoices.id), 0)            AS invoices_count,
+                IFNULL(SUM(invoices.sub_total), 0)       AS invoices_sub_total,
+                IFNULL(SUM(invoices.discounts_total), 0) AS invoices_discounts_total,
+                IFNULL(SUM(invoices.total), 0)           AS invoices_total
+            '),
+            DB::raw('
+                IFNULL(SUM(
+                    CASE 
+                        WHEN invoices.sys_status != "PAID" AND invoices.due_at >= NOW() THEN 1 
+                        ELSE 0
+                    END
+                ), 0) AS shippments_invoiced_count
+            '),
+            DB::raw('
+                IFNULL(SUM(
+                    CASE 
+                        WHEN invoices.sys_status != "PAID" AND invoices.due_at >= NOW() THEN invoices.total 
+                        ELSE 0
+                    END
+                ), 0) AS shippments_invoiced_total
+            '),
+            DB::raw('
+                IFNULL(SUM(
+                    CASE 
+                        WHEN invoices.sys_status != "PAID" AND invoices.due_at < NOW() THEN 1 
+                        ELSE 0
+                    END
+                ), 0) AS invoices_dues_count
+            '),
+            DB::raw('
+                IFNULL(SUM(
+                    CASE 
+                        WHEN invoices.sys_status != "PAID" AND invoices.due_at < NOW() THEN invoices.total 
+                        ELSE 0
+                    END
+                ), 0) AS invoices_dues_total
+            '),
+            DB::raw('(
+                SELECT COUNT(*)
+                FROM lgl_shippments AS shippments
+                WHERE shippments.company_user_id = users.id
+                AND shippments.transporter_user_id = invoices.transportar_user_id
+                AND shippments.sys_status = "DELIVERED_PENDING_PAYMENT"
+                AND shippments.deleted_at IS NULL
+            ) shippments_uninvoiced_count'),
+            DB::raw('(
+                SELECT SUM(shippments.total_price)
+                FROM lgl_shippments AS shippments
+                WHERE shippments.company_user_id = users.id
+                AND shippments.transporter_user_id = invoices.transportar_user_id
+                AND shippments.sys_status = "DELIVERED_PENDING_PAYMENT"
+                AND shippments.deleted_at IS NULL
+            ) shippments_uninvoiced_total'),
+        ]);
+
+        $query->join('lgl_invoices AS invoices', 'invoices.company_user_id', '=', 'users.id');
+
+        return $query;
+    }
+
+    public function scopeWithClientShippmentsFinanceSelect($query)
+    {
+        $query->addSelect([
+            DB::raw('
+                transportar_user.name AS transportar_user_name,
+                transportar_user.email AS transportar_user_email,
+                transportar.company_name AS transportar_company_name,
+                transportar.company_email AS transportar_company_email,
+                (CASE 
+                    WHEN transportar.company_logo IS NULL THEN "'. app('GraphManager')->defaultSrc('400x400', 'company') .'"
+                    ELSE CONCAT("'. app('GraphManager')->src('400x400', 'company', '-SQL-') .'", transportar.company_logo)
+                END) AS transportar_company_logo,
+                transportar.company_phone_number_ext AS transportar_company_phone_number_ext,
+                transportar.company_phone_number AS transportar_company_phone_number,
+                transportar.registration_number AS transportar_registration_number,
+                transportar.tax_identification_number AS transportar_tax_identification_number,
+                transportar.sys_status AS transportar_sys_status
+            '),
+        ]);
+
+        $query->join('users AS transportar_user', 'transportar_user.id', '=', 'invoices.company_user_id');
+        $query->join('lgl_company_profile AS transportar', 'transportar.user_id', '=', 'invoices.company_user_id');
+
+        return $query;
+    }
 }

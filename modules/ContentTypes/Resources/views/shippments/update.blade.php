@@ -290,6 +290,26 @@
                             ])
                         </div>
                         <div class="col-md-6">
+                            @component('ui::components.input', [
+                                'options' => [
+                                    'view'        => 'DEFAULT',
+                                    'type'        => 'number',
+                                    'name'        => 'number_of_trucks',
+                                    'label'       => __('contenttypes::inputs.number_of_trucks.label'),
+                                    'placeholder' => __('contenttypes::inputs.number_of_trucks.placeholder'),
+                                    'description' => __('contenttypes::inputs.number_of_trucks.description'),
+                                    'value'       => $model->number_of_trucks,
+                                    'attributes'  => [
+                                        'readonly' => true,
+                                    ]
+                                ],
+                            ])
+                                <x-slot name="after">
+                                    <div class="form-text-hint">
+                                        <small class="overline-title">{{ __('contenttypes::inputs.number_of_trucks.truck') }}</small>
+                                    </div>
+                                </x-slot>
+                            @endcomponent
                         </div>
                         <div class="col-md-6">
                             @component('ui::components.input', [

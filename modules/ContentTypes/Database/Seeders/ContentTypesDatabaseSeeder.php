@@ -49,6 +49,7 @@ class ContentTypesDatabaseSeeder extends Seeder
         app(Entities\ShippmentService::class)->install();
         app(Entities\DriverService::class)->install();
         app(Entities\CompanyService::class)->install();
+        app(Entities\InvoiceService::class)->install();
     }
 
     /**

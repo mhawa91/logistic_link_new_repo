@@ -338,7 +338,7 @@ return [
     'number_of_trucks' => [
         'label'       => 'Number of Trucks',
         'placeholder' => 'Enter number of trucks',
-        'description' => 'Number of trucks',
+        'description' => 'Please note the system will create a shippment for each truck',
         'truck'       => 'Truck',
     ],
     'temperature' => [
@@ -446,7 +446,8 @@ return [
             'CANCELED_DUE_DELAYED_TRANSPORTER_APPROVAL' => 'Canceled due to delayed transporter approval',
             'PENDING_PICKUP'                            => 'Awaiting pickup',
             'PENDING_DELIVERY'                          => 'Awaiting delivery',
-            'DELIVERED_PENDING_PAYMENT'                 => 'Delivered, awaiting payment',
+            'DELIVERED_PENDING_PAYMENT'                 => 'Delivered, awaiting billing',
+            'INVOICED'                                  => 'Invoiced and awaiting payment',
             'COMPLETED'                                 => 'Completed',
             'CANCELLED'                                 => 'Canceled',
             'RFQ_PENDING_TRANSPORTER_SELECTION'         => 'Awaiting transporter selection',
@@ -633,6 +634,84 @@ return [
             'PENDING_ACCEPTANCE'=> 'Awaiting client acceptance',
             'ACCEPTED'          => 'Accepted',
             'REJECTED'          => 'Rejected',
+        ],
+    ],
+    'invoice_number' => [
+        'label'       => 'Invoice NO',
+        'placeholder' => 'Enter invoice number',
+        'description' => 'Invoice NO',
+    ],
+    'invoice_file' => [
+        'label'       => 'Invoice File',
+        'placeholder' => 'Upload invoice file',
+        'description' => 'Invoice file',
+        'upload'      => 'Upload invoice file',
+        'download'    => 'Download invoice file',
+        'view_file'   => 'View invoice file',
+    ],
+    'invoice_note' => [
+        'label'       => 'Invoice Note',
+        'placeholder' => 'Enter invoice note',
+        'description' => 'Invoice note',
+    ],
+    'invoiced_at' => [
+        'label'       => 'Invoice Date',
+        'placeholder' => 'Enter invoice date',
+        'description' => 'Invoice date',
+    ],
+    'invoice_due_at' => [
+        'label'       => 'Due Date',
+        'placeholder' => 'Enter due date',
+        'description' => 'Due date for payment',
+    ],
+    'invoice_paid_at' => [
+        'label'       => 'Paid Date',
+        'placeholder' => 'Enter paid date',
+        'description' => 'Date when the invoice was paid',
+    ],
+    'invoice_created_at' => [
+        'label'       => 'Created At',
+        'placeholder' => 'Enter created at',
+        'description' => 'Date when the invoice was created',
+    ],
+    'invoice_sub_total' => [
+        'label'       => 'Sub Total',
+        'placeholder' => 'Enter sub total',
+        'description' => 'Sub total of the invoice before discounts',
+    ],
+    'invoice_discounts_total' => [
+        'label'       => 'Total Discounts',
+        'placeholder' => 'Enter total discounts',
+        'description' => 'Total discounts applied to the invoice',
+    ],
+    'invoice_total' => [
+        'label'       => 'Total',
+        'placeholder' => 'Enter total',
+        'description' => 'Total amount of the invoice after discounts',
+    ],
+    'sub_cost' => [
+        'label'       => 'Sub Cost',
+        'placeholder' => 'Enter sub cost',
+        'description' => 'Sub cost of the item before any discounts',
+    ],
+    'discount' => [
+        'label'       => 'Discount',
+        'placeholder' => 'Enter discount',
+        'description' => 'Discount applied to the item',
+    ],
+    'cost' => [
+        'label'       => 'Total Cost',
+        'placeholder' => 'Enter cost',
+        'description' => 'Final cost of the item after applying discounts',
+    ],
+    'invoice_status' => [
+        'label'       => 'Invoice Status',
+        'placeholder' => 'Select invoice status',
+        'description' => 'Status of the invoice',
+        'options'     => [
+            'PENDING'                => 'Pending Payment',
+            'PENDING_SUPPLIER_REVIEW'=> 'Pending supplier review',
+            'PAID'                   => 'Paid',
         ],
     ],
 ];
