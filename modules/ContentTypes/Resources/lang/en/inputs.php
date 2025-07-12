@@ -714,4 +714,26 @@ return [
             'PAID'                   => 'Paid',
         ],
     ],
+    'transportar_invoice_file' => [
+        'label'       => 'Transport Company Invoice File',
+        'placeholder' => 'Upload transport company invoice file',
+        'description' => 'Invoice file for the transport company',
+        'upload'      => 'Upload transport company invoice file',
+        'download'    => 'Download transport company invoice file',
+        'view_file'   => 'View transport company invoice file',
+    ],
+    'created_at' => [
+        'label'       => 'Created At',
+        'placeholder' => 'Enter created at',
+        'description' => 'Date when the record was created',
+    ],
+    'invoiced' => [
+        'label'       => 'Invoiced',
+        'placeholder' => 'Select invoiced status',
+        'description' => 'Indicates if the shipment has been invoiced',
+        'options'     => [
+            'YES' => 'Yes',
+            'NO'  => 'No',
+        ],
+    ],
 ];

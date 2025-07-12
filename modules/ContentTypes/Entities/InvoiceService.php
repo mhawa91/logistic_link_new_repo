@@ -79,6 +79,7 @@ class InvoiceService extends ModelService
             'items.*.shippment_id' => 'required|exists:lgl_shippments,id,transporter_user_id,' . auth()->id(),
             'items.*.discount'     => 'nullable|numeric|min:0',
         ];
+        
         if (auth()->user()->isAn('DEFAULT')) {
             $rules = [
                 'ATTACHMENT' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -86,6 +87,11 @@ class InvoiceService extends ModelService
         }
         
         if ($type == 'create') {
+            if (auth()->user()->isAn('TRANSPORTER')) {
+                $rules = [
+                    'INVOICE_FILE' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+                ];
+            }
             return Validator::make($data, $rules);
         }
         if ($type == 'update') {
@@ -181,6 +187,8 @@ class InvoiceService extends ModelService
         ];
         $model = parent::create( $ModelData )->data();
 
+        $this->syncFile($model, 'transportar_invoice_file', $data['INVOICE_FILE'] ?? null);
+
         $shippments = Shippment::whereIn('id', collect($data['items'] ?? [['shippment_id' => 0]])->pluck('shippment_id')->toArray())
         ->where('transporter_user_id', auth()->id())
         ->where('sys_status', 'DELIVERED_PENDING_PAYMENT')
@@ -220,13 +228,13 @@ class InvoiceService extends ModelService
     {
         if ($uplaodedFile && !is_string($uplaodedFile)) {
             $file = UploadedFile::firstOrNew([
-                'file_tag'     => 'invoice_file',
+                'file_tag'     => $type,
                 'related_type' => 'invoice',
                 'related_id'   => $invoice->id,
             ]);
             $file->related_id         = $invoice->id;
             $file->related_type       = 'invoice';
-            $file->file_tag           = 'invoice_file';
+            $file->file_tag           = $type;
             $file->file_name          = $uplaodedFile->getClientOriginalName();
             $file->file_extension     = $uplaodedFile->getClientOriginalExtension();
             $file->file_size          = $uplaodedFile->getSize();

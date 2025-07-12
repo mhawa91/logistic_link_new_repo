@@ -18,6 +18,7 @@ class CheckProfileCompletion
     public function handle(Request $request, Closure $next)
     {
         $allowedRoutes = $request->is(config('systemcore.adminPanelRoutePath') . '/users/profile') 
+        || $request->is(config('systemcore.adminPanelRoutePath') . '/dashboard') 
         || $request->is(config('systemcore.adminPanelRoutePath') . '/countries/select') 
         || $request->is(config('systemcore.adminPanelRoutePath') . '/cities/select')
         || $request->is(config('systemcore.adminPanelRoutePath') . '/geo/*')

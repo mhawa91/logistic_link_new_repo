@@ -62,6 +62,7 @@ class InvoicesController extends SystemCoreHttpController
 
         $this->data['model']->load([
             'ATTACHMENT',
+            'INVOICE_FILE',
             'items'           => fn($query) => $query->with([
                 'shippment' => fn($query)   => $query->select([
                     'lgl_shippments.*',

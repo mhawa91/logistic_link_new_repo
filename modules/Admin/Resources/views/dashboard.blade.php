@@ -177,7 +177,7 @@
 
     <script>
         const ctx = document.getElementById('progressChart').getContext('2d');
-        const progressValue = 60;
+        const progressValue = Number('{{ $progress }}');
 
         new Chart(ctx, {
             type: 'doughnut',

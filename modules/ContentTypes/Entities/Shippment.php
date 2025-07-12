@@ -207,12 +207,120 @@ class Shippment extends Model
         ->where('file_tag', 'WAYBILL');
     }
 
+    public function scopeWithSearch($query, $search)
+    {
+        if ($search) {
+            $query->whereHas('companyUser', function($q) use ($search) {
+                $q->where(function($q) use($search) {
+                    $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
+                });
+            })
+            ->orWhereHas('transporterUser', function($q) use ($search) {
+                $q->where(function($q) use($search) {
+                    $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
+                });
+            })
+            ->orWhereHas('fromCountry', function($q) use ($search) {
+                $q->where(function($q) use($search) {
+                    $q->where('sortname', 'LIKE', "%{$search}%")
+                    ->orWhere('name_ar', 'LIKE', "%{$search}%")
+                    ->orWhere('name_en', 'LIKE', "%{$search}%");
+                });
+            });
+
+        }
+        return $query;
+    }
+
+    public function scopeAdvancedFilter($query, $data = [])
+    {
+        if (isset($data['company_user_id']) && ! empty($data['company_user_id'])) {
+            $query->where('lgl_shippments.company_user_id', $data['company_user_id']);
+        }
+        if (isset($data['transporter_user_id']) && ! empty($data['transporter_user_id'])) {
+            $query->where('lgl_shippments.transporter_user_id', $data['transporter_user_id']);
+        }
+        if (isset($data['driver_id']) && ! empty($data['driver_id'])) {
+            $query->where('lgl_shippments.driver_id', $data['driver_id']);
+        }
+        if (isset($data['from_country_id']) && ! empty($data['from_country_id'])) {
+            $query->where('lgl_shippments.from_country_id', $data['from_country_id']);
+        }
+        if (isset($data['from_city_id']) && ! empty($data['from_city_id'])) {
+            $query->where('lgl_shippments.from_city_id', $data['from_city_id']);
+        }
+        if (isset($data['to_country_id']) && ! empty($data['to_country_id'])) {
+            $query->where('lgl_shippments.to_country_id', $data['to_country_id']);
+        }
+        if (isset($data['to_city_id']) && ! empty($data['to_city_id'])) {
+            $query->where('lgl_shippments.to_city_id', $data['to_city_id']);
+        }
+        if (isset($data['round_trip']) && ! empty($data['round_trip'])) {
+            $query->where('lgl_shippments.round_trip', $data['round_trip']);
+        }
+        if (isset($data['is_rfq']) && ! empty($data['is_rfq'])) {
+            $query->where('lgl_shippments.is_rfq', $data['is_rfq']);
+        }
+        if (isset($data['type']) && ! empty($data['type'])) {
+            $query->where('lgl_shippments.type', $data['type']);
+        }
+        if (isset($data['sys_status']) && ! empty($data['sys_status'])) {
+            $query->where('lgl_shippments.sys_status', $data['sys_status']);
+        }
+        if (isset($data['sys_statuses']) && ! empty($data['sys_statuses'])) {
+            $query->whereIn('lgl_shippments.sys_status', is_array($data['sys_statuses']) ? $data['sys_statuses'] : explode(',', $data['sys_statuses']));
+        }
+        if (isset($data['status_updated_at_from']) && ! empty($data['status_updated_at_from'])) {
+            $query->where('lgl_shippments.updated_at', '>=', $data['status_updated_at_from']);
+        }
+        if (isset($data['status_updated_at_to']) && ! empty($data['status_updated_at_to'])) {
+            $query->where('lgl_shippments.updated_at', '<=', $data['status_updated_at_to']);
+        }
+        if (isset($data['created_at_from']) && ! empty($data['created_at_from'])) {
+            $query->where('lgl_shippments.created_at', '>=', $data['created_at_from']);
+        }
+        if (isset($data['created_at_to']) && ! empty($data['created_at_to'])) {
+            $query->where('lgl_shippments.created_at', '<=', $data['created_at_to']);
+        }
+        if (isset($data['client_name']) && ! empty($data['client_name'])) {
+            $query->whereHas('companyUser', function($q) use ($data) {
+                $q->where(function($q) use($data) {
+                    $q->where('name', 'LIKE', "%{$data['client_name']}%")
+                    ->orWhere('email', 'LIKE', "%{$data['client_name']}%")
+                    ->orWhereHas('company', function($q) use ($data) {
+                        $q->where('company_name', 'LIKE', "%{$data['client_name']}%")
+                        ->orWhere('company_email', 'LIKE', "%{$data['client_name']}%");
+                    });
+                });
+            });
+        }
+        if (isset($data['transportar_name']) && ! empty($data['transportar_name'])) {
+            $query->whereHas('transporterUser', function($q) use ($data) {
+                $q->where(function($q) use($data) {
+                    $q->where('name', 'LIKE', "%{$data['transportar_name']}%")
+                    ->orWhere('email', 'LIKE', "%{$data['transportar_name']}%")
+                    ->orWhereHas('company', function($q) use ($data) {
+                        $q->where('company_name', 'LIKE', "%{$data['transportar_name']}%")
+                        ->orWhere('company_email', 'LIKE', "%{$data['transportar_name']}%");
+                    });
+                });
+            });
+        }
+
+        return $query;
+    }
+
     public function scopeWithSelectMeta($query)
     {
         $query->addSelect([
             DB::raw('
                 DATE_FORMAT(lgl_shippments.created_at, "%b %d, %Y | %h:%i %p") AS new_created_at,
                 DATE_FORMAT(lgl_shippments.updated_at, "%b %d, %Y | %h:%i %p") AS new_updated_at
+            '),
+            DB::raw('
+                DATE_FORMAT(lgl_shippments.delivery_required_at, "%b %d, %Y | %h:%i %p") AS new_delivery_required_at
             '),
             DB::raw('(CASE 
                 WHEN lgl_shippments.sys_status = "DRAFT"                                     THEN "'. __('contenttypes::inputs.shippment_status.options.DRAFT')   .'"

@@ -144,23 +144,19 @@ class ShippmentService extends ModelService
 
     protected function keywordFilter($query, string $keyword = null)
     {
-        $query->where(function($Model) use($keyword) {
-        });
+        if (! empty($keyword)) {
+            $query->withSearch($keyword);
+        }
     }
 
     protected function advancedFilter($query, array $filter = [])
     {
-        if (! empty($filter['is_rfq'])) {
-            $query->where('is_rfq', $filter['is_rfq']);
-        }
-        if (! empty($filter['shippment_id'])) {
-            $query->where('lgl_shippments_rfqs.shippment_id', $filter['shippment_id']);
-        }
+        $query->advancedFilter($filter);
     }
 
-    public function dataTable($Filter = null)
+    protected function query()
     {
-        $this->model()->select([
+        return $this->model()->select([
             'lgl_shippments.*',
         ])
         ->withSelectMeta()
@@ -193,7 +189,11 @@ class ShippmentService extends ModelService
         ->when(request()->force_invoice == 'YES', function($query) {
             $query->where('lgl_shippments.sys_status', 'DELIVERED_PENDING_PAYMENT');
         });
+    }
 
+    public function dataTable($Filter = null)
+    {
+        $query = $this->query();
         $helper = app(\Modules\SystemCore\System\Classes\Helpers::class);
         $table  = parent::dataTable($Filter);
 
@@ -298,13 +298,72 @@ class ShippmentService extends ModelService
             $this->throwPermissionException('read');
         }
 
-        $query    = $this->model();
-        $this->filter($query, $filter);
+        $helper = app(\Modules\SystemCore\System\Classes\Helpers::class);        
 
-        $exporter = app(ExportService::class)->of($query)->name('Data.csv');
+        $query = $this->query();
+        $this->filter($query, $filter);
+        $exporter = app(ExportService::class)->of($query)->name('Shippments.csv');
 
         $exporter->addColumn('id', function($row) {
             return $row->id;
+        });
+
+        $exporter->addColumn('CLient Name', function($row) {
+            return $row->client_company_name;
+        });
+        $exporter->addColumn('Client email', function($row) {
+            return $row->client_company_email;
+        });
+        $exporter->addColumn('Transportar name', function($row) {
+            return $row->transportar_company_name;
+        });
+        $exporter->addColumn('transportar company email', function($row) {
+            return $row->transportar_company_email;
+        });
+        $exporter->addColumn('from_country_name', function($row) {
+            return $row->from_country_name;
+        });
+        $exporter->addColumn('from city name', function($row) {
+            return $row->from_city_name;
+        });
+        $exporter->addColumn('to country name', function($row) {
+            return $row->to_country_name;
+        });
+        $exporter->addColumn('to city name', function($row) {
+            return $row->to_city_name;
+        });
+        $exporter->addColumn('type', function($row) {
+            if ($row->type == 'CITY_TO_CITY') {
+                return __('contenttypes::inputs.loading_type.options_short.CITY_TO_CITY');
+            }
+            if ($row->type == 'CITY_TO_CITY_MULTIPLE_LOCATIONS') {
+                return __('contenttypes::inputs.loading_type.options_short.CITY_TO_CITY') . ' (' . __('contenttypes::inputs.loading_type.options_short.MULTIPLE_LOCATIONS') . ')';
+            }
+            return $row->type;
+        });
+        $exporter->addColumn('is round trip', function($row) {
+            return $row->round_trip == 'YES' ? __('contenttypes::inputs.loading_type.options_short.ROUND_TRIP.YES') : __('contenttypes::inputs.loading_type.options_short.ROUND_TRIP.NO');
+        });
+        $exporter->addColumn('Offloading locations count', function($row) {
+            return $row->offloading_locations_count;
+        });
+        $exporter->addColumn('total price', function($row) use($helper) {
+            return $helper->moneyFormat($row->total_price, 2)->abs;
+        });
+        $exporter->addColumn('status', function($row) {
+            return $row->new_status;
+        });
+        $exporter->addColumn('created at', function($row) {
+            return $row->new_created_at;
+        });
+        $exporter->addColumn('last update', function($row) {
+            return $row->new_updated_at;
+        });
+        $exporter->addColumn('delivery required at', function($row) {
+            return $row->new_delivery_required_at;
+        });
+        $exporter->addColumn('public notes', function($row) {
+            return $row->public_notes;
         });
 
         return $exporter;

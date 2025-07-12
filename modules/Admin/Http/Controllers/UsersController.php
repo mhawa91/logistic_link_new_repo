@@ -252,6 +252,7 @@ class UsersController extends SystemCoreHttpController
                 'title'       => __('ui::strings.messages.saved.title'),
                 'description' => __('ui::strings.messages.saved.description'),
             ],
+            'redirect' => route('AdminDashboardController@index'),
         ]);
     }
 

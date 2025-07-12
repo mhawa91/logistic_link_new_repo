@@ -7,6 +7,8 @@ use Validator;
 use Illuminate\Http\Request;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
+use Modules\ContentTypes\Entities\Shippment;
+use Modules\ContentTypes\Entities\TransporterContractInstance;
 
 class AdminDashboardController extends SystemCoreHttpController
 {
@@ -17,7 +19,38 @@ class AdminDashboardController extends SystemCoreHttpController
 
     public function index(Request $Request, ActionResponse $Response)
     {
-        return view('admin::dashboard');
+        $this->data['progress'] = 10;
+        if ( $Request->user()->company()->exists() ) {
+            $this->data['progress'] = 35;
+        }
+        
+        $this->data['clientShippmentCount'] = Shippment::where('company_user_id', $Request->user()->id)->count();
+        $this->data['clientContracts']      = TransporterContractInstance::where('company_user_id', $Request->user()->id)
+        ->OnlyActiveByStartDate()
+        ->count();
+
+        if ($Request->user()->type == 'DEFAULT' &&  $this->data['clientContracts'] > 0) {
+            $this->data['progress'] = 50;
+        }
+
+        if ($Request->user()->type == 'DEFAULT' &&  $this->data['clientShippmentCount'] > 0) {
+            $this->data['progress'] = 100;
+        }
+
+        $this->data['transportarShippmentCount'] = Shippment::where('transporter_user_id', $Request->user()->id)->count();
+        $this->data['transportarContracts']      = TransporterContractInstance::where('transporter_user_id', $Request->user()->id)
+        ->OnlyActiveByStartDate()
+        ->count();
+
+        if ($Request->user()->type == 'TRANSPORTER' &&  $this->data['transportarShippmentCount'] > 0) {
+            $this->data['progress'] = 50;
+        }
+
+        if ($Request->user()->type == 'TRANSPORTER' &&  $this->data['transportarContracts'] > 0) {
+            $this->data['progress'] = 100;
+        }
+
+        return view('admin::dashboard', $this->data);
     }
 
     public function editorUpload(Request $Request, ActionResponse $Response)

@@ -59,11 +59,87 @@
             'options' => [
                 'id'        => 'searchModal',
                 'title'     => __('ui::strings.advanced_filter'),
-                'size'      => '',
+                'size'      => 'md',
                 'fit'       => false,
             ]
         ])
+
+            @if(auth()->user()->type == 'TRANSPORTER' || auth()->user()->type == 'SYSTEM_ADMIN' || auth()->user()->type == 'ROOT')
+                @include('ui::components.input', [
+                    'options' => [
+                        'view'        => 'INLINE',
+                        'type'        => 'text',
+                        'name'        => 'client_name',
+                        'label'       => __('contenttypes::inputs.client_name.label'),
+                        'description' => __('contenttypes::inputs.client_name.description'),
+                    ],
+                ])
+            @endif
+
+            @if(auth()->user()->type == 'DEFAULT' || auth()->user()->type == 'SYSTEM_ADMIN' || auth()->user()->type == 'ROOT')
+                @include('ui::components.input', [
+                    'options' => [
+                        'view'        => 'INLINE',
+                        'type'        => 'text',
+                        'name'        => 'transportar_name',
+                        'label'       => __('contenttypes::inputs.transportar_name.label'),
+                        'description' => __('contenttypes::inputs.transportar_name.description'),
+                    ],
+                ])
+            @endif
+
             <hr class="preview-hr">
+
+            @component('ui::components.input', [
+                'options' => [
+                    'view'        => 'INLINE',
+                    'type'        => 'daterange',
+                    'name'        => 'created_at',
+                    'label'       => __('contenttypes::inputs.created_at.label'),
+                    'placeholder' => __('contenttypes::inputs.created_at.placeholder'),
+                    'description' => __('contenttypes::inputs.created_at.description'),
+                    'attributes'  => []
+                ],
+            ])
+            @endcomponent
+
+            @component('ui::components.input', [
+                'options' => [
+                    'view'        => 'INLINE',
+                    'type'        => 'daterange',
+                    'name'        => 'status_updated_at',
+                    'label'       => __('contenttypes::inputs.status_updated_at.label'),
+                    'placeholder' => __('contenttypes::inputs.status_updated_at.placeholder'),
+                    'description' => __('contenttypes::inputs.status_updated_at.description'),
+                    'attributes'  => []
+                ],
+            ])
+            @endcomponent
+
+            <hr class="preview-hr">
+
+            @include('ui::components.select', [
+                'options' => [
+                    'view'              => 'INLINE',
+                    'name'              => 'sys_statuses',
+                    'label'             => __('contenttypes::inputs.shippment_status.label'),
+                    'placeholder'       => __('contenttypes::inputs.shippment_status.placeholder'),
+                    'description'       => __('contenttypes::inputs.shippment_status.description'),
+                    'attributes'        => [],
+                    'value'             => '0',
+                    'search'            => true,
+                    'multiple'          => true,
+                    'nullable'          => true,
+                    'nullable_value'    => '0',
+                    'options'           => __('contenttypes::inputs.shippment_status.options'),
+                    'option_text'       => function($key, $option)                   { return $option; },
+                    'option_value'      => function($key, $option)                   { return $key; },
+                    'option_attributes' => function($key, $option)                   { return []; },
+                    'selected'          => function($options, $key, $option, $value) { return null; },
+                    'disabled'          => function($options, $key, $option, $value) { return false; },
+                ],
+            ])
+
             <x-slot name="footer">
                 <button type="submit" class="btn btn-sm btn-success">
                     <span>{{ __('ui::strings.search') }}</span>

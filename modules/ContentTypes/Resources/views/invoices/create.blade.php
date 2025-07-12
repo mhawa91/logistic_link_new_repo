@@ -118,6 +118,19 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-3">
+                    @include('ui::components.input', [
+                        'options' => [
+                            'view'        => 'DEFAULT',
+                            'type'        => 'file',
+                            'name'        => 'INVOICE_FILE',
+                            'label'       => __('contenttypes::inputs.transportar_invoice_file.label'),
+                            'description' => __('contenttypes::inputs.attachment.description'),
+                            'placeholder' => null,
+                            'value'       => null,
+                        ],
+                    ])
+                </div>
             </div>
 
             <div class="card card-bordered mt-3" style="padding-top: 0 !important; padding-bottom: 0 !important;">

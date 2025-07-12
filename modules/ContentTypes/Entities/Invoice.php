@@ -48,6 +48,13 @@ class Invoice extends Model
         ->where('file_tag', 'invoice_file');
     }
 
+    public function INVOICE_FILE()
+    {
+        return $this->hasOne(UploadedFile::class, 'related_id', 'id')
+        ->where('related_type', 'invoice')
+        ->where('file_tag', 'transportar_invoice_file');
+    }
+
     public function items()
     {
         return $this->hasMany(InvoiceItem::class, 'invoice_id', 'id');

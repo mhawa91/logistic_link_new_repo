@@ -139,6 +139,14 @@
                         </div>
                     </div>
                 </div>
+                @if($model->INVOICE_FILE)
+                    <div class="col-md-3" style="display: flex; align-items: end; margin-bottom: 5px">
+                        <a href="{{ app('GraphManager')->src('original', 'files', $model->INVOICE_FILE->file_path) }}" class="btn btn-sm btn-success btn-block" target="_blank">
+                            <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
+                            {{ __('contenttypes::inputs.transportar_invoice_file.view_file') }}
+                        </a>
+                    </div>
+                @endif
                 <div class="col-md-3">
                     @include('ui::components.input', [
                         'options' => [
@@ -160,7 +168,6 @@
                         ],
                     ])
                 </div>
-                <div class="col-md-3"></div>
             </div>
 
             <div class="card card-bordered mt-3" style="padding-top: 0 !important; padding-bottom: 0 !important;">
