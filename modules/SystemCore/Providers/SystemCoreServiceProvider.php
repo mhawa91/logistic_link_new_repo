@@ -265,36 +265,36 @@ class SystemCoreServiceProvider extends ServiceProvider
     {
         $this->app->booted(function () {
 
-            // app('Ui')->registerMainMenuItem([
-            //     'id'        => 'CountriesController@all',
-            //     'parent_id' => 'Settings',
-            //     'ordering'  => 0,
-            //     'type'      => 'MENU', //MENU | HEADER
-            //     'link'      => route('CountriesController@index'),
-            //     'text'      => __('systemcore::strings.countries.header'),
-            //     'icon'      => app('Ui')->defaultIcon(),
-            //     'show'      => function() { return true; },
-            // ])
-            // ->registerMainMenuItem([
-            //     'id'        => 'CountriesController@index',
-            //     'parent_id' => 'CountriesController@all',
-            //     'ordering'  => 0,
-            //     'type'      => 'MENU', //MENU | HEADER
-            //     'link'      => route('CountriesController@index'),
-            //     'text'      => __('systemcore::strings.countries.list'),
-            //     'icon'      => app('Ui')->defaultIcon(),
-            //     'show'      => function() { return true; },
-            // ])
-            // ->registerMainMenuItem([
-            //     'id'        => 'CitiesController@index',
-            //     'parent_id' => 'CountriesController@all',
-            //     'ordering'  => 0,
-            //     'type'      => 'MENU', //MENU | HEADER
-            //     'link'      => route('CitiesController@index'),
-            //     'text'      => __('systemcore::strings.cities.list'),
-            //     'icon'      => app('Ui')->defaultIcon(),
-            //     'show'      => function() { return true; },
-            // ])
+            app('Ui')->registerMainMenuItem([
+                'id'        => 'CountriesController@all',
+                'parent_id' => 'Settings',
+                'ordering'  => 0,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('CountriesController@index'),
+                'text'      => __('systemcore::strings.countries.header'),
+                'icon'      => app('Ui')->defaultIcon(),
+                'show'      => function() { return true; },
+            ])
+            ->registerMainMenuItem([
+                'id'        => 'CountriesController@index',
+                'parent_id' => 'CountriesController@all',
+                'ordering'  => 0,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('CountriesController@index'),
+                'text'      => __('systemcore::strings.countries.list'),
+                'icon'      => app('Ui')->defaultIcon(),
+                'show'      => function() { return true; },
+            ])
+            ->registerMainMenuItem([
+                'id'        => 'CitiesController@index',
+                'parent_id' => 'CountriesController@all',
+                'ordering'  => 0,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('CitiesController@index'),
+                'text'      => __('systemcore::strings.cities.list'),
+                'icon'      => app('Ui')->defaultIcon(),
+                'show'      => function() { return true; },
+            ]);
             // ->registerMainMenuItem([
             //     'id'        => 'MunicipalitiesController@index',
             //     'parent_id' => 'CountriesController@all',
