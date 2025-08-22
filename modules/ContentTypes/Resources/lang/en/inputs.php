@@ -736,4 +736,49 @@ return [
             'NO'  => 'No',
         ],
     ],
+    'hero-button' => [
+        'label'       => 'Hero Button',
+        'placeholder' => 'Enter hero button text',
+        'description' => 'Text for the hero button on the homepage',
+    ],
+    'hero-button-link' => [
+        'label'       => 'Hero Button Link',
+        'placeholder' => 'Enter hero button link',
+        'description' => 'Link for the hero button on the homepage',
+    ],
+    'section_title' => [
+        'label'       => 'Section Title',
+        'placeholder' => 'Enter section title',
+        'description' => 'Title for the section on the homepage',
+    ],
+    'section_content' => [
+        'label'       => 'Section Content',
+        'placeholder' => 'Enter section content',
+        'description' => 'Content for the section on the homepage',
+    ],
+    'feature-title' => [
+        'label'       => 'Feature Title',
+        'placeholder' => 'Enter feature title',
+        'description' => 'Title for the feature section on the homepage',
+    ],
+    'feature-content' => [
+        'label'       => 'Feature Content',
+        'placeholder' => 'Enter feature content',
+        'description' => 'Content for the feature section on the homepage',
+    ],
+    'action-button' => [
+        'label'       => 'Action Button',
+        'placeholder' => 'Enter action button text',
+        'description' => 'Text for the action button on the homepage',
+    ],
+    'action-button-link' => [
+        'label'       => 'Action Button Link',
+        'placeholder' => 'Enter action button link',
+        'description' => 'Link for the action button on the homepage',
+    ],
+    'address_iframe' => [
+        'label'       => 'Map Address from Share Link',
+        'placeholder' => 'Enter map address from share link',
+        'description' => 'Map address from share link that appears in the settings section',
+    ],
 ];

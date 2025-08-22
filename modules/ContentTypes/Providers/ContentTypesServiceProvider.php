@@ -345,6 +345,437 @@ class ContentTypesServiceProvider extends ServiceProvider
                 },
                 'show'      => $isRootOrAdmin,
             ]);
+            app(\Modules\SystemCore\Entities\Contracts\SystemConfigInterface::class)->register([
+                'ordering'  => 0,
+                'key'       => 'address_iframe',
+                'input'     => function($valueFromDB) { 
+                    return view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'config[address_iframe][val]',
+                            'label'       => __('contenttypes::inputs.address_iframe.label'),
+                            'placeholder' => __('contenttypes::inputs.address_iframe.placeholder'),
+                            'description' => __('contenttypes::inputs.address_iframe.description'),
+                            'value'       => $valueFromDB,
+                        ],
+                    ])->render(); 
+                },
+                'update'    => function($oldValues, $valueFromRequest) { 
+                    app(\Modules\SystemCore\Entities\Contracts\SystemConfigInterface::class)->create([
+                        'key'   => $valueFromRequest['key'],
+                        'value' => $valueFromRequest['val'],
+                    ]);
+                    return true; 
+                },
+                'show'      => $isRootOrAdmin,
+            ]);
+
+            // home-hero
+            app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->register([
+                'title'       => __('contenttypes::strings.home-hero.title'),
+                'description' => __('contenttypes::strings.home-hero.description'),
+                'tag'         => 'home-hero',
+                'form'        => function($locale, $valueFromDB) { 
+                    return 
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[home-hero][title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_title.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_title.placeholder'),
+                            'description' => __('contenttypes::inputs.section_title.description'),
+                            'value'       => ! isset($valueFromDB['title']) ? null : ( ! isset($valueFromDB['title'][$locale]) ? null : $valueFromDB['title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[home-hero][content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_content.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_content.placeholder'),
+                            'description' => __('contenttypes::inputs.section_content.description'),
+                            'value'       => ! isset($valueFromDB['content']) ? null : ( ! isset($valueFromDB['content'][$locale]) ? null : $valueFromDB['content'][$locale]),
+                        ],
+                    ])->render()
+                    . '<hr class="preview-hr">' .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[home-hero][button-text]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.hero-button.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.hero-button.placeholder'),
+                            'description' => __('contenttypes::inputs.hero-button.description'),
+                            'value'       => ! isset($valueFromDB['button-text']) ? null : ( ! isset($valueFromDB['button-text'][$locale]) ? null : $valueFromDB['button-text'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[home-hero][button-link]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.hero-button-link.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.hero-button-link.placeholder'),
+                            'description' => __('contenttypes::inputs.hero-button-link.description'),
+                            'value'       => ! isset($valueFromDB['button-link']) ? null : ( ! isset($valueFromDB['button-link'][$locale]) ? null : $valueFromDB['button-link'][$locale]),
+                        ],
+                    ])->render()
+                    ; 
+                },
+                'update'    => function($oldValues, $valueFromRequest) { 
+                    app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->insert('home-hero', $valueFromRequest);
+                },
+                'show'      => function() { return true; },
+            ]);
+
+            // home-features
+            app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->register([
+                'title'       => __('contenttypes::strings.home-features.title'),
+                'description' => __('contenttypes::strings.home-features.description'),
+                'tag'         => 'home-features',
+                'form'        => function($locale, $valueFromDB) { 
+                    return 
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[home-features][title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_title.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_title.placeholder'),
+                            'description' => __('contenttypes::inputs.section_title.description'),
+                            'value'       => ! isset($valueFromDB['title']) ? null : ( ! isset($valueFromDB['title'][$locale]) ? null : $valueFromDB['title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[home-features][content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_content.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_content.placeholder'),
+                            'description' => __('contenttypes::inputs.section_content.description'),
+                            'value'       => ! isset($valueFromDB['content']) ? null : ( ! isset($valueFromDB['content'][$locale]) ? null : $valueFromDB['content'][$locale]),
+                        ],
+                    ])->render()
+                    . '<hr class="preview-hr">' .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[home-features][feature-1-title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-title.label')       . ' (1)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-title.placeholder') . ' (1)',
+                            'description' => __('contenttypes::inputs.feature-title.description') . ' (1)',
+                            'value'       => ! isset($valueFromDB['feature-1-title']) ? null : ( ! isset($valueFromDB['feature-1-title'][$locale]) ? null : $valueFromDB['feature-1-title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[home-features][feature-1-content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-content.label')       . ' (1)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-content.placeholder') . ' (1)',
+                            'description' => __('contenttypes::inputs.feature-content.description') . ' (1)',
+                            'value'       => ! isset($valueFromDB['feature-1-content']) ? null : ( ! isset($valueFromDB['feature-1-content'][$locale]) ? null : $valueFromDB['feature-1-content'][$locale]),
+                        ],
+                    ])->render()
+                    . '<hr class="preview-hr">' .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[home-features][feature-2-title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-title.label')       . ' (2)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-title.placeholder') . ' (2)',
+                            'description' => __('contenttypes::inputs.feature-title.description') . ' (2)',
+                            'value'       => ! isset($valueFromDB['feature-2-title']) ? null : ( ! isset($valueFromDB['feature-2-title'][$locale]) ? null : $valueFromDB['feature-2-title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[home-features][feature-2-content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-content.label')       . ' (2)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-content.placeholder') . ' (2)',
+                            'description' => __('contenttypes::inputs.feature-content.description') . ' (2)',
+                            'value'       => ! isset($valueFromDB['feature-2-content']) ? null : ( ! isset($valueFromDB['feature-2-content'][$locale]) ? null : $valueFromDB['feature-2-content'][$locale]),
+                        ],
+                    ])->render()
+                    . '<hr class="preview-hr">' .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[home-features][feature-3-title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-title.label')       . ' (3)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-title.placeholder') . ' (3)',
+                            'description' => __('contenttypes::inputs.feature-title.description') . ' (3)',
+                            'value'       => ! isset($valueFromDB['feature-3-title']) ? null : ( ! isset($valueFromDB['feature-3-title'][$locale]) ? null : $valueFromDB['feature-3-title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[home-features][feature-3-content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-content.label')       . ' (3)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-content.placeholder') . ' (3)',
+                            'description' => __('contenttypes::inputs.feature-content.description') . ' (3)',
+                            'value'       => ! isset($valueFromDB['feature-3-content']) ? null : ( ! isset($valueFromDB['feature-3-content'][$locale]) ? null : $valueFromDB['feature-3-content'][$locale]),
+                        ],
+                    ])->render()
+                    . '<hr class="preview-hr">' .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[home-features][feature-4-title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-title.label')       . ' (4)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-title.placeholder') . ' (4)',
+                            'description' => __('contenttypes::inputs.feature-title.description') . ' (4)',
+                            'value'       => ! isset($valueFromDB['feature-4-title']) ? null : ( ! isset($valueFromDB['feature-4-title'][$locale]) ? null : $valueFromDB['feature-4-title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[home-features][feature-4-content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-content.label')       . ' (4)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-content.placeholder') . ' (4)',
+                            'description' => __('contenttypes::inputs.feature-content.description') . ' (4)',
+                            'value'       => ! isset($valueFromDB['feature-4-content']) ? null : ( ! isset($valueFromDB['feature-4-content'][$locale]) ? null : $valueFromDB['feature-4-content'][$locale]),
+                        ],
+                    ])->render()
+                    . '<hr class="preview-hr">' .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[home-features][feature-5-title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-title.label')       . ' (5)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-title.placeholder') . ' (5)',
+                            'description' => __('contenttypes::inputs.feature-title.description') . ' (5)',
+                            'value'       => ! isset($valueFromDB['feature-5-title']) ? null : ( ! isset($valueFromDB['feature-5-title'][$locale]) ? null : $valueFromDB['feature-5-title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[home-features][feature-5-content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-content.label')       . ' (5)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-content.placeholder') . ' (5)',
+                            'description' => __('contenttypes::inputs.feature-content.description') . ' (5)',
+                            'value'       => ! isset($valueFromDB['feature-5-content']) ? null : ( ! isset($valueFromDB['feature-5-content'][$locale]) ? null : $valueFromDB['feature-5-content'][$locale]),
+                        ],
+                    ])->render()
+                    . '<hr class="preview-hr">' .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[home-features][feature-6-title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-title.label')       . ' (6)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-title.placeholder') . ' (6)',
+                            'description' => __('contenttypes::inputs.feature-title.description') . ' (6)',
+                            'value'       => ! isset($valueFromDB['feature-6-title']) ? null : ( ! isset($valueFromDB['feature-6-title'][$locale]) ? null : $valueFromDB['feature-6-title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[home-features][feature-6-content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.feature-content.label')       . ' (6)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.feature-content.placeholder') . ' (6)',
+                            'description' => __('contenttypes::inputs.feature-content.description') . ' (6)',
+                            'value'       => ! isset($valueFromDB['feature-6-content']) ? null : ( ! isset($valueFromDB['feature-6-content'][$locale]) ? null : $valueFromDB['feature-6-content'][$locale]),
+                        ],
+                    ])->render()
+                    ; 
+                },
+                'update'    => function($oldValues, $valueFromRequest) { 
+                    app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->insert('home-features', $valueFromRequest);
+                },
+                'show'      => function() { return true; },
+            ]);
+
+            // how-it-works
+            app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->register([
+                'title'       => __('contenttypes::strings.how-it-works.title'),
+                'description' => __('contenttypes::strings.how-it-works.description'),
+                'tag'         => 'how-it-works',
+                'form'        => function($locale, $valueFromDB) { 
+                    return 
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[how-it-works][title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_title.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_title.placeholder'),
+                            'description' => __('contenttypes::inputs.section_title.description'),
+                            'value'       => ! isset($valueFromDB['title']) ? null : ( ! isset($valueFromDB['title'][$locale]) ? null : $valueFromDB['title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[how-it-works][content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_content.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_content.placeholder'),
+                            'description' => __('contenttypes::inputs.section_content.description'),
+                            'value'       => ! isset($valueFromDB['content']) ? null : ( ! isset($valueFromDB['content'][$locale]) ? null : $valueFromDB['content'][$locale]),
+                        ],
+                    ])->render()
+                    . '<hr class="preview-hr">' .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[how-it-works][section-1]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_content.label')       . ' (1)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_content.placeholder') . ' (1)',
+                            'description' => __('contenttypes::inputs.section_content.description') . ' (1)',
+                            'value'       => ! isset($valueFromDB['section-1']) ? null : ( ! isset($valueFromDB['section-1'][$locale]) ? null : $valueFromDB['section-1'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[how-it-works][section-2]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_content.label')       . ' (2)' . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_content.placeholder') . ' (2)',
+                            'description' => __('contenttypes::inputs.section_content.description') . ' (2)',
+                            'value'       => ! isset($valueFromDB['section-2']) ? null : ( ! isset($valueFromDB['section-2'][$locale]) ? null : $valueFromDB['section-2'][$locale]),
+                        ],
+                    ])->render()
+                    . '<hr class="preview-hr">' .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[how-it-works][button-text]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.action-button.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.action-button.placeholder'),
+                            'description' => __('contenttypes::inputs.action-button.description'),
+                            'value'       => ! isset($valueFromDB['button-text']) ? null : ( ! isset($valueFromDB['button-text'][$locale]) ? null : $valueFromDB['button-text'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[how-it-works][button-link]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.action-button-link.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.action-button-link.placeholder'),
+                            'description' => __('contenttypes::inputs.action-button-link.description'),
+                            'value'       => ! isset($valueFromDB['button-link']) ? null : ( ! isset($valueFromDB['button-link'][$locale]) ? null : $valueFromDB['button-link'][$locale]),
+                        ],
+                    ])->render()
+                    ; 
+                },
+                'update'    => function($oldValues, $valueFromRequest) { 
+                    app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->insert('how-it-works', $valueFromRequest);
+                },
+                'show'      => function() { return true; },
+            ]);
+
+            // testimonials
+            app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->register([
+                'title'       => __('contenttypes::strings.testimonials.title'),
+                'description' => __('contenttypes::strings.testimonials.description'),
+                'tag'         => 'testimonials',
+                'form'        => function($locale, $valueFromDB) { 
+                    return 
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[testimonials][title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_title.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_title.placeholder'),
+                            'description' => __('contenttypes::inputs.section_title.description'),
+                            'value'       => ! isset($valueFromDB['title']) ? null : ( ! isset($valueFromDB['title'][$locale]) ? null : $valueFromDB['title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[testimonials][content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_content.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_content.placeholder'),
+                            'description' => __('contenttypes::inputs.section_content.description'),
+                            'value'       => ! isset($valueFromDB['content']) ? null : ( ! isset($valueFromDB['content'][$locale]) ? null : $valueFromDB['content'][$locale]),
+                        ],
+                    ])->render()
+                    ; 
+                },
+                'update'    => function($oldValues, $valueFromRequest) { 
+                    app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->insert('testimonials', $valueFromRequest);
+                },
+                'show'      => function() { return true; },
+            ]);
+
+            // faq-section
+            app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->register([
+                'title'       => __('contenttypes::strings.faq-section.title'),
+                'description' => __('contenttypes::strings.faq-section.description'),
+                'tag'         => 'faq-section',
+                'form'        => function($locale, $valueFromDB) { 
+                    return 
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'text',
+                            'name'        => 'sections[faq-section][title]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_title.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_title.placeholder'),
+                            'description' => __('contenttypes::inputs.section_title.description'),
+                            'value'       => ! isset($valueFromDB['title']) ? null : ( ! isset($valueFromDB['title'][$locale]) ? null : $valueFromDB['title'][$locale]),
+                        ],
+                    ])->render()
+                    .
+                    view('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'textarea',
+                            'name'        => 'sections[faq-section][content]['. $locale .']',
+                            'label'       => __('contenttypes::inputs.section_content.label') . '<span class="text-primary"> [' . $locale . ']</span>',
+                            'placeholder' => __('contenttypes::inputs.section_content.placeholder'),
+                            'description' => __('contenttypes::inputs.section_content.description'),
+                            'value'       => ! isset($valueFromDB['content']) ? null : ( ! isset($valueFromDB['content'][$locale]) ? null : $valueFromDB['content'][$locale]),
+                        ],
+                    ])->render()
+                    ; 
+                },
+                'update'    => function($oldValues, $valueFromRequest) { 
+                    app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->insert('faq-section', $valueFromRequest);
+                },
+                'show'      => function() { return true; },
+            ]);
 
             // privacy-policy
             app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->register([
@@ -419,6 +850,109 @@ class ContentTypesServiceProvider extends ServiceProvider
                 'update'    => function($oldValues, $valueFromRequest) { 
                     app(\Modules\ContentManager\Entities\Contracts\SectionInterface::class)->insert('terms-conditions', $valueFromRequest);
                 },
+                'show'      => $isRootOrAdmin,
+            ]);
+
+            // testimonials [Content]
+            app(\Modules\ContentManager\Entities\Contracts\ContentInterface::class)->register([
+                'ordering'  => 0,
+                'base_type' => 'POST',
+                'type'      => 'testimonials',
+                'menu'      => __('contenttypes::strings.testimonials.menu'),
+                'list'      => __('contenttypes::strings.testimonials.list'),
+                'create'    => __('contenttypes::strings.testimonials.create'),
+                'update'    => __('contenttypes::strings.testimonials.update'),
+                'show'      => function() { return true; },
+                'inputs'    => [
+                    'icon'          => false,
+                    'sub_title'     => true,
+                    'url'           => false,
+                    'category'      => false,
+                    'long_content'  => false,
+                ],
+            ]);
+
+            // faq [Content]
+            app(\Modules\ContentManager\Entities\Contracts\ContentInterface::class)->register([
+                'ordering'  => 0,
+                'base_type' => 'POST',
+                'type'      => 'faq',
+                'menu'      => __('contenttypes::strings.faq-section.menu'),
+                'list'      => __('contenttypes::strings.faq-section.list'),
+                'create'    => __('contenttypes::strings.faq-section.create'),
+                'update'    => __('contenttypes::strings.faq-section.update'),
+                'show'      => function() { return true; },
+                'inputs'    => [
+                    'image'         => false,
+                    'icon'          => false,
+                    'sub_title'     => false,
+                    'url'           => false,
+                    'category'      => false,
+                    'long_content'  => false,
+                ],
+            ]);
+
+            app('Ui')
+            ->registerMainMenuItem([
+                'id'        => 'testimonials',
+                'parent_id' => 'ContentManager',
+                'ordering'  => 2,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('ContentController@index', ['type' => 'testimonials']),
+                'text'      => __('contenttypes::strings.testimonials.menu'),
+                'icon'      => app('Ui')->defaultIcon(),
+                'show'      => $isRootOrAdmin,
+            ])
+            ->registerMainMenuItem([
+                'id'        => 'testimonials@index',
+                'parent_id' => 'testimonials',
+                'ordering'  => 0,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('ContentController@index', ['type' => 'testimonials']),
+                'text'      => __('admin::strings.global.list_all'),
+                'icon'      => app('Ui')->defaultIcon(),
+                'show'      => $isRootOrAdmin,
+            ])
+            ->registerMainMenuItem([
+                'id'        => 'testimonials@create',
+                'parent_id' => 'testimonials',
+                'ordering'  => 0,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('ContentController@create', ['type' => 'testimonials']),
+                'text'      => __('admin::strings.global.add_new'),
+                'icon'      => app('Ui')->defaultIcon(),
+                'show'      => $isRootOrAdmin,
+            ]);
+
+            app('Ui')
+            ->registerMainMenuItem([
+                'id'        => 'faq',
+                'parent_id' => 'ContentManager',
+                'ordering'  => 2,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('ContentController@index', ['type' => 'faq']),
+                'text'      => __('contenttypes::strings.faq-section.menu'),
+                'icon'      => app('Ui')->defaultIcon(),
+                'show'      => $isRootOrAdmin,
+            ])
+            ->registerMainMenuItem([
+                'id'        => 'faq@index',
+                'parent_id' => 'faq',
+                'ordering'  => 0,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('ContentController@index', ['type' => 'faq']),
+                'text'      => __('admin::strings.global.list_all'),
+                'icon'      => app('Ui')->defaultIcon(),
+                'show'      => $isRootOrAdmin,
+            ])
+            ->registerMainMenuItem([
+                'id'        => 'faq@create',
+                'parent_id' => 'faq',
+                'ordering'  => 0,
+                'type'      => 'MENU', //MENU | HEADER
+                'link'      => route('ContentController@create', ['type' => 'faq']),
+                'text'      => __('admin::strings.global.add_new'),
+                'icon'      => app('Ui')->defaultIcon(),
                 'show'      => $isRootOrAdmin,
             ]);
 

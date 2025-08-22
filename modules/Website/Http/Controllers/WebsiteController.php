@@ -6,17 +6,44 @@ use Illuminate\Http\Request;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\ContactUs\Entities\ContactUsService;
+
+use Modules\SystemCore\Entities\Contracts\SystemConfigInterface;
+use Modules\ContentManager\Entities\Contracts\SectionInterface;
+use Modules\ContentManager\Entities\Content;
+
 use DB;
 
 class WebsiteController extends SystemCoreHttpController
 {
-    public function __construct()
+    public function __construct(
+        SectionInterface      $SectionInterface,
+        SystemConfigInterface $SystemConfigInterface,
+    )
     {
+        $this->data['SystemConfig'] = $SystemConfigInterface;
+        $this->data['Sections']     = $SectionInterface;
+
+        $this->data['SystemConfig']->load();
+        $this->data['Sections']->load();
     }
 
     public function index()
     {
-        return view('website::index');
+        $this->data['testimonials'] = Content::where('type', 'testimonials')
+        ->with('translations')
+        ->orderBy('ordering', 'asc')
+        ->orderBy('published_at', 'desc')
+        ->orderBy('id', 'desc')
+        ->get();
+
+        $this->data['faq'] = Content::where('type', 'faq')
+        ->with('translations')
+        ->orderBy('ordering', 'asc')
+        ->orderBy('published_at', 'desc')
+        ->orderBy('id', 'desc')
+        ->get();
+
+        return view('website::index', $this->data);
     }
 
     public function postContactRequest(Request $Request, ActionResponse $Response, ContactUsService $ContactUsService)

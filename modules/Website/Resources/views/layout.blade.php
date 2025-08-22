@@ -186,6 +186,23 @@
         .locales.menu-btns li {
             padding: 0 0;
         }
+        .rounded-embed{
+            width:100%;
+            height:250px;               /* set your desired height on the parent */
+            position:relative;
+            overflow:hidden;
+            border-radius:30px;
+            /* iOS/Safari corner clipping fix */
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+        }
+        .rounded-embed > iframe{
+            position:absolute;
+            inset:0;                    /* top/right/bottom/left: 0 */
+            width:100% !important;      /* override width="85%" if needed */
+            height:100% !important;
+            border:0;
+            display:block;
+        }
     </style>
     @if ($_DIR_ == 'rtl')
         <style>
@@ -252,9 +269,13 @@
                                     <li class="menu-item"><a href="#home" class="menu-link nav-link">{{ __('website::strings.menu.home') }}</a></li>
                                     <li class="menu-item"><a href="#features" class="menu-link nav-link">{{ __('website::strings.menu.features') }}</a></li>
                                     <li class="menu-item"><a href="#how-it-works" class="menu-link nav-link">{{ __('website::strings.menu.how-it-works') }}</a></li>
-                                    <li class="menu-item"><a href="#success-stories" class="menu-link nav-link">{{ __('website::strings.menu.success-stories') }}</a></li>
-                                    <li class="menu-item"><a href="#faq" class="menu-link nav-link">{{ __('website::strings.menu.faq') }}</a></li>
-                                    <li class="menu-item"><a href="#contact" class="menu-link nav-link">{{ __('website::strings.menu.contact') }}</a></li>
+                                    @if($testimonials->count() > 0)
+                                        <li class="menu-item"><a href="#success-stories" class="menu-link nav-link">{{ __('website::strings.menu.success-stories') }}</a></li>
+                                    @endif
+                                    @if($faq->count() > 0)
+                                        <li class="menu-item"><a href="#faq" class="menu-link nav-link">{{ __('website::strings.menu.faq') }}</a></li>
+                                    @endif
+                                    <li class="menu-item"><a href="{{ route('WebsiteController@index') }}/#contact" class="menu-link nav-link">{{ __('website::strings.menu.contact') }}</a></li>
                                 </ul>
                                 <ul class="menu-btns locales">
                                     @if(count($_ALL_DISPLAY_LOCALES_) > 1)
@@ -293,17 +314,30 @@
                         <div class="row justify-content-center text-center">
                             <div class="col-lg-10 col-md-10">
                                 <div class="header-caption">
-                                    <h1 class="header-title uppercase title-primary">
-                                        {!! __('website::strings.hero_title') !!}
-                                    </h1>
-                                    <div class="header-text">
-                                        <p class="text-white">
-                                            {!! __('website::strings.hero_subtitle') !!}
-                                        </p>
-                                    </div>
-                                    <ul class="header-action btns-inline">
-                                        <li><a href="#" class="btn btn-custom btn-lg"><span>{{ __('website::strings.request-for-demo') }}</span></a></li>
-                                    </ul>
+                                    @if($Sections->byKey('home-hero', 'title', null))
+                                        <h1 class="header-title uppercase title-primary">
+                                            {!! \Illuminate\Support\Str::of($Sections->byKey('home-hero', 'title'))->replaceMatches('/\[(.*?)\]/u', '<span class="text-green">$1</span>') !!}
+                                        </h1>
+                                    @endif
+                                    @if($Sections->byKey('home-hero', 'content', null))
+                                        <div class="header-text">
+                                            <p class="text-white">
+                                                {!! \Illuminate\Support\Str::of($Sections->byKey('home-hero', 'content'))->replaceMatches('/\[(.*?)\]/u', '<span class="text-green">$1</span>') !!}
+                                            </p>
+                                        </div>
+                                    @endif
+                                    @if($Sections->byKey('home-hero', 'button-text', null) && $Sections->byKey('home-hero', 'button-link', null))
+                                        <ul class="header-action btns-inline">
+                                            <li>
+                                                <a href="{!! $Sections->byKey('home-hero', 'button-link') !!}" class="btn btn-custom btn-lg">
+                                                    <span>{{ $Sections->byKey('home-hero', 'button-text') }}</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    @endif
+                                    
+                                    
+                                    
                                 </div><!-- .header-caption -->
                             </div><!-- .col -->
                         </div><!-- .row -->

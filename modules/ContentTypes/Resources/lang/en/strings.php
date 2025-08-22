@@ -227,4 +227,32 @@ return [
     ],
     'invoice_pay'     => 'Pay Invoice',
     'confirm_payment' => 'Confirm Payment',
+    'home-hero'       => [
+        'title'       => 'Platform Introduction Section',
+        'description' => 'The platform introduction section may appear on the homepage and other pages',
+    ],
+    'home-features' => [
+        'title'       => 'Platform Features Section',
+        'description' => 'The platform features section may appear on the homepage and other pages',
+    ],
+    'how-it-works' => [
+        'title'       => 'How It Works Section',
+        'description' => 'This section explains how the platform works and may appear on the homepage and other pages',
+    ],
+    'testimonials' => [
+        'menu'       => 'Customers Testimonials',
+        'list'       => 'List of Customer Testimonials',
+        'create'     => 'Add New Testimonial',
+        'update'     => 'Edit Testimonial',
+        'title'      => 'Customer Testimonials',
+        'description'=> 'This section includes customer testimonials and their experiences with the platform',
+    ],
+    'faq-section' => [
+        'menu'        => 'FAQ',
+        'list'        => 'List of FAQs',
+        'create'      => 'Add New FAQ',
+        'update'      => 'Edit FAQ',
+        'title'       => 'FAQ Section',
+        'description' => 'This section includes frequently asked questions and their answers',
+    ],
 ];
