@@ -266,16 +266,16 @@
                             </div><!-- .header-nav-toggle -->
                             <nav class="header-menu ps-xl-5" data-content="mainNav">
                                 <ul class="menu-list">
-                                    <li class="menu-item"><a href="#home" class="menu-link nav-link">{{ __('website::strings.menu.home') }}</a></li>
-                                    <li class="menu-item"><a href="#features" class="menu-link nav-link">{{ __('website::strings.menu.features') }}</a></li>
-                                    <li class="menu-item"><a href="#how-it-works" class="menu-link nav-link">{{ __('website::strings.menu.how-it-works') }}</a></li>
+                                    <li class="menu-item"><a href="{{ route('WebsiteController@index') }}#home" class="menu-link nav-link">{{ __('website::strings.menu.home') }}</a></li>
+                                    <li class="menu-item"><a href="{{ route('WebsiteController@index') }}#features" class="menu-link nav-link">{{ __('website::strings.menu.features') }}</a></li>
+                                    <li class="menu-item"><a href="{{ route('WebsiteController@index') }}#how-it-works" class="menu-link nav-link">{{ __('website::strings.menu.how-it-works') }}</a></li>
                                     @if($testimonials->count() > 0)
-                                        <li class="menu-item"><a href="#success-stories" class="menu-link nav-link">{{ __('website::strings.menu.success-stories') }}</a></li>
+                                        <li class="menu-item"><a href="{{ route('WebsiteController@index') }}#success-stories" class="menu-link nav-link">{{ __('website::strings.menu.success-stories') }}</a></li>
                                     @endif
                                     @if($faq->count() > 0)
-                                        <li class="menu-item"><a href="#faq" class="menu-link nav-link">{{ __('website::strings.menu.faq') }}</a></li>
+                                        <li class="menu-item"><a href="{{ route('WebsiteController@index') }}#faq" class="menu-link nav-link">{{ __('website::strings.menu.faq') }}</a></li>
                                     @endif
-                                    <li class="menu-item"><a href="{{ route('WebsiteController@index') }}/#contact" class="menu-link nav-link">{{ __('website::strings.menu.contact') }}</a></li>
+                                    <li class="menu-item"><a href="{{ route('WebsiteController@index') }}#contact" class="menu-link nav-link">{{ __('website::strings.menu.contact') }}</a></li>
                                 </ul>
                                 <ul class="menu-btns locales">
                                     @if(count($_ALL_DISPLAY_LOCALES_) > 1)
@@ -371,12 +371,16 @@
                         </div><!-- .col -->
                         <div class="col-md-9 d-flex justify-content-md-end">
                             <ul class="link-inline gx-4 text-white">
-                                <li><a href="#home">{{ __('website::strings.menu.home') }}</a></li>
-                                <li><a href="#features">{{ __('website::strings.menu.features') }}</a></li>
-                                <li><a href="#how-it-works">{{ __('website::strings.menu.how-it-works') }}</a></li>
-                                <li><a href="#success-stories">{{ __('website::strings.menu.success-stories') }}</a></li>
-                                <li><a href="#faq">{{ __('website::strings.menu.faq') }}</a></li>
-                                <li><a href="#contact">{{ __('website::strings.menu.contact') }}</a></li>
+                                <li><a href="{{ route('WebsiteController@index') }}#home">{{ __('website::strings.menu.home') }}</a></li>
+                                <li><a href="{{ route('WebsiteController@index') }}#features">{{ __('website::strings.menu.features') }}</a></li>
+                                <li><a href="{{ route('WebsiteController@index') }}#how-it-works">{{ __('website::strings.menu.how-it-works') }}</a></li>
+                                @if($testimonials->count() > 0)
+                                    <li><a href="{{ route('WebsiteController@index') }}#success-stories">{{ __('website::strings.menu.success-stories') }}</a></li>
+                                @endif
+                                @if($faq->count() > 0)
+                                    <li><a href="{{ route('WebsiteController@index') }}#faq">{{ __('website::strings.menu.faq') }}</a></li>
+                                @endif
+                                <li><a href="{{ route('WebsiteController@index') }}#contact">{{ __('website::strings.menu.contact') }}</a></li>
 
                             </ul><!-- .footer-nav -->
                         </div><!-- .col -->

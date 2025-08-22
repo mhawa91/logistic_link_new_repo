@@ -146,10 +146,10 @@
                         <p>{!! \Illuminate\Support\Str::of($Sections->byKey('how-it-works', 'content'))->replaceMatches('/\[(.*?)\]/u', '<span class="text-green">$1</span>') !!}</p>
                         <ul class="list list-lg list-success list-checked-circle outlined">
                             <li>
-                                {!! __('website::strings.for-businesses') !!}
+                                {!! \Illuminate\Support\Str::of($Sections->byKey('how-it-works', 'section-1'))->replaceMatches('/\[(.*?)\]/u', '<strong class="text-green">$1</strong>') !!}
                             </li>
                             <li>
-                                {!! __('website::strings.for-carriers') !!}
+                                {!! \Illuminate\Support\Str::of($Sections->byKey('how-it-works', 'section-2'))->replaceMatches('/\[(.*?)\]/u', '<strong class="text-green">$1</strong>') !!}
                             </li>
                         </ul>
                         @if($Sections->byKey('how-it-works', 'button-link', null) && $Sections->byKey('how-it-works', 'button-link'))

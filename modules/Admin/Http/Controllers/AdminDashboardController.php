@@ -10,10 +10,22 @@ use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\ContentTypes\Entities\Shippment;
 use Modules\ContentTypes\Entities\TransporterContractInstance;
 
+use Modules\SystemCore\Entities\Contracts\SystemConfigInterface;
+use Modules\ContentManager\Entities\Contracts\SectionInterface;
+
 class AdminDashboardController extends SystemCoreHttpController
 {
-    public function __construct()
+    public function __construct(
+        SectionInterface      $SectionInterface,
+        SystemConfigInterface $SystemConfigInterface,
+    )
     {
+        $this->data['SystemConfig'] = $SystemConfigInterface;
+        $this->data['Sections']     = $SectionInterface;
+
+        $this->data['SystemConfig']->load();
+        $this->data['Sections']->load();
+        
         $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
     }
 

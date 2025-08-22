@@ -137,14 +137,18 @@
                 <div class="row justify-content-between align-items-center">
                     <div class="col-lg-6">
                         <div class="text-block pe-xl-5">
-                            <h2 class="title mb-5">{!! __('website::strings.how-it-works-title') !!}</h2>
-                            <p>{!! __('website::strings.how-it-works-description') !!}</p>
+                            <h2 class="title mb-3">
+                                {!! \Illuminate\Support\Str::of($Sections->byKey('how-it-works', 'title'))->replaceMatches('/\[(.*?)\]/u', '<span class="text-green">$1</span>') !!}
+                            </h2>
+                            <p>
+                                {!! \Illuminate\Support\Str::of($Sections->byKey('how-it-works', 'content'))->replaceMatches('/\[(.*?)\]/u', '<span class="text-green">$1</span>') !!}
+                            </p>
                             <ul class="list list-lg list-success list-checked-circle outlined">
                                 <li>
-                                    {!! __('website::strings.for-businesses') !!}
+                                    {!! \Illuminate\Support\Str::of($Sections->byKey('how-it-works', 'section-1'))->replaceMatches('/\[(.*?)\]/u', '<strong class="text-green">$1</strong>') !!}
                                 </li>
                                 <li>
-                                    {!! __('website::strings.for-carriers') !!}
+                                    {!! \Illuminate\Support\Str::of($Sections->byKey('how-it-works', 'section-2'))->replaceMatches('/\[(.*?)\]/u', '<strong class="text-green">$1</strong>') !!}
                                 </li>
                             </ul>
                         </div>
