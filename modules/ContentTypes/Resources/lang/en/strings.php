@@ -64,8 +64,8 @@ return [
     'transporters' => [
         'menu'   => 'Transporters',
         'list'   => 'Transporter List',
-        'create' => 'Add New Transporter',
-        'update' => 'Edit Transporter',
+        'create' => 'Add new Contract',
+        'update' => 'Edit Contract',
     ],
     'contracts' => [
         'menu'   => 'Transport Contracts',

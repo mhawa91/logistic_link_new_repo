@@ -187,7 +187,7 @@
                             ],
                         ])
         
-                        {{-- @include('ui::components.input', [
+                        @include('ui::components.input', [
                             'options' => [
                                 'view'        => 'INLINE',
                                 'type'        => 'password',
@@ -207,7 +207,7 @@
                                 'placeholder' => __('admin::inputs.password_confirmation.placeholder'),
                                 'description' => __('admin::inputs.password_confirmation.description'),
                             ],
-                        ]) --}}
+                        ])
         
                         @include('ui::components.select', [
                             'options' => [

@@ -299,10 +299,10 @@
                                             <th>
                                                 <span>{{ __('contenttypes::inputs.to_city_id.label') }}</span>
                                             </th>
-                                            <th>
+                                            <th style="min-width: 200px;">
                                                 <span>{{ __('contenttypes::inputs.price.label') }}</span>
                                             </th>
-                                            <th>
+                                            <th style="min-width: 200px;">
                                                 <span>{{ __('contenttypes::inputs.pre_additional_location_price.label') }}</span>
                                             </th>
                                             <th class="tb-tnx-action" style="width: 1%">
