@@ -297,14 +297,14 @@
                                                         {{ $model->loadType->__('title') }}
                                                     </p>
                                                 </div>
-                                                <div class="col-lg-6 mb-4">
+                                                {{-- <div class="col-lg-6 mb-4">
                                                     <img src="{{ asset('images/icons/number_of_trucks.svg') }}" alt="">
                                                     <span class="name">{{__('contenttypes::orders.number_of_trucks')}}</span>
                                                     <p class="value">
                                                         {{ $helper->moneyFormat($model->number_of_trucks, 0)->abs }} 
                                                         {{__('contenttypes::orders.trucks')}}
                                                     </p>
-                                                </div>
+                                                </div> --}}
                                                 <div class="col-lg-6 mb-4">
                                                     <img src="{{ asset('images/icons/number_of_pallets.svg') }}" class="modify-icon-1">
                                                     <span class="name">{{__('contenttypes::orders.number_of_pallets')}}</span>
