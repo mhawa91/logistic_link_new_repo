@@ -97,7 +97,7 @@
             </div>
         @endif
         @if($from->delivered_at)
-            @if(! $to->delivered_at)
+            @if(! $to->delivered_at && auth()->check() && auth()->user()->type == 'TRANSPORTER')
                 <div class="col-lg-4 mb-4 mt-4 d-flex justify-end">
                     @component('ui::components.form', [
                         'options' => [
