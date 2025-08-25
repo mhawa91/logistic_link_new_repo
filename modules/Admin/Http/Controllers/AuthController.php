@@ -33,6 +33,9 @@ class AuthController extends SystemCoreHttpController
                 $userData = json_decode($userData, true);
                 if (! empty($userData['id'])) {
                     Auth::loginUsingId($userData['id'], true);
+                    if (!empty($userData['on_success'])) {
+                        return redirect()->to($userData['on_success']);
+                    }
                     return redirect()->route('AdminDashboardController@index');
                 }
             } 

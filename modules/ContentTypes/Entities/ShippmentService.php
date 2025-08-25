@@ -39,6 +39,14 @@ class ShippmentService extends ModelService
                 });
             }
         }
+        if ($this->can('update') && auth()->check() && auth()->user()->type == 'DEFAULT') {
+            $this->registerDataTableAction('duplicate', function($Row) {
+                return [
+                    'label'  => __('ui::strings.duplicate'),
+                    'action' => route('ShippmentsController@update', ['model' => $Row->id, 'duplicate' => 'Y']),
+                ];
+            });
+        }
         if ($this->can('update')) {
             $this->registerDataTableAction('update', function($Row) {
                 return [

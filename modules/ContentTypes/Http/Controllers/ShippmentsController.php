@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\ContentTypes\Entities\ShippmentService;
+use Modules\ContentTypes\Entities\Shippment;
 use Modules\ContentTypes\Entities\DriverService;
 use Modules\ContentTypes\Entities\Driver;
 use Modules\ContentTypes\Entities\UploadedFile;
@@ -331,6 +332,9 @@ class ShippmentsController extends SystemCoreHttpController
         if(auth()->check() && auth()->user()->type == 'TRANSPORTER' && $this->data['model']->transporter_user_id != auth()->id()) {
             return redirect()->route('ShippmentsController@index');
         }
+        if($Request->duplicate == 'Y') {
+            return $this->postCreate($Request, $Response, $ShippmentService);
+        }
         $this->data['Validator'] = $ShippmentService->validator('update', $Request->all());
         $this->data['Validator']->validate();
         $shippment = DB::transaction(function() use($Request, $ShippmentService) {
@@ -354,6 +358,30 @@ class ShippmentsController extends SystemCoreHttpController
                 'description' => __('ui::strings.messages.saved.description'),
             ],
             'redirect' => route('ShippmentsController@read', ['model' => $this->data['model']->id]),
+        ]);
+    }
+
+    public function postBulkSend(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
+    {
+        $this->data['models']     = Shippment::whereIn('id', $Request->shippments ?? [])
+        ->where('company_user_id', auth()->id())
+        ->where('sys_status'     , 'DRAFT')
+        ->where('is_rfq'         , 'NO')
+        ->get();
+
+        foreach($this->data['models'] as $shippment) {
+            $shippment->sys_status = 'MATCHING';
+            $shippment->save();
+            Jobs\ShippmentMatchTransportar::dispatch($shippment);
+        }
+
+        return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
+            'toastr' => [
+                'type'        => 'success',
+                'title'       => __('ui::strings.messages.saved.title'),
+                'description' => __('ui::strings.messages.saved.description'),
+            ],
+            'redirect' => route('ShippmentsController@index'),
         ]);
     }
 

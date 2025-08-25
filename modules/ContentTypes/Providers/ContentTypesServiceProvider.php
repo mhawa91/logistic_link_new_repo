@@ -1203,20 +1203,20 @@ class ContentTypesServiceProvider extends ServiceProvider
             ]);
 
 
-            app('Ui')->registerMainMenuItem([
-                'id'        => 'consumer/reports',
-                'parent_id' => 'AdminDashboardController',
-                'ordering'  => 0,
-                'type'      => 'MENU', //MENU | HEADER
-                'link'      => 'javascript:void(0);',
-                'text'      => __('contenttypes::strings.reports.menu'),
-                'icon'      => [
-                    'name' => 'DEFAULT',
-                    'type' => 'em', //em | i | svg | span
-                    'data' => 'icon ni ni-growth',
-                ],
-                'show'      => $isConsumer,
-            ]);
+            // app('Ui')->registerMainMenuItem([
+            //     'id'        => 'consumer/reports',
+            //     'parent_id' => 'AdminDashboardController',
+            //     'ordering'  => 0,
+            //     'type'      => 'MENU', //MENU | HEADER
+            //     'link'      => 'javascript:void(0);',
+            //     'text'      => __('contenttypes::strings.reports.menu'),
+            //     'icon'      => [
+            //         'name' => 'DEFAULT',
+            //         'type' => 'em', //em | i | svg | span
+            //         'data' => 'icon ni ni-growth',
+            //     ],
+            //     'show'      => $isConsumer,
+            // ]);
             app('Ui')->registerMainMenuItem([
                 'id'        => 'consumer/settings',
                 'parent_id' => 'AdminDashboardController',

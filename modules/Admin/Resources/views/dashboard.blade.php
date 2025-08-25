@@ -81,6 +81,14 @@
                         <div class="card-title-group">
                             <div class="d-stastic-block1">
                                 {{ __('contenttypes::dashboard.company_contracts_desc') }}
+                                {{-- <div class="nk-sale-data">
+                                    <span class="amount">
+                                        14,299.59 
+                                        <span class="sub-title">
+                                            This Month
+                                        </span>
+                                    </span>
+                                </div> --}}
                             </div>
                             <div class="d-stastic-block2">
                                 <img width="55%" src="{{ asset('images/icons/company_contracts_1.svg') }}" alt="">

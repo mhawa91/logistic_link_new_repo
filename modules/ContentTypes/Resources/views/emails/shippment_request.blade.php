@@ -79,6 +79,13 @@
             </tr>
             <tr>
                 <td style="text-align:center;padding: 20px 30px 40px">
+                    <a href="{{ route('AuthController@login', ['hash' => $hash]) }}" style="background-color:{{ config('mail_theme.colors.primary') }};border-radius:4px;color:#ffffff;display:inline-block;font-size:13px;font-weight:600;line-height:44px;text-align:center;text-decoration:none;text-transform: uppercase; padding: 0 25px; margin-top: 25px">
+                        Confirm
+                    </a> 
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;padding: 20px 30px 40px">
                     <p>If you think you got this email by mistake, please ignore this email.</p>
                     <p style="margin-bottom: 15px;">We’re excited to have you join us!</p>
                     <p style="margin: 0; font-size: 13px; line-height: 22px; color:#9ea8bb;">

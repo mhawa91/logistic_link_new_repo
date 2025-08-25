@@ -74,6 +74,17 @@
                     ],
                 ])
 
+                @if(request()->duplicate == 'Y')
+                    @include('ui::components.input', [
+                        'options' => [
+                            'view'        => 'INLINE',
+                            'type'        => 'hidden',
+                            'name'        => 'duplicate',
+                            'value'       => 'Y',
+                        ],
+                    ])
+                @endif
+
                 <div :style="{ 'display': step == 2 ? 'none' : 'block' }">
                     <div class="nk-block-head">
                         <div class="nk-block-head-content">

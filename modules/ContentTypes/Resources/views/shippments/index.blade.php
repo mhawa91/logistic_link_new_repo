@@ -16,7 +16,7 @@
     ]
 ])
     @if ($Service->can('create'))
-        <div class="nk-block-head-content">
+        <div class="nk-block-head-content" id="select-app">
             <div class="toggle-wrap nk-block-tools-toggle">
                 <a href="javascript:;" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu">
                     <em class="icon ni ni-menu-alt-r"></em>
@@ -33,6 +33,15 @@
                                 <em class="icon ni ni-download-cloud"></em><span>Export</span>
                             </a>
                         </li> --}}
+                        <li v-if="selected.length > 0">
+                            <form action="{{ route('ShippmentsController@postBulkSend') }}" method="POST" onsubmit="BS.AJAX_FORM(event);">
+                                @csrf
+                                <input v-for="(item, item_index) in selected" type="hidden" name="shippments[]" :value="item">
+                                <button type="submit" class="btn btn-danger">
+                                    <em class="icon ni ni-edit"></em><span>{{ __('contenttypes::strings.send_shippments_to_suppliers') }}</span>
+                                </button>
+                            </form>
+                        </li>     
                     </ul>
                 </div>
             </div>
@@ -627,7 +636,16 @@
                             searchable : true,
                             // visible    : false,
                             render     : function(data,type,Row,meta) {
-                                return `<span class="text-danger">${Row.id}</span>`;
+                                if (Row.sys_status != 'DRAFT') {
+                                    return `<span class="text-danger">${Row.id}</span>`;
+                                }
+                                let isChecked = isSelected(Row.id);
+                                return `
+                                    <div class="custom-control custom-switch">
+                                        <input name="selected[]" type="checkbox" class="custom-control-input shippment-select" id="customSwitch${Row.id}" value="${Row.id}" ${isChecked ? 'checked' : ''}>
+                                        <label class="custom-control-label" for="customSwitch${Row.id}"></label>
+                                    </div>
+                                `;
                             }
                         },
                         {
@@ -845,6 +863,8 @@
                                                             ${(! Row.actions['rfq_list']    ? `` : `<li><a href="${Row.actions['rfq_list']['action']}"><em class="icon ni ni-list"></em><span>${Row.actions['rfq_list']['label']}</span></a></li>`)}
                                                             ${(! Row.actions['update']      ? `` : `<li><a href="${Row.actions['update']['action']}"><em class="icon ni ni-update"></em><span>${Row.actions['update']['label']}</span></a></li>`)}
                                                             <li class="divider"></li>
+                                                            ${(! Row.actions['duplicate']      ? `` : `<li><a href="${Row.actions['duplicate']['action']}"><em class="icon ni ni-copy"></em><span>${Row.actions['duplicate']['label']}</span></a></li>`)}
+                                                            <li class="divider"></li>
                                                             ${(! Row.actions['delete']      ? `` : `<li><a href="javascript:;" onclick="BS.ajaxDelete('{{ route('ShippmentsController@postDelete') }}', ${Row.id}, datatable)"><em class="icon ni ni-delete"></em><span>${Row.actions['delete']['label']}</span></a></li>`)}
                                                             ${(! Row.actions['restore']     ? `` : `<li><a href="javascript:;" onclick="BS.ajaxRestore('{{ route('ShippmentsController@postRestore') }}', ${Row.id}, datatable)"><em class="icon ni ni-redo"></em><span>${Row.actions['restore']['label']}</span></a></li>`)}
                                                             ${(! Row.actions['permaDelete'] ? `` : `<li><a href="javascript:;" onclick="BS.ajaxPermaDelete('{{ route('ShippmentsController@postPermaDelete') }}', ${Row.id}, datatable)"><em class="icon ni ni-delete text-danger"></em><span>${Row.actions['permaDelete']['label']}</span></a></li>`)}
@@ -1039,6 +1059,36 @@
 
 @push('script')
     <script>
+        const selectApp = new Vue({
+            el: '#select-app',
+            data: {
+                selected: [],
+            },
+            methods: {
+                isSelected: function (id) {
+                    return this.selected.includes(id);
+                },
+                toggleSelect: function (id) {
+                    if (this.isSelected(id)) {
+                        this.selected = this.selected.filter(item => item !== id);
+                    } 
+                    else {
+                        this.selected.push(id);
+                    }
+                    console.log(this.selected);
+                },
+            }
+        });
+
+        $(document).on('click', '.shippment-select', function() {
+            const id = $(this).val();
+            selectApp.toggleSelect(id);
+        });
+
+        const isSelected = function (id) {
+            return selectApp.isSelected(id);
+        }
+
         function exportData() {
             // create form using jquery and submit
             var form = $('<form action="{{ route('ShippmentsController@postExport') }}" method="POST" style="display: none;"></form>');

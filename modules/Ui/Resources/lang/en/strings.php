@@ -117,4 +117,5 @@ return [
     'confirm' => 'Confirm',
     'next'        => 'Next Step',
     'previous'    => 'Previous Step',
+    'duplicate'   => 'Duplicate'
 ];

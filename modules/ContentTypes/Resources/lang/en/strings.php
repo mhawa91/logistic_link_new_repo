@@ -255,4 +255,5 @@ return [
         'title'       => 'FAQ Section',
         'description' => 'This section includes frequently asked questions and their answers',
     ],
+    'send_shippments_to_suppliers' => 'Send Shipments to Suppliers'
 ];

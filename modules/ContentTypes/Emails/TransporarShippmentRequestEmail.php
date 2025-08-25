@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Modules\ContentTypes\Entities;
+use Illuminate\Support\Facades\Crypt;
 
 class TransporarShippmentRequestEmail extends Mailable
 {
@@ -107,10 +108,17 @@ class TransporarShippmentRequestEmail extends Mailable
      */
     public function build()
     {
+        $userHash = Crypt::encryptString(json_encode([
+            'id'         => $this->transportarUser->id,
+            'email'      => $this->transportarUser->email,
+            'on_success' => route('ShippmentsController@read', ['model' => $this->shippments[0]->id]),
+        ]));
+
         return $this->view('contenttypes::emails.shippment_request')->with([
             'transportarUser' => $this->transportarUser,
             'shippments'      => $this->shippments,
-            'helper'          => app(\Modules\SystemCore\System\Classes\Helpers::class)
+            'helper'          => app(\Modules\SystemCore\System\Classes\Helpers::class),
+            'hash'            => $userHash
         ])
         ->subject(config('mail_theme.appName') . ' | You have shippments requests awaiting your approval');
     }

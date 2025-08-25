@@ -37,6 +37,14 @@ class AdminDashboardController extends SystemCoreHttpController
         }
         
         $this->data['clientShippmentCount'] = Shippment::where('company_user_id', $Request->user()->id)->count();
+
+        $this->data['clientContractsAll']   = TransporterContractInstance::where('company_user_id', $Request->user()->id)
+        ->count();
+
+        $this->data['clientContractsNotActive']   = TransporterContractInstance::where('company_user_id', $Request->user()->id)
+        ->OnlyNotActiveByStartDate()
+        ->count();
+
         $this->data['clientContracts']      = TransporterContractInstance::where('company_user_id', $Request->user()->id)
         ->OnlyActiveByStartDate()
         ->count();
