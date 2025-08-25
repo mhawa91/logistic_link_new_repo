@@ -75,7 +75,7 @@
             </p>
         </div>
         
-        @if(! $from->delivered_at && $index == 0)
+        @if(! $from->delivered_at && $index == 0 && auth()->check() && auth()->user()->type == 'TRANSPORTER')
             <div class="col-lg-4 mb-4 mt-4 d-flex justify-end">
                 @component('ui::components.form', [
                     'options' => [
