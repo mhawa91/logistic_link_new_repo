@@ -46,6 +46,25 @@ class WebsiteController extends SystemCoreHttpController
         return view('website::index', $this->data);
     }
 
+    public function privacyPolicy()
+    {
+        $this->data['testimonials'] = Content::where('type', 'testimonials')
+        ->with('translations')
+        ->orderBy('ordering', 'asc')
+        ->orderBy('published_at', 'desc')
+        ->orderBy('id', 'desc')
+        ->get();
+
+        $this->data['faq'] = Content::where('type', 'faq')
+        ->with('translations')
+        ->orderBy('ordering', 'asc')
+        ->orderBy('published_at', 'desc')
+        ->orderBy('id', 'desc')
+        ->get();
+
+        return view('website::privacyPolicy', $this->data);
+    }
+
     public function postContactRequest(Request $Request, ActionResponse $Response, ContactUsService $ContactUsService)
     {
         $ContactUsService->unguard();

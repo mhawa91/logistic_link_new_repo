@@ -381,6 +381,7 @@
                                     <li><a href="{{ route('WebsiteController@index') }}#faq">{{ __('website::strings.menu.faq') }}</a></li>
                                 @endif
                                 <li><a href="{{ route('WebsiteController@index') }}#contact">{{ __('website::strings.menu.contact') }}</a></li>
+                                <li><a href="{{ route('WebsiteController@privacyPolicy') }}">{{ __('website::strings.menu.privacy-policy') }}</a></li>
 
                             </ul><!-- .footer-nav -->
                         </div><!-- .col -->

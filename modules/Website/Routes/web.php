@@ -16,6 +16,7 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
 });
 
 Route::get('/'              , 'WebsiteController@index')->name('WebsiteController@index');
+Route::get('privacy-policy' , 'WebsiteController@privacyPolicy')->name('WebsiteController@privacyPolicy');
 Route::post('contact-us'    , 'WebsiteController@postContactRequest')->name('WebsiteController@postContactRequest');
 
 Route::prefix('social/auth')->group(function() {

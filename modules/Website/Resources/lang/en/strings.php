@@ -9,6 +9,7 @@ return [
         'success-stories' => 'Success Stories',
         'faq'             => 'FAQ',
         'contact'         => 'Contact Us',
+        'privacy-policy'  => 'Privacy Policy',
     ],
     'hero_title'          => 'Simplify Your Shipping Operations <span class="text-green">With Our All-in-One Platform</span>',
     'hero_subtitle'       => 'Search, manage, and track your shipments all in one place.',
@@ -107,4 +108,5 @@ return [
         'message' => 'Message',
         'submit'  => 'Send Message',
     ],
+    'privacy-policy'      => 'Privacy Policy',
 ];
