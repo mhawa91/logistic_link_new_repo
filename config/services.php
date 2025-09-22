@@ -36,5 +36,11 @@ return [
         'auth_token' => env('TWILIO_AUTH_TOKEN'), // optional when using username and password
         'account_sid' => env('TWILIO_ACCOUNT_SID'),
         'from' => env('TWILIO_FROM'), // optional
-    ]
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT'),
+    ],
 ];
