@@ -37,6 +37,7 @@ class Company extends Model
         'sys_status',
         'created_by_user_id',
         'updated_by_user_id',
+        'hide_info'
     ];
 
     public function user()

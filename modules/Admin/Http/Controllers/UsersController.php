@@ -182,6 +182,7 @@ class UsersController extends SystemCoreHttpController
             'street'                        => 'required|string|max:255',
             'lat_lng'                       => 'required|string|max:255',
             'full_address'                  => 'required|string|max:255',
+            'hide_info'                     => 'nullable|in:YES,NO',
         ]);
         $this->data['ValidatorCompany']->validate();
 
@@ -223,6 +224,7 @@ class UsersController extends SystemCoreHttpController
             $Company->sys_status                       = 'ACTIVE';
             $Company->created_by_user_id               = auth()->id() ?? null;
             $Company->updated_by_user_id               = auth()->id() ?? null;
+            $Company->hide_info                        = $Request->hide_info ?? 'NO';
             $Company->save();
 
             $latlng  = explode(',', $Request->lat_lng);

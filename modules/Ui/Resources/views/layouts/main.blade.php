@@ -289,6 +289,10 @@
             }
         </style>
     @endif
+    <link rel="stylesheet" href="{{ asset('global.css') }}">
+    @if ($_DIR_ == 'rtl')
+        <link rel="stylesheet" href="{{ asset('global.rtl.css') }}">
+    @endif
     @stack('head')
 </head>
 

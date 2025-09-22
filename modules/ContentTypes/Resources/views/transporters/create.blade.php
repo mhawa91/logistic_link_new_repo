@@ -38,465 +38,471 @@
         ],
     ])
     <div class="row" id="vue-form">
-        <div class="col-md-4">
+        <!-- Form Fields Section -->
+        <div class="col-md-12 mb-4">
             <div class="nk-block nk-block-lg">
                 <div class="card card-bordered">
                     <div class="card-inner">
+                        <div class="row">
+                            <div class="col-md-3">
 
-                        @include('ui::components.input', [
-                            'options' => [
-                                'view'        => 'DEFAULT',
-                                'type'        => 'text',
-                                'name'        => 'name',
-                                'label'       => __('contenttypes::inputs.transportar_name.label'),
-                                'placeholder' => __('contenttypes::inputs.transportar_name.placeholder'),
-                                'description' => __('contenttypes::inputs.transportar_name.description'),
-                            ],
-                        ])
-
-                        @include('ui::components.input', [
-                            'options' => [
-                                'view'        => 'DEFAULT',
-                                'type'        => 'text',
-                                'name'        => 'email',
-                                'label'       => __('contenttypes::inputs.transportar_email.label'),
-                                'placeholder' => __('contenttypes::inputs.transportar_email.placeholder'),
-                                'description' => __('contenttypes::inputs.transportar_email.description'),
-                            ],
-                        ])
-
-                        @component('ui::components.input', [
-                            'options' => [
-                                'view'        => 'DEFAULT',
-                                'type'        => 'text',
-                                'name'        => 'phone_number',
-                                'label'       => __('contenttypes::inputs.transportar_phone_number.label'),
-                                'placeholder' => __('contenttypes::inputs.transportar_phone_number.placeholder'),
-                                'description' => __('contenttypes::inputs.transportar_phone_number.description'),
-                                'attributes'  => ['dir' => 'ltr', 'style' => 'text-align: ' . ($_DIR_ == 'ltr' ? 'left' : 'right')],
-                            ],
-                        ])
-                            <x-slot name="after">
-                                <div class="form-text-hint">
-                                    <strong class="overline-title" dir="ltr">+966</strong>
-                                </div>
-                            </x-slot>
-                        @endcomponent
-
-                        <hr class="preview-hr">
-
-                        @component('ui::components.input', [
-                            'options' => [
-                                'view'        => 'DEFAULT',
-                                'type'        => 'daterange',
-                                'name'        => 'contract_daterange',
-                                'label'       => __('contenttypes::inputs.start_end_date.label'),
-                                'placeholder' => __('contenttypes::inputs.start_end_date.placeholder'),
-                                'description' => __('contenttypes::inputs.start_end_date.description'),
-                                'attributes'  => []
-                            ],
-                        ])
-                        @endcomponent
-                    
-                        @include('ui::components.select', [
-                            'options' => [
-                                'id'                => 'payment_term_id_select',
-                                'jsSelect2'         => 'payment_term_id_jsSelect2',
-                                'view'              => 'DEFAULT',
-                                'name'              => 'payment_term_id',
-                                'label'             => __('contenttypes::inputs.payment_term_id.label'),
-                                'placeholder'       => __('contenttypes::inputs.payment_term_id.placeholder'),
-                                'attributes'        => [],
-                                'value'             => null,
-                                'search'            => true,
-                                'multiple'          => false,
-                                'options'           => [],
-                                'option_text'       => function($key, $option)                   { return $option['native']; },
-                                'option_value'      => function($key, $option)                   { return $key; },
-                                'option_attributes' => function($key, $option)                   { return []; },
-                                'selected'          => function($options, $key, $option, $value) { return $key == $value; },
-                                'disabled'          => function($options, $key, $option, $value) { return false; },
-                            ],
-                        ])
-
-                        @component('ui::components.input', [
-                            'options' => [
-                                'view'        => 'DEFAULT',
-                                'type'        => 'number',
-                                'name'        => 'insurance_value_limit',
-                                'label'       => __('contenttypes::inputs.insurance_value_limit.label'),
-                                'placeholder' => __('contenttypes::inputs.insurance_value_limit.placeholder'),
-                                'description' => __('contenttypes::inputs.insurance_value_limit.description'),
-                                'attributes'  => [
-                                    'v-model' => 'insurance_value_limit',
-                                ]
-                            ],
-                        ])
-                            <x-slot name="after">
-                                <div class="form-text-hint">
-                                    <small class="overline-title">SAR</small>
-                                </div>
-                            </x-slot>
-                        @endcomponent
-
-                        @include('ui::components.select', [
-                            'options' => [
-                                'id'                => 'trucks_type_id_select',
-                                'jsSelect2'         => 'trucks_type_id_jsSelect2',
-                                'view'              => 'DEFAULT',
-                                'name'              => 'trucks_type_id[]',
-                                'label'             => __('contenttypes::inputs.trucks_type_id.label'),
-                                'placeholder'       => __('contenttypes::inputs.trucks_type_id.placeholder'),
-                                'attributes'        => [],
-                                'value'             => null,
-                                'search'            => true,
-                                'multiple'          => true,
-                                'options'           => [],
-                                'option_text'       => function($key, $option)                   { return $option['native']; },
-                                'option_value'      => function($key, $option)                   { return $key; },
-                                'option_attributes' => function($key, $option)                   { return []; },
-                                'selected'          => function($options, $key, $option, $value) { return $key == $value; },
-                                'disabled'          => function($options, $key, $option, $value) { return false; },
-                            ],
-                        ])
-
-                        @include('ui::components.select', [
-                            'options' => [
-                                'id'                => 'commodity_id_select',
-                                'jsSelect2'         => 'commodity_id_jsSelect2',
-                                'view'              => 'DEFAULT',
-                                'name'              => 'commodity_id[]',
-                                'label'             => __('contenttypes::inputs.commodity_id.label'),
-                                'placeholder'       => __('contenttypes::inputs.commodity_id.placeholder'),
-                                'attributes'        => [],
-                                'value'             => null,
-                                'search'            => true,
-                                'multiple'          => true,
-                                'options'           => [],
-                                'option_text'       => function($key, $option)                   { return $option['native']; },
-                                'option_value'      => function($key, $option)                   { return $key; },
-                                'option_attributes' => function($key, $option)                   { return []; },
-                                'selected'          => function($options, $key, $option, $value) { return $key == $value; },
-                                'disabled'          => function($options, $key, $option, $value) { return false; },
-                            ],
-                        ])
-
-                        <hr class="preview-hr">
-
-                        @include('ui::components.input', [
-                            'options' => [
-                                'view'        => 'DEFAULT',
-                                'type'        => 'file',
-                                'name'        => 'TRANSPORTER_TAX_CERTIFICATE',
-                                'label'       => __('contenttypes::inputs.contract_tax_certificate.label'),
-                                'description' => __('contenttypes::inputs.contract_tax_certificate.description'),
-                                'placeholder' => null,
-                                'value'       => null,
-                            ],
-                        ])
-
-                        @include('ui::components.input', [
-                            'options' => [
-                                'view'        => 'DEFAULT',
-                                'type'        => 'file',
-                                'name'        => 'TRANSPORTER_REGISTAION_LICENCE',
-                                'label'       => __('contenttypes::inputs.contract_registration_license.label'),
-                                'description' => __('contenttypes::inputs.contract_registration_license.description'),
-                                'placeholder' => null,
-                                'value'       => null,
-                            ],
-                        ])
-
-                        @include('ui::components.input', [
-                            'options' => [
-                                'view'        => 'DEFAULT',
-                                'type'        => 'file',
-                                'name'        => 'TRANSPORTER_INSURANCE_CERTIFICATE',
-                                'label'       => __('contenttypes::inputs.contract_insurance_certificate.label'),
-                                'description' => __('contenttypes::inputs.contract_insurance_certificate.description'),
-                                'placeholder' => null,
-                                'value'       => null,
-                            ],
-                        ])
-
-                        @include('ui::components.input', [
-                            'options' => [
-                                'view'        => 'DEFAULT',
-                                'type'        => 'file',
-                                'name'        => 'TRANSPORTER_TRANSPORTATION_LICENCE',
-                                'label'       => __('contenttypes::inputs.contract_transportation_license.label'),
-                                'description' => __('contenttypes::inputs.contract_transportation_license.description'),
-                                'placeholder' => null,
-                                'value'       => null,
-                            ],
-                        ])
-        
-                        @include('ui::components.radios', [
-                            'options' => [
-                                'view'              => 'DEFAULT',
-                                'type'              => 'radio',
-                                'name'              => 'sys_status',
-                                'label'             => __('admin::inputs.status.label'),
-                                'placeholder'       => __('admin::inputs.status.placeholder'),
-                                'description'       => __('admin::inputs.status.description'),
-                                'attributes'        => [],
-                                'value'             => null,
-                                'search'            => true,
-                                'multiple'          => false,
-                                'options'           => [
-                                    [
-                                        'id'       => 's_2',
-                                        'value'    => 'ACTIVE',
-                                        'label'    => __('ui::inputs.status.options.ACTIVE'),
-                                        'selected' => true,
+                                @include('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'text',
+                                        'name'        => 'name',
+                                        'label'       => __('contenttypes::inputs.transportar_name.label'),
+                                        'placeholder' => __('contenttypes::inputs.transportar_name.placeholder'),
+                                        'description' => __('contenttypes::inputs.transportar_name.description'),
                                     ],
-                                    [
-                                        'id'       => 's_3',
-                                        'value'    => 'DISABLED',
-                                        'label'    => __('ui::inputs.status.options.DISABLED'),
-                                        'selected' => false,
-                                    ],
-                                ],
-                                'option_id'         => function($key, $option)                   { return $option['id']; },
-                                'option_text'       => function($key, $option)                   { return $option['label']; },
-                                'option_sub_text'   => function($key, $option)                   { return null; },
-                                'option_value'      => function($key, $option)                   { return $option['value']; },
-                                'option_attributes' => function($key, $option)                   { return []; },
-                                'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
-                                'disabled'          => function($options, $key, $option, $value) { return false; },
-                            ],
-                        ])
+                                ])
 
-                        <div class="form-group mt-2">
-                            <button type="submit" class="btn btn-md btn-primary">
-                                <span>{{ __('ui::strings.save') }}</span>
-                            </button>
+                                @include('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'text',
+                                        'name'        => 'email',
+                                        'label'       => __('contenttypes::inputs.transportar_email.label'),
+                                        'placeholder' => __('contenttypes::inputs.transportar_email.placeholder'),
+                                        'description' => __('contenttypes::inputs.transportar_email.description'),
+                                    ],
+                                ])
+
+                                @component('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'text',
+                                        'name'        => 'phone_number',
+                                        'label'       => __('contenttypes::inputs.transportar_phone_number.label'),
+                                        'placeholder' => __('contenttypes::inputs.transportar_phone_number.placeholder'),
+                                        'description' => __('contenttypes::inputs.transportar_phone_number.description'),
+                                        'attributes'  => ['dir' => 'ltr', 'style' => 'text-align: ' . ($_DIR_ == 'ltr' ? 'left' : 'right')],
+                                    ],
+                                ])
+                                    <x-slot name="after">
+                                        <div class="form-text-hint">
+                                            <strong class="overline-title" dir="ltr">+966</strong>
+                                        </div>
+                                    </x-slot>
+                                @endcomponent
+
+                            </div>
+                            <div class="col-md-3">
+
+                                @component('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'daterange',
+                                        'name'        => 'contract_daterange',
+                                        'label'       => __('contenttypes::inputs.start_end_date.label'),
+                                        'placeholder' => __('contenttypes::inputs.start_end_date.placeholder'),
+                                        'description' => __('contenttypes::inputs.start_end_date.description'),
+                                        'attributes'  => []
+                                    ],
+                                ])
+                                @endcomponent
+                            
+                                @include('ui::components.select', [
+                                    'options' => [
+                                        'id'                => 'payment_term_id_select',
+                                        'jsSelect2'         => 'payment_term_id_jsSelect2',
+                                        'view'              => 'DEFAULT',
+                                        'name'              => 'payment_term_id',
+                                        'label'             => __('contenttypes::inputs.payment_term_id.label'),
+                                        'placeholder'       => __('contenttypes::inputs.payment_term_id.placeholder'),
+                                        'attributes'        => [],
+                                        'value'             => null,
+                                        'search'            => true,
+                                        'multiple'          => false,
+                                        'options'           => [],
+                                        'option_text'       => function($key, $option)                   { return $option['native']; },
+                                        'option_value'      => function($key, $option)                   { return $key; },
+                                        'option_attributes' => function($key, $option)                   { return []; },
+                                        'selected'          => function($options, $key, $option, $value) { return $key == $value; },
+                                        'disabled'          => function($options, $key, $option, $value) { return false; },
+                                    ],
+                                ])
+
+                                @component('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'number',
+                                        'name'        => 'insurance_value_limit',
+                                        'label'       => __('contenttypes::inputs.insurance_value_limit.label'),
+                                        'placeholder' => __('contenttypes::inputs.insurance_value_limit.placeholder'),
+                                        'description' => __('contenttypes::inputs.insurance_value_limit.description'),
+                                        'attributes'  => [
+                                            'v-model' => 'insurance_value_limit',
+                                        ]
+                                    ],
+                                ])
+                                    <x-slot name="after">
+                                        <div class="form-text-hint">
+                                            <small class="overline-title">SAR</small>
+                                        </div>
+                                    </x-slot>
+                                @endcomponent
+
+                            </div>
+                            <div class="col-md-3">
+
+                                @include('ui::components.select', [
+                                    'options' => [
+                                        'id'                => 'trucks_type_id_select',
+                                        'jsSelect2'         => 'trucks_type_id_jsSelect2',
+                                        'view'              => 'DEFAULT',
+                                        'name'              => 'trucks_type_id[]',
+                                        'label'             => __('contenttypes::inputs.trucks_type_id.label'),
+                                        'placeholder'       => __('contenttypes::inputs.trucks_type_id.placeholder'),
+                                        'attributes'        => [],
+                                        'value'             => null,
+                                        'search'            => true,
+                                        'multiple'          => true,
+                                        'options'           => [],
+                                        'option_text'       => function($key, $option)                   { return $option['native']; },
+                                        'option_value'      => function($key, $option)                   { return $key; },
+                                        'option_attributes' => function($key, $option)                   { return []; },
+                                        'selected'          => function($options, $key, $option, $value) { return $key == $value; },
+                                        'disabled'          => function($options, $key, $option, $value) { return false; },
+                                    ],
+                                ])
+
+                                @include('ui::components.select', [
+                                    'options' => [
+                                        'id'                => 'commodity_id_select',
+                                        'jsSelect2'         => 'commodity_id_jsSelect2',
+                                        'view'              => 'DEFAULT',
+                                        'name'              => 'commodity_id[]',
+                                        'label'             => __('contenttypes::inputs.commodity_id.label'),
+                                        'placeholder'       => __('contenttypes::inputs.commodity_id.placeholder'),
+                                        'attributes'        => [],
+                                        'value'             => null,
+                                        'search'            => true,
+                                        'multiple'          => true,
+                                        'options'           => [],
+                                        'option_text'       => function($key, $option)                   { return $option['native']; },
+                                        'option_value'      => function($key, $option)                   { return $key; },
+                                        'option_attributes' => function($key, $option)                   { return []; },
+                                        'selected'          => function($options, $key, $option, $value) { return $key == $value; },
+                                        'disabled'          => function($options, $key, $option, $value) { return false; },
+                                    ],
+                                ])
+
+                            </div>
+                            <div class="col-md-3">
+
+                                @include('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'file',
+                                        'name'        => 'TRANSPORTER_TAX_CERTIFICATE',
+                                        'label'       => __('contenttypes::inputs.contract_tax_certificate.label'),
+                                        'description' => __('contenttypes::inputs.contract_tax_certificate.description'),
+                                        'placeholder' => null,
+                                        'value'       => null,
+                                    ],
+                                ])
+
+                                @include('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'file',
+                                        'name'        => 'TRANSPORTER_REGISTAION_LICENCE',
+                                        'label'       => __('contenttypes::inputs.contract_registration_license.label'),
+                                        'description' => __('contenttypes::inputs.contract_registration_license.description'),
+                                        'placeholder' => null,
+                                        'value'       => null,
+                                    ],
+                                ])
+
+                                @include('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'file',
+                                        'name'        => 'TRANSPORTER_INSURANCE_CERTIFICATE',
+                                        'label'       => __('contenttypes::inputs.contract_insurance_certificate.label'),
+                                        'description' => __('contenttypes::inputs.contract_insurance_certificate.description'),
+                                        'placeholder' => null,
+                                        'value'       => null,
+                                    ],
+                                ])
+
+                                @include('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'file',
+                                        'name'        => 'TRANSPORTER_TRANSPORTATION_LICENCE',
+                                        'label'       => __('contenttypes::inputs.contract_transportation_license.label'),
+                                        'description' => __('contenttypes::inputs.contract_transportation_license.description'),
+                                        'placeholder' => null,
+                                        'value'       => null,
+                                    ],
+                                ])
+
+                                @include('ui::components.radios', [
+                                    'options' => [
+                                        'view'              => 'DEFAULT',
+                                        'type'              => 'radio',
+                                        'name'              => 'sys_status',
+                                        'label'             => __('admin::inputs.status.label'),
+                                        'placeholder'       => __('admin::inputs.status.placeholder'),
+                                        'description'       => __('admin::inputs.status.description'),
+                                        'attributes'        => [],
+                                        'value'             => null,
+                                        'search'            => true,
+                                        'multiple'          => false,
+                                        'options'           => [
+                                            [
+                                                'id'       => 's_2',
+                                                'value'    => 'ACTIVE',
+                                                'label'    => __('ui::inputs.status.options.ACTIVE'),
+                                                'selected' => true,
+                                            ],
+                                            [
+                                                'id'       => 's_3',
+                                                'value'    => 'DISABLED',
+                                                'label'    => __('ui::inputs.status.options.DISABLED'),
+                                                'selected' => false,
+                                            ],
+                                        ],
+                                        'option_id'         => function($key, $option)                   { return $option['id']; },
+                                        'option_text'       => function($key, $option)                   { return $option['label']; },
+                                        'option_sub_text'   => function($key, $option)                   { return null; },
+                                        'option_value'      => function($key, $option)                   { return $option['value']; },
+                                        'option_attributes' => function($key, $option)                   { return []; },
+                                        'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
+                                        'disabled'          => function($options, $key, $option, $value) { return false; },
+                                    ],
+                                ])
+
+                            </div>
                         </div>
-                        
-            
                     </div>
                 </div>        
             </div>
         </div>
-        <div class="col-md-8">
-            <div class="row gy-4">
-                <div class="col-md-12">
-                    <div class="nk-block nk-block-lg">
-                        <div class="card card-bordered" style="padding-top: 0 !important; padding-bottom: 0 !important;">
-                            <div class="table-responsive">
-                                <table class="table table-tranx">
-                                    <thead>
-                                        <tr class="tb-tnx-head responsive-tr">
-                                            <th>
-                                                <span>{{ __('contenttypes::inputs.truck_type_id.label') }}</span>
-                                            </th>
-                                            <th>
-                                                <span>{{ __('contenttypes::inputs.loading_type.label') }}</span>
-                                            </th>
-                                            <th>
-                                                <span>{{ __('contenttypes::inputs.from_city_id.label') }}</span>
-                                            </th>
-                                            <th>
-                                                <span>{{ __('contenttypes::inputs.to_city_id.label') }}</span>
-                                            </th>
-                                            <th style="min-width: 200px;">
-                                                <span>{{ __('contenttypes::inputs.price.label') }}</span>
-                                            </th>
-                                            <th style="min-width: 200px;">
-                                                <span>{{ __('contenttypes::inputs.pre_additional_location_price.label') }}</span>
-                                            </th>
-                                            <th class="tb-tnx-action" style="width: 1%">
-                                                <span>&nbsp;</span>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <template v-if="is_loading">
-                                            <tr class="responsive-tr">
-                                                <td colspan="7">
-                                                    <div class="text-center m-5">
-                                                        <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status"></div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                        <template v-if="! is_loading && items.length == 0">
-                                            <tr class="responsive-tr">
-                                                <td colspan="7">
-                                                    <div class="text-center m-5">
-                                                        {{-- <em class="icon ni ni-list-index text-primary" style="font-size: 120px;"></em> --}}
-                                                        <em class="icon ni ni-file-docs text-primary" style="font-size: 120px;"></em>
-                                                        <div class="nk-block nk-block-lg">
-                                                            <div class="nk-block-head">
-                                                                <div class="nk-block-head-content mt-4">
-                                                                    <h4 class="nk-block-title">{{ __('contenttypes::strings.contract_items.no_packages') }}</h4>
-                                                                    <p>{{ __('contenttypes::strings.contract_items.no_packages_desc') }}</p>
-                                                                    <button type="button" class="btn btn-md btn-primary" data-toggle="modal" data-target="#itemsModal">
-                                                                        <em class="icon ni ni-plus"></em>
-                                                                        <span>{{ __('contenttypes::strings.contract_items.add_new') }}</span>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
+        
+        <!-- Table Section -->
+        <div class="col-md-12 mb-4">
+            <div class="nk-block nk-block-lg">
+                <div class="card card-bordered" style="padding-top: 0 !important; padding-bottom: 0 !important;">
+                    <div class="table-responsive">
+                        <table class="table table-tranx">
+                            <thead>
+                                <tr class="tb-tnx-head responsive-tr">
+                                    <th>
+                                        <span>{{ __('contenttypes::inputs.truck_type_id.label') }}</span>
+                                    </th>
+                                    <th>
+                                        <span>{{ __('contenttypes::inputs.loading_type.label') }}</span>
+                                    </th>
+                                    <th>
+                                        <span>{{ __('contenttypes::inputs.from_city_id.label') }}</span>
+                                    </th>
+                                    <th>
+                                        <span>{{ __('contenttypes::inputs.to_city_id.label') }}</span>
+                                    </th>
+                                    <th style="min-width: 200px;">
+                                        <span>{{ __('contenttypes::inputs.price.label') }}</span>
+                                    </th>
+                                    <th style="min-width: 200px;">
+                                        <span>{{ __('contenttypes::inputs.pre_additional_location_price.label') }}</span>
+                                    </th>
+                                    <th class="tb-tnx-action" style="width: 1%">
+                                        <span>&nbsp;</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template v-if="is_loading">
+                                    <tr class="responsive-tr">
+                                        <td colspan="7">
+                                            <div class="text-center m-5">
+                                                <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template v-if="! is_loading && items.length == 0">
+                                    <tr class="responsive-tr">
+                                        <td colspan="7">
+                                            <div class="text-center m-5">
+                                                <em class="icon ni ni-file-docs text-primary" style="font-size: 120px;"></em>
+                                                <div class="nk-block nk-block-lg">
+                                                    <div class="nk-block-head">
+                                                        <div class="nk-block-head-content mt-4">
+                                                            <h4 class="nk-block-title">{{ __('contenttypes::strings.contract_items.no_packages') }}</h4>
+                                                            <p>{{ __('contenttypes::strings.contract_items.no_packages_desc') }}</p>
+                                                            <button type="button" class="btn btn-md btn-primary" data-toggle="modal" data-target="#itemsModal">
+                                                                <em class="icon ni ni-plus"></em>
+                                                                <span>{{ __('contenttypes::strings.contract_items.add_new') }}</span>
+                                                            </button>
                                                         </div>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                        <template v-if="!is_loading && items.length != 0">
-                                            <tr class="responsive-tr" v-for="(item, item_index) in items">
-                                                <td style="vertical-align: middle;">
-                                                    @{{ item.truck_type?.title }}
-                                                    @component('ui::components.input', [
-                                                        'options' => [
-                                                            'type'        => 'hidden',
-                                                            'name'        => '--',
-                                                            'attributes'  => [
-                                                                ':name'   => "'items[' + item_index + '][id]'",
-                                                                ':value'  => 'item.id',
-                                                            ],
-                                                        ],
-                                                    ])
-                                                    @endcomponent
-                                                    @component('ui::components.input', [
-                                                        'options' => [
-                                                            'type'        => 'hidden',
-                                                            'name'        => '--',
-                                                            'attributes'  => [
-                                                                ':name'   => "'items[' + item_index + '][truck_type_id]'",
-                                                                ':value'  => 'item.truck_type?.id || null',
-                                                            ],
-                                                        ],
-                                                    ])
-                                                    @endcomponent
-                                                </td>
-                                                <td style="vertical-align: middle;">
-                                                    @{{ loadingTypes[ item.loading_type ] }}
-                                                    @component('ui::components.input', [
-                                                        'options' => [
-                                                            'type'        => 'hidden',
-                                                            'name'        => '--',
-                                                            'attributes'  => [
-                                                                ':name'   => "'items[' + item_index + '][loading_type_id]'",
-                                                                ':value'  => 'item.loading_type',
-                                                            ],
-                                                        ],
-                                                    ])
-                                                    @endcomponent
-                                                </td>
-                                                <td style="vertical-align: middle;">
-                                                    @{{ item.from_city.name_ar }}<br>
-                                                    <small class="text-primary">
-                                                        @{{ item.from_city?.country.name_ar }}
-                                                    </small>
-                                                    @component('ui::components.input', [
-                                                        'options' => [
-                                                            'type'        => 'hidden',
-                                                            'name'        => '--',
-                                                            'attributes'  => [
-                                                                ':name'   => "'items[' + item_index + '][from_city_id]'",
-                                                                ':value'  => 'item.from_city?.id',
-                                                            ],
-                                                        ],
-                                                    ])
-                                                    @endcomponent
-                                                </td>
-                                                <td style="vertical-align: middle;">
-                                                    @{{ item.to_city.name_ar }}<br>
-                                                    <small class="text-primary">
-                                                        @{{ item.to_city?.country.name_ar }}
-                                                    </small>
-                                                    @component('ui::components.input', [
-                                                        'options' => [
-                                                            'type'        => 'hidden',
-                                                            'name'        => '--',
-                                                            'attributes'  => [
-                                                                ':name'   => "'items[' + item_index + '][to_city_id]'",
-                                                                ':value'  => 'item.to_city?.id',
-                                                            ],
-                                                        ],
-                                                    ])
-                                                    @endcomponent
-                                                </td>
-                                                <td style="vertical-align: middle;">
-                                                    @component('ui::components.input', [
-                                                        'options' => [
-                                                            'view'        => 'TABLE',
-                                                            'type'        => 'number',
-                                                            'name'        => 'price',
-                                                            'label'       => __('contenttypes::inputs.price.label'),
-                                                            'placeholder' => __('contenttypes::inputs.price.placeholder'),
-                                                            'description' => __('contenttypes::inputs.price.description'),
-                                                            'attributes'  => [
-                                                                ':name'   => "'items[' + item_index + '][price]'",
-                                                                'v-model' => 'item.price',
-                                                            ]
-                                                        ],
-                                                    ])
-                                                        <x-slot name="after">
-                                                            <div class="form-text-hint">
-                                                                <small class="overline-title">SAR</small>
-                                                            </div>
-                                                        </x-slot>
-                                                    @endcomponent
-                                                </td>
-                                                <td style="vertical-align: middle;">
-                                                    <template v-if="item.loading_type != 'CITY_TO_CITY_MULTIPLE_LOCATIONS'">
-                                                        <small class="text-danger">{{ __('contenttypes::inputs.pre_additional_location_price.unsupported') }}</small>
-                                                    </template>
-                                                    <template v-if="item.loading_type == 'CITY_TO_CITY_MULTIPLE_LOCATIONS'">
-                                                        @component('ui::components.input', [
-                                                            'options' => [
-                                                                'view'        => 'TABLE',
-                                                                'type'        => 'number',
-                                                                'name'        => 'pre_additional_location_price',
-                                                                'label'       => __('contenttypes::inputs.pre_additional_location_price.label'),
-                                                                'placeholder' => __('contenttypes::inputs.pre_additional_location_price.placeholder'),
-                                                                'description' => __('contenttypes::inputs.pre_additional_location_price.description'),
-                                                                'attributes'  => [
-                                                                    ':name'   => "'items[' + item_index + '][pre_additional_location_price]'",
-                                                                    'v-model'   => 'item.pre_additional_location_price',
-                                                                    ':disabled' => "item.loading_type != 'CITY_TO_CITY_MULTIPLE_LOCATIONS'",
-                                                                ]
-                                                            ],
-                                                        ])
-                                                            <x-slot name="after">
-                                                                <div class="form-text-hint">
-                                                                    <small class="overline-title">SAR</small>
-                                                                </div>
-                                                            </x-slot>
-                                                        @endcomponent
-                                                    </template>
-                                                    
-                                                </td>
-                                                <td class="tb-tnx-action" style="vertical-align: middle;">
-                                                    <button type="button" class="text-soft btn btn-icon btn-trigger" v-on:click="removeItem(item_index)">
-                                                        <em class="text-danger icon ni ni-trash"></em>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                    <template v-if="!is_loading && items.length != 0">
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="6"></td>
-                                                <td class="tb-tnx-action">
-                                                    <a href="javascript:;" class="text-soft btn btn-icon" data-toggle="modal" data-target="#itemsModal">
-                                                        <em class="text-primary icon ni ni-plus"></em>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
-                                    </template>
-                                </table>
-                            </div>
-                        </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template v-if="!is_loading && items.length != 0">
+                                    <tr class="responsive-tr" v-for="(item, item_index) in items">
+                                        <td style="vertical-align: middle;">
+                                            @{{ item.truck_type?.title }}
+                                            @component('ui::components.input', [
+                                                'options' => [
+                                                    'type'        => 'hidden',
+                                                    'name'        => '--',
+                                                    'attributes'  => [
+                                                        ':name'   => "'items[' + item_index + '][id]'",
+                                                        ':value'  => 'item.id',
+                                                    ],
+                                                ],
+                                            ])
+                                            @endcomponent
+                                            @component('ui::components.input', [
+                                                'options' => [
+                                                    'type'        => 'hidden',
+                                                    'name'        => '--',
+                                                    'attributes'  => [
+                                                        ':name'   => "'items[' + item_index + '][truck_type_id]'",
+                                                        ':value'  => 'item.truck_type?.id || null',
+                                                    ],
+                                                ],
+                                            ])
+                                            @endcomponent
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            @{{ loadingTypes[ item.loading_type ] }}
+                                            @component('ui::components.input', [
+                                                'options' => [
+                                                    'type'        => 'hidden',
+                                                    'name'        => '--',
+                                                    'attributes'  => [
+                                                        ':name'   => "'items[' + item_index + '][loading_type_id]'",
+                                                        ':value'  => 'item.loading_type',
+                                                    ],
+                                                ],
+                                            ])
+                                            @endcomponent
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            @{{ item.from_city.name_ar }}<br>
+                                            <small class="text-primary">
+                                                @{{ item.from_city?.country.name_ar }}
+                                            </small>
+                                            @component('ui::components.input', [
+                                                'options' => [
+                                                    'type'        => 'hidden',
+                                                    'name'        => '--',
+                                                    'attributes'  => [
+                                                        ':name'   => "'items[' + item_index + '][from_city_id]'",
+                                                        ':value'  => 'item.from_city?.id',
+                                                    ],
+                                                ],
+                                            ])
+                                            @endcomponent
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            @{{ item.to_city.name_ar }}<br>
+                                            <small class="text-primary">
+                                                @{{ item.to_city?.country.name_ar }}
+                                            </small>
+                                            @component('ui::components.input', [
+                                                'options' => [
+                                                    'type'        => 'hidden',
+                                                    'name'        => '--',
+                                                    'attributes'  => [
+                                                        ':name'   => "'items[' + item_index + '][to_city_id]'",
+                                                        ':value'  => 'item.to_city?.id',
+                                                    ],
+                                                ],
+                                            ])
+                                            @endcomponent
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            @component('ui::components.input', [
+                                                'options' => [
+                                                    'view'        => 'TABLE',
+                                                    'type'        => 'number',
+                                                    'name'        => 'price',
+                                                    'label'       => __('contenttypes::inputs.price.label'),
+                                                    'placeholder' => __('contenttypes::inputs.price.placeholder'),
+                                                    'description' => __('contenttypes::inputs.price.description'),
+                                                    'attributes'  => [
+                                                        ':name'   => "'items[' + item_index + '][price]'",
+                                                        'v-model' => 'item.price',
+                                                    ]
+                                                ],
+                                            ])
+                                                <x-slot name="after">
+                                                    <div class="form-text-hint">
+                                                        <small class="overline-title">SAR</small>
+                                                    </div>
+                                                </x-slot>
+                                            @endcomponent
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <template v-if="item.loading_type != 'CITY_TO_CITY_MULTIPLE_LOCATIONS'">
+                                                <small class="text-danger">{{ __('contenttypes::inputs.pre_additional_location_price.unsupported') }}</small>
+                                            </template>
+                                            <template v-if="item.loading_type == 'CITY_TO_CITY_MULTIPLE_LOCATIONS'">
+                                                @component('ui::components.input', [
+                                                    'options' => [
+                                                        'view'        => 'TABLE',
+                                                        'type'        => 'number',
+                                                        'name'        => 'pre_additional_location_price',
+                                                        'label'       => __('contenttypes::inputs.pre_additional_location_price.label'),
+                                                        'placeholder' => __('contenttypes::inputs.pre_additional_location_price.placeholder'),
+                                                        'description' => __('contenttypes::inputs.pre_additional_location_price.description'),
+                                                        'attributes'  => [
+                                                            ':name'   => "'items[' + item_index + '][pre_additional_location_price]'",
+                                                            'v-model'   => 'item.pre_additional_location_price',
+                                                            ':disabled' => "item.loading_type != 'CITY_TO_CITY_MULTIPLE_LOCATIONS'",
+                                                        ]
+                                                    ],
+                                                ])
+                                                    <x-slot name="after">
+                                                        <div class="form-text-hint">
+                                                            <small class="overline-title">SAR</small>
+                                                        </div>
+                                                    </x-slot>
+                                                @endcomponent
+                                            </template>
+                                            
+                                        </td>
+                                        <td class="tb-tnx-action" style="vertical-align: middle;">
+                                            <button type="button" class="text-soft btn btn-icon btn-trigger" v-on:click="removeItem(item_index)">
+                                                <em class="text-danger icon ni ni-trash"></em>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <template v-if="!is_loading && items.length != 0">
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="6"></td>
+                                        <td class="tb-tnx-action">
+                                            <a href="javascript:;" class="text-soft btn btn-icon" data-toggle="modal" data-target="#itemsModal">
+                                                <em class="text-primary icon ni ni-plus"></em>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </template>
+                        </table>
                     </div>
                 </div>
-                <div class="col-md-12">
-                    <div class="nk-block nk-block-lg">
-                        <div class="card card-bordered">
-                            <div class="card-inner">
+            </div>
+        </div>
+        
+        <!-- Textareas and Save Button Section -->
+        <div class="col-md-12">
+            <div class="nk-block nk-block-lg">
+                <div class="card card-bordered">
+                    <div class="card-inner">
+                        <div class="row">
+                            <div class="col-md-4">
                                 @include('ui::components.input', [
                                     'options' => [
                                         'type'        => 'textarea',
@@ -509,9 +515,8 @@
                                         'description' => __('contenttypes::inputs.conditions-and-terms.description'),
                                     ],
                                 ])
-
-                                <hr class="preview-hr">
-
+                            </div>
+                            <div class="col-md-4">
                                 @include('ui::components.input', [
                                     'options' => [
                                         'type'        => 'textarea',
@@ -524,9 +529,8 @@
                                         'description' => __('contenttypes::inputs.insurance-details.description'),
                                     ],
                                 ])
-
-                                <hr class="preview-hr">
-
+                            </div>
+                            <div class="col-md-4">
                                 @include('ui::components.input', [
                                     'options' => [
                                         'type'        => 'textarea',
@@ -541,17 +545,22 @@
                                 ])
                             </div>
                         </div>
+                        
+                        <hr class="preview-hr">
+                        
+                        <div class="form-group mt-3">
+                            <button type="submit" class="btn btn-lg btn-primary">
+                                <span>{{ __('ui::strings.save') }}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-        </div>
-
-        @component('ui::components.modal', [
+        </div>        @component('ui::components.modal', [
             'options' => [
                 'id'        => 'itemsModal',
-                'title'     => __('contenttypes::strings.contract_items.header'),
-                'size'      => '',
+                'title'     => __('contenttypes::strings.contract_items.header') . ' (' . __('contenttypes::strings.multiple_selection') . ')',
+                'size'      => 'lg',
                 'fit'       => false,
             ]
         ])
@@ -561,13 +570,13 @@
                     'id'                => 'truck_type_id_select',
                     'jsSelect2'         => 'truck_type_id_jsSelect2',
                     'view'              => 'INLINE',
-                    'name'              => 'truck_type_id',
-                    'label'             => __('contenttypes::inputs.truck_type_id.label'),
+                    'name'              => 'truck_type_id[]',
+                    'label'             => __('contenttypes::inputs.truck_type_id.label') . ' ({{ __("contenttypes::strings.multiple_selection") }})',
                     'placeholder'       => __('contenttypes::inputs.truck_type_id.placeholder'),
                     'attributes'        => [],
                     'value'             => null,
                     'search'            => true,
-                    'multiple'          => false,
+                    'multiple'          => true,
                     'options'           => [],
                     'option_text'       => function($key, $option)                   { return $option['native']; },
                     'option_value'      => function($key, $option)                   { return $key; },
@@ -581,13 +590,13 @@
                 'options' => [
                     'id'                => 'loading_type_select',
                     'view'              => 'INLINE',
-                    'name'              => 'type',
-                    'label'             => __('contenttypes::inputs.loading_type.label'),
+                    'name'              => 'type[]',
+                    'label'             => __('contenttypes::inputs.loading_type.label') . ' ({{ __("contenttypes::strings.multiple_selection") }})',
                     'placeholder'       => __('contenttypes::inputs.loading_type.placeholder'),
                     'attributes'        => [],
                     'value'             => null,
                     'search'            => true,
-                    'multiple'          => false,
+                    'multiple'          => true,
                     'nullable'          => true,
                     'nullable_value'    => null,
                     'options'           => config('contenttypes.loadingTypes'),
@@ -606,13 +615,13 @@
                     'id'                => 'from_city_select',
                     'jsSelect2'         => 'from_city_JsSelect2',
                     'view'              => 'INLINE',
-                    'name'              => 'from_city_id',
-                    'label'             => __('contenttypes::inputs.from_city_id.label'),
+                    'name'              => 'from_city_id[]',
+                    'label'             => __('contenttypes::inputs.from_city_id.label') . ' ({{ __("contenttypes::strings.multiple_selection") }})',
                     'placeholder'       => __('contenttypes::inputs.from_city_id.placeholder'),
                     'attributes'        => [],
                     'value'             => null,
                     'search'            => true,
-                    'multiple'          => false,
+                    'multiple'          => true,
                     'options'           => [],
                     'option_text'       => function($key, $option)                   { return $option['text']; },
                     'option_value'      => function($key, $option)                   { return $option['id']; },
@@ -627,13 +636,13 @@
                     'id'                => 'to_city_select',
                     'jsSelect2'         => 'to_city_JsSelect2',
                     'view'              => 'INLINE',
-                    'name'              => 'to_city_id',
-                    'label'             => __('contenttypes::inputs.to_city_id.label'),
+                    'name'              => 'to_city_id[]',
+                    'label'             => __('contenttypes::inputs.to_city_id.label') . ' ({{ __("contenttypes::strings.multiple_selection") }})',
                     'placeholder'       => __('contenttypes::inputs.to_city_id.placeholder'),
                     'attributes'        => [],
                     'value'             => null,
                     'search'            => true,
-                    'multiple'          => false,
+                    'multiple'          => true,
                     'options'           => [],
                     'option_text'       => function($key, $option)                   { return $option['text']; },
                     'option_value'      => function($key, $option)                   { return $option['id']; },
@@ -644,6 +653,22 @@
             ])
 
             <hr class="preview-hr">
+            
+            <!-- Combination Preview -->
+            <div class="alert alert-info" v-if="combinationsCount > 0">
+                <div class="d-flex align-items-center">
+                    <em class="icon ni ni-info-fill me-2"></em>
+                    <div>
+                        <strong>{{ __('contenttypes::strings.bulk_creation_info') }}</strong><br>
+                        <small>
+                            @{{ combinationsCount }} {{ __('contenttypes::strings.combinations_will_be_created') }}
+                            <template v-if="combinationsCount > 50">
+                                <span class="text-warning">⚠️ {{ __('contenttypes::strings.large_combinations_warning') }}</span>
+                            </template>
+                        </small>
+                    </div>
+                </div>
+            </div>
 
             @component('ui::components.input', [
                 'options' => [
@@ -673,7 +698,7 @@
                     'placeholder' => __('contenttypes::inputs.pre_additional_location_price.placeholder'),
                     'attributes'  => [
                         'v-model'   => 'current_item.pre_additional_location_price',
-                        ':disabled' => "current_item.loading_type != 'CITY_TO_CITY_MULTIPLE_LOCATIONS'",
+                        ':disabled' => "!current_item.loading_types.includes('CITY_TO_CITY_MULTIPLE_LOCATIONS')",
                     ]
                 ],
             ])
@@ -685,8 +710,13 @@
             @endcomponent
             
             <x-slot name="footer">
-                <button type="button" class="btn btn-sm btn-success" v-on:click="addItem()">
-                    <span>{{ __('contenttypes::strings.contract_items.save') }}</span>
+                <button type="button" class="btn btn-sm btn-success" v-on:click="addItem()" :disabled="combinationsCount === 0">
+                    <template v-if="combinationsCount > 0">
+                        <span>{{ __('contenttypes::strings.contract_items.add') }} (@{{ combinationsCount }})</span>
+                    </template>
+                    <template v-else>
+                        <span>{{ __('contenttypes::strings.contract_items.add') }}</span>
+                    </template>
                 </button>
 
                 <button type="button" data-dismiss="modal" class="btn btn-sm btn-danger modal-close">
@@ -709,10 +739,10 @@
                 is_loading   : false,
                 current_item : {
                     id                            : null,
-                    truck_type                    : null,
-                    loading_type                  : null,
-                    from_city                     : null,
-                    to_city                       : null,
+                    truck_types                   : [],
+                    loading_types                 : [],
+                    from_cities                   : [],
+                    to_cities                     : [],
                     price                         : null,
                     pre_additional_location_price : null,
                 },
@@ -721,30 +751,42 @@
                 removeItem: function(index) {
                     this.items.splice(index, 1);
                 },
+                resetCurrentItem: function() {
+                    this.current_item = {
+                        id                            : null,
+                        truck_types                   : [],
+                        loading_types                 : [],
+                        from_cities                   : [],
+                        to_cities                     : [],
+                        price                         : null,
+                        pre_additional_location_price : null,
+                    };
+                },
                 addItem: function() {
                     BS.RESET_FORM_VALIDATION_ERRORS($('#itemsModal'));
                     var validations = []
-                    if (! this.current_item.truck_type) {
+                    
+                    if (!this.current_item.truck_types || this.current_item.truck_types.length === 0) {
                         validations.push({
-                            field   : 'truck_type_id',
+                            field   : 'truck_type_id[]',
                             message : '{{  __('validation.required', ['attribute' => __('contenttypes::inputs.truck_type_id.label')]) }}'
                         });
                     }
-                    if (! this.current_item.loading_type) {
+                    if (!this.current_item.loading_types || this.current_item.loading_types.length === 0) {
                         validations.push({
-                            field   : 'type',
+                            field   : 'type[]',
                             message : '{{  __('validation.required', ['attribute' => __('contenttypes::inputs.loading_type.label')]) }}'
                         });
                     }
-                    if (! this.current_item.from_city) {
+                    if (!this.current_item.from_cities || this.current_item.from_cities.length === 0) {
                         validations.push({
-                            field   : 'from_city_id',
+                            field   : 'from_city_id[]',
                             message : '{{  __('validation.required', ['attribute' => __('contenttypes::inputs.from_city_id.label')]) }}'
                         });
                     }
-                    if (! this.current_item.to_city) {
+                    if (!this.current_item.to_cities || this.current_item.to_cities.length === 0) {
                         validations.push({
-                            field   : 'to_city_id',
+                            field   : 'to_city_id[]',
                             message : '{{  __('validation.required', ['attribute' => __('contenttypes::inputs.to_city_id.label')]) }}'
                         });
                     }
@@ -754,20 +796,77 @@
                         return;
                     }
 
-                    $('#itemsModal').find('.modal-close').click();
+                    // Generate all combinations (Cartesian product)
+                    const combinations = this.generateCombinations(
+                        this.current_item.truck_types,
+                        this.current_item.loading_types,
+                        this.current_item.from_cities,
+                        this.current_item.to_cities
+                    );
 
-                    const itemCheck = this.findItemByData(this.current_item);
-                    if (itemCheck) {
-                        itemCheck.price                         = this.current_item.price;
-                        itemCheck.pre_additional_location_price = this.current_item.pre_additional_location_price;
-                    }
-                    else {
-                        this.items.push({...this.current_item});
-                    }
+                    // Add each combination as a separate item
+                    combinations.forEach(combination => {
+                        const existingItem = this.findItemByData({
+                            truck_type: combination.truck_type,
+                            loading_type: combination.loading_type,
+                            from_city: combination.from_city,
+                            to_city: combination.to_city
+                        });
+
+                        if (existingItem) {
+                            // Update existing item
+                            existingItem.price = this.current_item.price;
+                            existingItem.pre_additional_location_price = this.current_item.pre_additional_location_price;
+                        } else {
+                            // Add new item
+                            this.items.push({
+                                id: null,
+                                truck_type: combination.truck_type,
+                                loading_type: combination.loading_type,
+                                from_city: combination.from_city,
+                                to_city: combination.to_city,
+                                price: this.current_item.price,
+                                pre_additional_location_price: this.current_item.pre_additional_location_price
+                            });
+                        }
+                    });
+
+                    // Close modal and reset form
+                    $('#itemsModal').find('.modal-close').click();
+                    this.resetCurrentItem();
+                    
+                    // Clear the select2 components
+                    $('#truck_type_id_select').val(null).trigger('change');
+                    $('#loading_type_select').val(null).trigger('change');
+                    $('#from_city_select').val(null).trigger('change');
+                    $('#to_city_select').val(null).trigger('change');
+                },
+                generateCombinations: function(truckTypes, loadingTypes, fromCities, toCities) {
+                    const combinations = [];
+                    
+                    truckTypes.forEach(truckType => {
+                        loadingTypes.forEach(loadingType => {
+                            fromCities.forEach(fromCity => {
+                                toCities.forEach(toCity => {
+                                    combinations.push({
+                                        truck_type: truckType,
+                                        loading_type: loadingType,
+                                        from_city: fromCity,
+                                        to_city: toCity
+                                    });
+                                });
+                            });
+                        });
+                    });
+                    
+                    return combinations;
                 },
                 findItemByData: function(item) {
                     const result = this.items.filter(function(_item) {
-                        return _item.truck_type.id == item.truck_type.id && _item.loading_type == item.loading_type && _item.from_city.id == item.from_city.id && _item.to_city.id == item.to_city.id;
+                        return _item.truck_type.id == item.truck_type.id && 
+                               _item.loading_type == item.loading_type && 
+                               _item.from_city.id == item.from_city.id && 
+                               _item.to_city.id == item.to_city.id;
                     });
                     return result.length > 0 ? result[0] : null;
                 }
@@ -778,6 +877,18 @@
                         return [$item['id'] => __($item['label'])];
                     }));
                 },
+                combinationsCount: function() {
+                    const truckTypesCount = this.current_item.truck_types ? this.current_item.truck_types.length : 0;
+                    const loadingTypesCount = this.current_item.loading_types ? this.current_item.loading_types.length : 0;
+                    const fromCitiesCount = this.current_item.from_cities ? this.current_item.from_cities.length : 0;
+                    const toCitiesCount = this.current_item.to_cities ? this.current_item.to_cities.length : 0;
+                    
+                    if (truckTypesCount === 0 || loadingTypesCount === 0 || fromCitiesCount === 0 || toCitiesCount === 0) {
+                        return 0;
+                    }
+                    
+                    return truckTypesCount * loadingTypesCount * fromCitiesCount * toCitiesCount;
+                }
             }
         });
 
@@ -866,20 +977,24 @@
                 }
             }
         })
-        .on("select2:select", function() {
-            let _data = $(this).select2('data')[0];
-            CrudApp.current_item.truck_type = _data?.id ? _data.data : null;
-            console.log(CrudApp.current_item);
+        .on("select2:select select2:unselect", function() {
+            let selectedData = $(this).select2('data');
+            CrudApp.current_item.truck_types = selectedData.map(item => item.data || item);
+            console.log('Truck Types Selected:', CrudApp.current_item.truck_types);
         });
 
         var loading_type_jsSelect2 = $('#loading_type_select').select2()
-        .on("select2:select", function() {
-            let _data = $(this).select2('data')[0];
-            CrudApp.current_item.loading_type = _data?.id ? _data.id : null;
-            if (CrudApp.current_item.loading_type && CrudApp.current_item.loading_type != 'CITY_TO_CITY_MULTIPLE_LOCATIONS') {
+        .on("select2:select select2:unselect", function() {
+            let selectedData = $(this).select2('data');
+            CrudApp.current_item.loading_types = selectedData.map(item => item.id);
+            
+            // Reset pre_additional_location_price if no CITY_TO_CITY_MULTIPLE_LOCATIONS selected
+            const hasMultipleLocations = CrudApp.current_item.loading_types.includes('CITY_TO_CITY_MULTIPLE_LOCATIONS');
+            if (!hasMultipleLocations) {
                 CrudApp.current_item.pre_additional_location_price = 0;
             }
-            console.log(CrudApp.current_item);
+            
+            console.log('Loading Types Selected:', CrudApp.current_item.loading_types);
         });
 
         var from_city_JsSelect2 = $('#from_city_select').select2({
@@ -902,10 +1017,10 @@
                 }
             }
         })
-        .on("select2:select", function() {
-            let _data = $(this).select2('data')[0];
-            CrudApp.current_item.from_city = _data?.id ? _data.data : null;
-            console.log(CrudApp.current_item);
+        .on("select2:select select2:unselect", function() {
+            let selectedData = $(this).select2('data');
+            CrudApp.current_item.from_cities = selectedData.map(item => item.data || item);
+            console.log('From Cities Selected:', CrudApp.current_item.from_cities);
         });
 
         var to_city_JsSelect2 = $('#to_city_select').select2({
@@ -928,10 +1043,10 @@
                 }
             }
         })
-        .on("select2:select", function() {
-            let _data = $(this).select2('data')[0];
-            CrudApp.current_item.to_city = _data?.id ? _data.data : null;
-            console.log(CrudApp.current_item);
+        .on("select2:select select2:unselect", function() {
+            let selectedData = $(this).select2('data');
+            CrudApp.current_item.to_cities = selectedData.map(item => item.data || item);
+            console.log('To Cities Selected:', CrudApp.current_item.to_cities);
         });
     </script>
 @endpush

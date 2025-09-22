@@ -99,6 +99,12 @@ return [
         'add'              => 'Add Destination',
         'save'             => 'Save Data',
     ],
+    
+    // Bulk creation translations
+    'multiple_selection' => 'Multiple Selection',
+    'bulk_creation_info' => 'Bulk Creation Information',
+    'combinations_will_be_created' => 'combinations will be created',
+    'large_combinations_warning' => 'Large number of combinations detected! Please review before proceeding.',
     'shippments' => [
         'header' => 'Shipments',
         'menu'   => 'Shipments',

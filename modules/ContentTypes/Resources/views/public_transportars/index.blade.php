@@ -237,6 +237,13 @@
                                 if (Row.logo) {
                                     _img = `<img src="${Row.logo}" alt="${Row.company_name}">`;
                                 }
+                                
+                                // Check if company info should be hidden
+                                let displayEmail = Row.company_email || '---------';
+                                if (Row.hide_info === 'YES' && displayEmail !== '---------') {
+                                    displayEmail = displayEmail.substring(0, 2) + '***';
+                                }
+                                
                                 return `
                                     <div class="user-card">
                                         <div class="user-avatar sq sm bg-light">
@@ -245,7 +252,7 @@
                                         <div class="user-name">
                                             <span>${Row.company_name}</span>
                                             <br>
-                                            <span dir="ltr">${Row.company_email || '---------'}</span>
+                                            <span dir="ltr">${displayEmail}</span>
                                         </div>
                                     </div>
                                 `;
@@ -259,8 +266,12 @@
                             searchable : false,
                             visible    : true,
                             render     : function(data,type,Row,meta) {
+                                let displayName = Row.address?.primary_contact_name || '---------';
+                                if (Row.hide_info === 'YES' && displayName !== '---------') {
+                                    displayName = displayName.substring(0, 2) + '***';
+                                }
                                 return `
-                                    <span>${Row.address?.primary_contact_name || '---------'}</span>
+                                    <span>${displayName}</span>
                                 `;
                             }
                         },
@@ -272,8 +283,12 @@
                             searchable : false,
                             visible    : true,
                             render     : function(data,type,Row,meta) {
+                                let displayPhone = Row.full_phone_number || '---------';
+                                if (Row.hide_info === 'YES' && displayPhone !== '---------') {
+                                    displayPhone = displayPhone.substring(0, 2) + '***';
+                                }
                                 return `
-                                    <span dir="ltr">${Row.full_phone_number || '---------'}</span>
+                                    <span dir="ltr">${displayPhone}</span>
                                 `;
                             }
                         },
@@ -326,10 +341,18 @@
                             orderable  : false,
                             searchable : false,
                             render     : function(data,type,Row,meta) {
-                                return `<a href="{{ route('PublicTransportarsController@read') }}/${Row.id}" class="btn btn-sm btn-primary btn-block" target="_blank">
-                                    <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
-                                    <span>{{ __('contenttypes::strings.company_profile') }}</span>
-                                </a>`;
+                                return `
+                                    <div class="btn-group-vertical" style="width: 100%;">
+                                        <a href="{{ route('PublicTransportarsController@read') }}/${Row.id}" class="btn btn-sm btn-primary mb-1" target="_blank">
+                                            <i class="fas fa-eye" style="margin-left: 5px; margin-right: 5px;"></i>
+                                            <span>{{ __('contenttypes::strings.company_profile') }}</span>
+                                        </a>
+                                        <a href="{{ route('TransportersController@createByUserId') }}?user_id=${Row.user_id}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-file-contract" style="margin-left: 5px; margin-right: 5px;"></i>
+                                            <span>{{ __('contenttypes::main.add_new_contract') }}</span>
+                                        </a>
+                                    </div>
+                                `;
                             }
                         },
                     ],

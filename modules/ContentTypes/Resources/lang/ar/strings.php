@@ -99,6 +99,12 @@ return [
         'add'              => 'اضافة وجهة',
         'save'             => 'حفظ البيانات',
     ],
+    
+    // ترجمات الإنشاء المجمع
+    'multiple_selection' => 'اختيار متعدد',
+    'bulk_creation_info' => 'معلومات الإنشاء المجمع',
+    'combinations_will_be_created' => 'تركيبة سيتم إنشاؤها',
+    'large_combinations_warning' => 'تم اكتشاف عدد كبير من التركيبات! يرجى المراجعة قبل المتابعة.',
     'shippments' => [
         'header' => 'الشحنات',
         'menu'   => 'الشحنات',

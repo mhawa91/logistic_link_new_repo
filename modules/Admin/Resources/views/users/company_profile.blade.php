@@ -218,6 +218,40 @@
                             ],
                         ])
                     </div>
+                    <div class="col-md-12">
+                        @include('ui::components.radios', [
+                            'options' => [
+                                'view'              => 'INLINE',
+                                'type'              => 'radio',
+                                'name'              => 'hide_info',
+                                'label'             => __('contenttypes::inputs.hide_info.label'),
+                                'placeholder'       => __('contenttypes::inputs.hide_info.placeholder'),
+                                'description'       => __('contenttypes::inputs.hide_info.description'),
+                                'attributes'        => [],
+                                'value'             => $model->company?->hide_info ?? 'NO',
+                                'search'            => true,
+                                'multiple'          => false,
+                                'options'           => [
+                                    [
+                                        'id'       => 'NO',
+                                        'label'    => __('contenttypes::inputs.hide_info.options.NO'),
+                                        'selected' => ($model->company?->hide_info ?? 'NO') == 'NO',
+                                    ],
+                                    [
+                                        'id'       => 'YES',
+                                        'label'    => __('contenttypes::inputs.hide_info.options.YES'),
+                                        'selected' => ($model->company?->hide_info ?? 'NO') == 'YES',
+                                    ],
+                                ],
+                                'option_text'       => function($key, $option)                   { return $option['label']; },
+                                'option_sub_text'   => function($key, $option)                   { return null; },
+                                'option_value'      => function($key, $option)                   { return $option['id']; },
+                                'option_attributes' => function($key, $option)                   { return []; },
+                                'selected'          => function($options, $key, $option, $value) { return $option['selected']; },
+                                'disabled'          => function($options, $key, $option, $value) { return false; },
+                            ],
+                        ])
+                    </div>
                 </div>
 
                 <div class="nk-block-head" style="margin-top: 20px">

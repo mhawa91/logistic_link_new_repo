@@ -102,6 +102,20 @@ class TransporterService extends ModelService
             ];
             return Validator::make($data, $rules);
         }
+        if ($type == 'createByUserId') {
+            unset($rules['name']);
+            unset($rules['email']);
+            unset($rules['phone_number']);
+            $rules = $rules + [
+                'user_id'                 => 'required|numeric|exists:users,id,type,TRANSPORTER',
+                'contract_daterange_from' => 'required|date_format:m/d/Y',
+                'contract_daterange_to'   => 'required|date_format:m/d/Y',
+            ];
+            $rules = $rules + [
+                
+            ];
+            return Validator::make($data, $rules);
+        }
         if ($type == 'update') {
             return Validator::make($data, $rules);
         }
@@ -180,6 +194,36 @@ class TransporterService extends ModelService
             $data['phone_number']
         );
 
+        $ModelData = [
+            'company_user_id'     => auth()->id(),
+            'transporter_user_id' => $user->id,
+            'is_rfq'              => $data['is_rfq'] ?? 'NO',
+            'order_start_date'    => Carbon::parse($data['contract_daterange_from'])->toDateTimeString(),
+            'order_end_date'      => Carbon::parse($data['contract_daterange_to'])->toDateTimeString(),
+            'created_by_user_id'  => auth()->id(),
+            'updated_by_user_id'  => null,
+            'sys_status'          => $data['sys_status']  ?? 'ACTIVE',
+        ];
+
+        $contract = parent::create( $ModelData )->data();
+
+        $this->syncFile($contract, 'TRANSPORTER_TAX_CERTIFICATE'        , $data['TRANSPORTER_TAX_CERTIFICATE']        ?? null);
+        $this->syncFile($contract, 'TRANSPORTER_REGISTAION_LICENCE'     , $data['TRANSPORTER_REGISTAION_LICENCE']     ?? null);
+        $this->syncFile($contract, 'TRANSPORTER_INSURANCE_CERTIFICATE'  , $data['TRANSPORTER_INSURANCE_CERTIFICATE']  ?? null);
+        $this->syncFile($contract, 'TRANSPORTER_TRANSPORTATION_LICENCE' , $data['TRANSPORTER_TRANSPORTATION_LICENCE'] ?? null);
+
+        $instanceData = $data + [
+            'payment_term_id'       => $data['payment_term_id']       ?? null,
+            'insurance_value_limit' => $data['insurance_value_limit'] ?? null,
+        ];
+        $instance = $this->createInstance($contract, $instanceData);
+
+        return $contract;
+    }
+
+    public function createByUserId(array $data = [])
+    {
+        $user      = User::where('id', $data['user_id'])->where('type', 'TRANSPORTER')->firstOrFail();
         $ModelData = [
             'company_user_id'     => auth()->id(),
             'transporter_user_id' => $user->id,

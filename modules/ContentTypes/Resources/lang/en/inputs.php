@@ -781,4 +781,13 @@ return [
         'placeholder' => 'Enter map address from share link',
         'description' => 'Map address from share link that appears in the settings section',
     ],
+    'hide_info' => [
+        'label'       => 'Hide Company Information',
+        'placeholder' => 'Select whether to hide company information',
+        'description' => 'Choose to hide or show company information publicly',
+        'options'     => [
+            'YES' => 'Yes',
+            'NO'  => 'No',
+        ],
+    ],
 ];

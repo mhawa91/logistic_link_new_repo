@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\ContentTypes\Entities\TransporterService;
+use App\Models\User;
 
 class TransportersController extends SystemCoreHttpController
 {
@@ -33,6 +34,19 @@ class TransportersController extends SystemCoreHttpController
     public function create(Request $Request, ActionResponse $Response, TransporterService $TransporterService)
     {
         return view($this->viewsFolderPath . '.create', $this->data);
+    }
+
+    public function createByUserId(Request $Request, ActionResponse $Response, TransporterService $TransporterService)
+    {
+        $this->data['user'] = User::where('id', $Request->user_id)
+        ->where('type', 'TRANSPORTER')
+        ->with([
+            'company' => function($query) {
+                $query->withTrashed();
+            }
+        ])
+        ->firstOrFail();
+        return view($this->viewsFolderPath . '.createByUserId', $this->data);
     }
 
     public function update(Request $Request, ActionResponse $Response, TransporterService $TransporterService)
@@ -94,6 +108,19 @@ class TransportersController extends SystemCoreHttpController
         $this->data['Validator']->validate();
         DB::transaction(function() use($Request, $TransporterService) {
             $TransporterService->create($Request->all());
+        });
+        return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
+            'redirect' => route('TransportersController@index')
+        ]);
+    }
+
+    public function postCreateByUserId(Request $Request, ActionResponse $Response, TransporterService $TransporterService)
+    {
+        // dd($Request->all());
+        $this->data['Validator'] = $TransporterService->validator('createByUserId', $Request->all());
+        $this->data['Validator']->validate();
+        DB::transaction(function() use($Request, $TransporterService) {
+            $TransporterService->createByUserId($Request->all());
         });
         return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
             'redirect' => route('TransportersController@index')

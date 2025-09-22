@@ -80,7 +80,11 @@
                                                         <span class="name">{{__('contenttypes::main.contact_name')}}</span>
                                                     </div>
                                                     <div class="info">
-                                                        {{ ucwords($model->address?->primary_contact_name) }}
+                                                        @if($model->hide_info === 'YES')
+                                                            {{ $model->address?->primary_contact_name ? substr($model->address->primary_contact_name, 0, 2) . '***' : '-----' }}
+                                                        @else
+                                                            {{ ucwords($model->address?->primary_contact_name) ?? '-----' }}
+                                                        @endif
                                                     </div>
                                                 </div>
                                                 <div class="box-info">
@@ -89,7 +93,11 @@
                                                         <span class="name">{{__('contenttypes::orders.email_address')}}</span>
                                                     </div>
                                                     <div class="info" dir="ltr">
-                                                        {{ $model->company_email }}
+                                                        @if($model->hide_info === 'YES')
+                                                            {{ $model->company_email ? substr($model->company_email, 0, 2) . '***' : '-----' }}
+                                                        @else
+                                                            {{ $model->company_email ?? '-----' }}
+                                                        @endif
                                                     </div>
                                                 </div>
                                                 <div class="box-info">
@@ -98,8 +106,12 @@
                                                         <span class="name">{{__('contenttypes::orders.phone')}}</span>
                                                     </div>
                                                     <div class="info" style="direction: ltr">
-                                                        +{{ $model->company_phone_number_ext }}
-                                                        {{ $model->company_phone_number }}
+                                                        @if($model->hide_info === 'YES')
+                                                            {{ ($model->company_phone_number_ext && $model->company_phone_number) ? substr('+' . $model->company_phone_number_ext . $model->company_phone_number, 0, 2) . '***' : '-----' }}
+                                                        @else
+                                                            +{{ $model->company_phone_number_ext }}
+                                                            {{ $model->company_phone_number }}
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -150,6 +162,12 @@
                                             <a href="mailto:{{ $model->company_email }}" class="mt-2 btn btn-md btn-block btn-warning btn-block bg-orange">
                                                 <i class="fas fa-envelope" style="margin-left: 5px; margin-right: 5px;"></i>
                                                 <span>{{ __('contenttypes::inputs.contact_by_email.label') }}</span>
+                                            </a>
+                                        </div>
+                                        <div class="box-info">
+                                            <a href="{{ route('TransportersController@createByUserId', ['user_id' => $model->user_id]) }}" class="mt-2 btn btn-md btn-block btn-success btn-block">
+                                                <i class="fas fa-file-contract" style="margin-left: 5px; margin-right: 5px;"></i>
+                                                <span>{{ __('contenttypes::main.add_new_contract') }}</span>
                                             </a>
                                         </div>
                                     </div>
