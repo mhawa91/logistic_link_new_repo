@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 
 use Illuminate\Support\Facades\Crypt;
 use Modules\ContentTypes\Jobs\SendTransportarInvitationEmail;
+use Modules\ContentTypes\Jobs\SendContractNotificationEmail;
 
 class TransporterService extends ModelService
 {
@@ -218,6 +219,13 @@ class TransporterService extends ModelService
         ];
         $instance = $this->createInstance($contract, $instanceData);
 
+        $currentCompany = auth()->user()->company ? auth()->user()->company->company_name : null;
+        $userHash       = Crypt::encryptString(json_encode([
+            'id'    => $user->id,
+            'email' => $user->email,
+        ]));
+        SendContractNotificationEmail::dispatch($user, $currentCompany, null, $userHash);
+
         return $contract;
     }
 
@@ -248,6 +256,13 @@ class TransporterService extends ModelService
         ];
         $instance = $this->createInstance($contract, $instanceData);
 
+        $currentCompany = auth()->user()->company ? auth()->user()->company->company_name : null;
+        $userHash       = Crypt::encryptString(json_encode([
+            'id'    => $user->id,
+            'email' => $user->email,
+        ]));
+        SendContractNotificationEmail::dispatch($user, $currentCompany, null, $userHash);
+
         return $contract;
     }
 
@@ -277,9 +292,15 @@ class TransporterService extends ModelService
         ];
         $instance = $this->createInstance($contract, $instanceData);
 
+        $user = User::where('id', $contract->transporter_user_id)->first();
+        $currentCompany = auth()->user()->company ? auth()->user()->company->company_name : null;
+        $userHash       = Crypt::encryptString(json_encode([
+            'id'    => $user->id,
+            'email' => $user->email,
+        ]));
+        SendContractNotificationEmail::dispatch($user, $currentCompany, null, $userHash);
+
         return $contract;
-        
-        return parent::update( $ModelData )->data();
     }
 
     public function ajaxSelect($filter = null, array $Options = [], int $page = 1, int $limit = 30)

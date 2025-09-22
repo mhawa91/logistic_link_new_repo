@@ -29,6 +29,7 @@
                                 <td style="padding: 10px 10px;">Commodity type</td>
                                 <td style="padding: 10px 10px;">Load Value</td>
                                 <td style="padding: 10px 10px;">Contract Rate</td>
+                                <td style="padding: 10px 10px;">Action</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -70,6 +71,11 @@
                                     <td style="padding: 10px 10px;">
                                         {{ $shippment->matchedTransportar ? $helper->moneyFormat($shippment->matchedTransportar->total_price, 2)->abs : '0.00' }} SAR
                                     </td>
+                                    <td style="padding: 10px 10px; text-align: center;">
+                                        <a href="{{ route('AuthController@login', ['hash' => $hash, 'on_success' => route('ShippmentsController@read', ['model' => $shippment->id])]) }}" style="background-color:{{ config('mail_theme.colors.primary') }};border-radius:4px;color:#ffffff;display:inline-block;font-size:12px;font-weight:600;line-height:32px;text-align:center;text-decoration:none;text-transform: uppercase; padding: 0 15px;">
+                                            Confirm
+                                        </a>
+                                    </td>
                                 </tr>
                             @endforeach
                             <!-- Copy above <tr> block as needed for each shipment -->
@@ -77,17 +83,12 @@
                     </table>
                 </td>
             </tr>
-            <tr>
-                <td style="text-align:center;padding: 20px 30px 40px">
-                    <a href="{{ route('AuthController@login', ['hash' => $hash]) }}" style="background-color:{{ config('mail_theme.colors.primary') }};border-radius:4px;color:#ffffff;display:inline-block;font-size:13px;font-weight:600;line-height:44px;text-align:center;text-decoration:none;text-transform: uppercase; padding: 0 25px; margin-top: 25px">
-                        Confirm
-                    </a> 
-                </td>
+                            </td>
             </tr>
             <tr>
                 <td style="text-align:center;padding: 20px 30px 40px">
                     <p>If you think you got this email by mistake, please ignore this email.</p>
-                    <p style="margin-bottom: 15px;">We’re excited to have you join us!</p>
+                    <p style="margin-bottom: 15px;">We're excited to have you join us!</p>
                     <p style="margin: 0; font-size: 13px; line-height: 22px; color:#9ea8bb;">
                         This is an automatically generated email please do not reply to this email. If you face any issues, please contact us at {{ config('mail_theme.appContactEmail') }}
                     </p>
