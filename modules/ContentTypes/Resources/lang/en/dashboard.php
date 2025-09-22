@@ -13,4 +13,7 @@ return [
     'company_shipments'          => 'Company Shipments',
     'company_shipments_desc'     => 'You do not have any contracts with transport companies, add your first contract.',
     'how_it_works'               => 'How It Works',
+    'active_contract'            => 'Active Contracts',
+    'not_active_contract'        => 'Inactive Contracts',
+    'add_more_transporters'      => 'Add More Transporters',
 ];

@@ -31,6 +31,8 @@ class AdminDashboardController extends SystemCoreHttpController
 
     public function index(Request $Request, ActionResponse $Response)
     {
+        $this->data['HelpersCLass'] = app(\Modules\SystemCore\System\Classes\Helpers::class);
+
         $this->data['progress'] = 10;
         if ( $Request->user()->company()->exists() ) {
             $this->data['progress'] = 35;
@@ -38,14 +40,25 @@ class AdminDashboardController extends SystemCoreHttpController
         
         $this->data['clientShippmentCount'] = Shippment::where('company_user_id', $Request->user()->id)->count();
 
-        $this->data['clientContractsAll']   = TransporterContractInstance::where('company_user_id', $Request->user()->id)
+        $this->data['clientContractsAll']   = $Request->user()->type == 'TRANSPORTER' 
+        ? TransporterContractInstance::where('transporter_user_id', $Request->user()->id)
+        ->count()
+        : TransporterContractInstance::where('company_user_id', $Request->user()->id)
         ->count();
 
-        $this->data['clientContractsNotActive']   = TransporterContractInstance::where('company_user_id', $Request->user()->id)
+        $this->data['clientContractsNotActive']   = $Request->user()->type == 'TRANSPORTER' 
+        ? TransporterContractInstance::where('transporter_user_id', $Request->user()->id)
+        ->OnlyNotActiveByStartDate()
+        ->count()
+        : TransporterContractInstance::where('company_user_id', $Request->user()->id)
         ->OnlyNotActiveByStartDate()
         ->count();
 
-        $this->data['clientContracts']      = TransporterContractInstance::where('company_user_id', $Request->user()->id)
+        $this->data['clientContracts']      = $Request->user()->type == 'TRANSPORTER' 
+        ? TransporterContractInstance::where('transporter_user_id', $Request->user()->id)
+        ->OnlyActiveByStartDate()
+        ->count()
+        : TransporterContractInstance::where('company_user_id', $Request->user()->id)
         ->OnlyActiveByStartDate()
         ->count();
 

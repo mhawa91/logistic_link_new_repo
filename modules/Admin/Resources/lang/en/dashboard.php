@@ -123,4 +123,6 @@ return [
     'orders_weekly'          => 'Orders Weekly',
     'orders_weekly_desc'     => 'Distribution of orders by weeks',
     'orders_daily_desc'      => 'Distribution of orders by days',
+    'active_contract'        => 'Active Contracts',
+    'not_active_contract'    => 'Inactive Contracts',
 ];

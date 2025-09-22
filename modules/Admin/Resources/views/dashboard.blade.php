@@ -79,27 +79,48 @@
                             {{ __('contenttypes::dashboard.company_contracts') }}
                         </h4>
                         <div class="card-title-group">
-                            <div class="d-stastic-block1">
-                                {{ __('contenttypes::dashboard.company_contracts_desc') }}
-                                {{-- <div class="nk-sale-data">
-                                    <span class="amount">
-                                        14,299.59 
-                                        <span class="sub-title">
-                                            This Month
+                            @if($clientContractsAll == 0)
+                                <div class="d-stastic-block1">
+                                    {{ __('contenttypes::dashboard.company_contracts_desc') }}
+                                </div>
+                            @else
+                                <div class="nk-sale-data-group flex-md-nowrap g-4">
+                                    <div class="nk-sale-data">
+                                        <span class="amount">
+                                            {{ $HelpersCLass->moneyFormat($clientContracts, 0)->abs }}
                                         </span>
-                                    </span>
-                                </div> --}}
-                            </div>
+                                        <span class="sub-title">
+                                            {{ __('contenttypes::dashboard.active_contract') }}
+                                        </span>
+                                    </div>
+                                    <div class="nk-sale-data">
+                                        <span class="amount text-danger">
+                                            {{ $HelpersCLass->moneyFormat($clientContractsNotActive, 0)->abs }}
+                                        </span>
+                                        <span class="sub-title">
+                                            {{ __('contenttypes::dashboard.not_active_contract') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
                             <div class="d-stastic-block2">
                                 <img width="55%" src="{{ asset('images/icons/company_contracts_1.svg') }}" alt="">
                             </div>
                         </div>
                         <div class="mt-3">
-                            <a href="{{ route('TransportersController@index') }}">
-                                <button class="btn btn-primary">
-                                    {{ __('contenttypes::dashboard.add_your_first_transporter') }}
-                                </button>
-                            </a>
+                            @if($clientContractsAll == 0)
+                                <a href="{{ route('TransportersController@index') }}">
+                                    <button class="btn btn-primary">
+                                        {{ __('contenttypes::dashboard.add_your_first_transporter') }}
+                                    </button>
+                                </a>
+                            @else
+                                <a href="{{ route('TransportersController@index') }}">
+                                    <button class="btn btn-primary">
+                                        {{ __('contenttypes::dashboard.add_more_transporters') }}
+                                    </button>
+                                </a>
+                            @endif
                         </div>
                     </div>
                 </div>

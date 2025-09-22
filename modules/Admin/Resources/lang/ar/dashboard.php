@@ -124,4 +124,6 @@ return [
     'orders_weekly'          => 'الحجوزات الاسبوعية',
     'orders_weekly_desc'     => 'توزع الحجوزات على الاسابيع',
     'orders_daily_desc'      => 'توزع الحجوزات على الايام',
+    'active_contract'        => 'العقود النشطة',
+    'not_active_contract'    => 'العقود غير النشطة',
 ];

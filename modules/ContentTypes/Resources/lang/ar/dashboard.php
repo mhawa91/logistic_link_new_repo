@@ -13,4 +13,7 @@ return [
     'company_shipments'                 => 'شحنات الشركة',
     'company_shipments_desc'            => 'ليس لديك أي عقد مع شركات النقل، أضف عقدك الأول',
     'how_it_works'                      => 'كيف تعمل',
+    'active_contract'                   => 'العقود النشطة',
+    'not_active_contract'               => 'العقود غير النشطة',
+    'add_more_transporters'             => 'أضف المزيد من الناقلين',
 ];

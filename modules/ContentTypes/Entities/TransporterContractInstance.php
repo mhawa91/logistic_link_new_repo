@@ -215,7 +215,7 @@ class TransporterContractInstance extends Model
         return $query;
     }
 
-     public function scopeOnlyNotActiveByStartDate($query)
+    public function scopeOnlyNotActiveByStartDate($query)
     {
         $query->where('lgl_transporters_contracts_instances.order_start_date', '<=', now()->format('Y-m-d'));
         $query->where('lgl_transporters_contracts_instances.order_end_date'  , '<=', now()->format('Y-m-d'));
