@@ -23,6 +23,7 @@ use Modules\ContentManager\Entities\Contracts\CategoryInterface;
 use Modules\SystemCore\Entities\Country;
 use Modules\SystemCore\Entities\City;
 use Laravel\Socialite\Facades\Socialite;
+use Bouncer;
 
 use Modules\SystemCore\Entities\PasswordResetCodeService;
 use Modules\Admin\Emails\ResetPasswordRequest;
@@ -52,13 +53,15 @@ class WebsiteAuthController extends SystemCoreHttpController
 
     public function loginByFacebook(Request $Request)
     {
-        session(['sign_type' => $Request->type ?? null, 'new_account' => $Request->new_account ?? 'N']);
+        $userType = in_array($Request->type, ['DEFAULT', 'TRANSPORTER']) ? $Request->type : 'DEFAULT';
+        session(['sign_type' => $userType]);
         return Socialite::driver('facebook')->redirect();
     }
 
     public function loginByGoogle(Request $Request)
     {
-        session(['sign_type' => $Request->type ?? null, 'new_account' => $Request->new_account ?? 'N']);
+        $userType = in_array($Request->type, ['DEFAULT', 'TRANSPORTER']) ? $Request->type : 'DEFAULT';
+        session(['sign_type' => $userType]);
         return Socialite::driver('google')->redirect();
     }
 
@@ -70,6 +73,7 @@ class WebsiteAuthController extends SystemCoreHttpController
             $user               = Socialite::driver('facebook')->stateless()->user();
             $this->data['user'] = app(config('systemcore.models.User'))->where('facebook_auth_id', $user->getId())->first();
             $USER_BY_EMAIL      = app(config('systemcore.models.User'))->where('email', $user->getEmail())->first();
+            
             if (! $this->data['user']) {
                 if (! empty($user->getEmail()) && ! empty($USER_BY_EMAIL)) {
                     $USER_BY_EMAIL->update([
@@ -89,23 +93,32 @@ class WebsiteAuthController extends SystemCoreHttpController
                     ]);
                 }
                 else {
+                    // Validate the selected type matches allowed types (same as regular registration)
+                    $userType = in_array($TYPE, ['DEFAULT', 'TRANSPORTER']) ? $TYPE : 'DEFAULT';
+                    
                     $this->data['user']  = app(config('systemcore.models.User'))->create([
-                        'facebook_auth_id'        => $user->getId(),
-                        'type'                    => in_array($TYPE, ['DEFAULT', 'COMPANY']) ? $TYPE : 'DEFAULT',
                         'name'                    => $user->getName(),
-                        'email'                   => $EMAIL ?? null,
+                        'email'                   => $user->getEmail() ?? null,
                         'password'                => Hash::make((string)\Illuminate\Support\Str::uuid().'@'.$user->getId()),
+                        'type'                    => $userType,
+                        'locale'                  => app()->getLocale(),
                         'sys_status'              => 'ACTIVE',
+                        'facebook_auth_id'        => $user->getId(),
                         'is_registered'           => 'N',
                         'email_verification_code' => null,
                     ]);
+                    
+                    // Assign role based on user type (same as regular registration)
+                    Bouncer::assign($userType)->to($this->data['user']);
                 }
             }
+            
             Auth::loginUsingId($this->data['user']->id, false);
         } 
         catch (Exception $e) {
             throw $e;
         }
+        
         return $Response->module('Admin')->code('200')->success()->withOnlyToAjaxWeb([
             'redirect' => route('WebsiteController@singleProfileC', ['username' => $this->data['user']->username ?? $this->data['user']->id]),
         ]);
@@ -115,10 +128,10 @@ class WebsiteAuthController extends SystemCoreHttpController
     {
         try {
             $TYPE               = session()->pull('sign_type', null);
-            $IS_NEW             = session()->pull('new_account', null);
             $user               = Socialite::driver('google')->stateless()->user();
             $this->data['user'] = app(config('systemcore.models.User'))->where('google_auth_id', $user->getId())->first();
             $USER_BY_EMAIL      = app(config('systemcore.models.User'))->where('email', $user->getEmail())->first();
+            
             if (! $this->data['user']) {
                 if (! empty($user->getEmail()) && ! empty($USER_BY_EMAIL)) {
                     $USER_BY_EMAIL->update([
@@ -127,36 +140,35 @@ class WebsiteAuthController extends SystemCoreHttpController
                     ]);
                     $this->data['user'] = $USER_BY_EMAIL;
                 }
-                else if($IS_NEW != 'Y') {
-                    return $Response->module('Admin')->code('500')->success()->withOnlyToAjaxWeb([
-                        'redirect' => route('WebsiteController@home'),
-                        'toastr' => [
-                            'type'        => 'error',
-                            'title'       => 'عذرا ولكن حصل خطأ',
-                            'description' => 'على مايبدو ان هذا الحساب غير مسجل بالنظام. يرجى انشاء حساب جديد قبل تسجيل الدخول',
-                        ],
-                    ]);
-                }
                 else {
+                    // Validate the selected type matches allowed types (same as regular registration)
+                    $userType = in_array($TYPE, ['DEFAULT', 'TRANSPORTER']) ? $TYPE : 'DEFAULT';
+                    
                     $this->data['user']  = app(config('systemcore.models.User'))->create([
-                        'google_auth_id'          => $user->getId(),
-                        'type'                    => in_array($TYPE, ['DEFAULT', 'COMPANY']) ? $TYPE : 'DEFAULT',
                         'name'                    => $user->getName(),
                         'email'                   => $user->getEmail() ?? null,
                         'password'                => Hash::make((string)\Illuminate\Support\Str::uuid().'@'.$user->getId()),
+                        'type'                    => $userType,
+                        'locale'                  => app()->getLocale(),
                         'sys_status'              => 'ACTIVE',
+                        'google_auth_id'          => $user->getId(),
                         'is_registered'           => 'N',
                         'email_verification_code' => null,
                     ]);
+                    
+                    // Assign role based on user type (same as regular registration)
+                    Bouncer::assign($userType)->to($this->data['user']);
                 }
             }
+            
             Auth::loginUsingId($this->data['user']->id, false);
         } 
         catch (Exception $e) {
             throw $e;
         }
+        
         return $Response->module('Admin')->code('200')->success()->withOnlyToAjaxWeb([
-            'redirect' => route('WebsiteController@singleProfileC', ['username' => $this->data['user']->username ?? $this->data['user']->id]),
+            'redirect' => route(config('systemcore.auth.REDIRECT_TO_ROUTE_NAME'))
         ]);
     }
 }
