@@ -112,7 +112,17 @@
             _AS_SUBMIT = $Form.find('[data-type=submit]'),
             _URL    = $Form.attr('action') || 'javascript:;',
             _METHOD = $Form.attr('method') || 'POST';
-            _DATA   = new FormData($Event.target); //_NODE_.serialize(); 
+        var $JsonOnlyFields = $Form.find('[data-json-only="true"]'),
+            jsonOnlyDisabledStates = [];
+
+        $JsonOnlyFields.each(function(index) {
+            jsonOnlyDisabledStates[index] = this.disabled;
+            this.disabled = true;
+        });
+        var _DATA = new FormData($Event.target); //_NODE_.serialize();
+        $JsonOnlyFields.each(function(index) {
+            this.disabled = jsonOnlyDisabledStates[index];
+        });
         
         var _OPT = $.extend({
             keepLoadingOnSuccess: false,

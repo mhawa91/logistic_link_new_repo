@@ -309,6 +309,18 @@
         <x-slot name="script">
             <script>
                 var datatableTools = BS.loadCallable('datatableTools');
+
+                function renderCompanyAvatar(src, name) {
+                    if (!src) {
+                        return '<em class="icon ni ni-building"></em>';
+                    }
+
+                    const safeSrc = $('<div>').text(src).html();
+                    const safeName = $('<div>').text(name || '').html();
+                    return `<img src="${safeSrc}" alt="${safeName}" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'">`
+                        + '<em class="icon ni ni-building" style="display:none"></em>';
+                }
+
                 var datatable      = BS.DATATABLE('.bs-datatable', {
                     ajax : {
                         url  : "{!! route('TransportersController@postIndex') !!}",
@@ -358,10 +370,7 @@
                                 if (! Row.client) {
                                     return `<span class="text-danger">N/A</span>`;
                                 }
-                                let _img = '<span>AB</span>';
-                                if (Row.client_avatar) {
-                                    _img = `<img src="${Row.client_avatar}" alt="${Row.client.name}">`;
-                                }
+                                let _img = renderCompanyAvatar(Row.client_avatar, Row.client.company?.company_name || Row.client.name);
                                 return `
                                     <div class="user-card">
                                         <div class="user-avatar sq sm bg-dark">
@@ -387,10 +396,7 @@
                                 if (! Row.transporter) {
                                     return `<span class="text-danger">N/A</span>`;
                                 }
-                                let _img = '<span>AB</span>';
-                                if (Row.transporter_avatar) {
-                                    _img = `<img src="${Row.transporter_avatar}" alt="${Row.transporter.name}">`;
-                                }
+                                let _img = renderCompanyAvatar(Row.transporter_avatar, Row.transporter.company?.company_name || Row.transporter.name);
                                 return `
                                     <div class="user-card">
                                         <div class="user-avatar sq sm bg-dark">

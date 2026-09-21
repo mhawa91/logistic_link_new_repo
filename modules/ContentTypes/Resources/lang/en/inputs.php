@@ -271,10 +271,10 @@ return [
         'placeholder' => 'Enter transport company phone number',
         'description' => 'Transport company phone number',
     ],
-    'previous_transporter' => [
-        'label'       => 'Search Previous Contract Companies',
+    'transporter_account' => [
+        'label'       => 'Search Transport Company Accounts',
         'placeholder' => 'Search by name, email, or phone number',
-        'description' => 'Selecting a company fills its details automatically, and you can edit them afterwards.',
+        'description' => 'Selecting a company fills its details automatically and locks its name until the selection is cleared.',
     ],
     'contract_status' => [
         'label'       => 'Contract Status',
