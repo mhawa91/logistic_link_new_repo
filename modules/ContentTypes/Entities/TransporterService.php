@@ -84,6 +84,7 @@ class TransporterService extends ModelService
             'TRANSPORTER_REGISTAION_LICENCE'        => 'nullable|file',
             'TRANSPORTER_INSURANCE_CERTIFICATE'     => 'nullable|file',
             'TRANSPORTER_TRANSPORTATION_LICENCE'    => 'nullable|file',
+            'TRANSPORTER_CONTRACT'                  => 'nullable|file',
             'sys_status'                            => 'required|in:ACTIVE,DISABLED',
             'items'                                 => 'required|array',
             'items.*.truck_type_id'                 => 'required|numeric|exists:contents,id',
@@ -212,6 +213,7 @@ class TransporterService extends ModelService
         $this->syncFile($contract, 'TRANSPORTER_REGISTAION_LICENCE'     , $data['TRANSPORTER_REGISTAION_LICENCE']     ?? null);
         $this->syncFile($contract, 'TRANSPORTER_INSURANCE_CERTIFICATE'  , $data['TRANSPORTER_INSURANCE_CERTIFICATE']  ?? null);
         $this->syncFile($contract, 'TRANSPORTER_TRANSPORTATION_LICENCE' , $data['TRANSPORTER_TRANSPORTATION_LICENCE'] ?? null);
+        $this->syncFile($contract, 'TRANSPORTER_CONTRACT'               , $data['TRANSPORTER_CONTRACT']               ?? null);
 
         $instanceData = $data + [
             'payment_term_id'       => $data['payment_term_id']       ?? null,
@@ -249,6 +251,7 @@ class TransporterService extends ModelService
         $this->syncFile($contract, 'TRANSPORTER_REGISTAION_LICENCE'     , $data['TRANSPORTER_REGISTAION_LICENCE']     ?? null);
         $this->syncFile($contract, 'TRANSPORTER_INSURANCE_CERTIFICATE'  , $data['TRANSPORTER_INSURANCE_CERTIFICATE']  ?? null);
         $this->syncFile($contract, 'TRANSPORTER_TRANSPORTATION_LICENCE' , $data['TRANSPORTER_TRANSPORTATION_LICENCE'] ?? null);
+        $this->syncFile($contract, 'TRANSPORTER_CONTRACT'               , $data['TRANSPORTER_CONTRACT']               ?? null);
 
         $instanceData = $data + [
             'payment_term_id'       => $data['payment_term_id']       ?? null,
@@ -285,6 +288,7 @@ class TransporterService extends ModelService
         $this->syncFile($contract, 'TRANSPORTER_REGISTAION_LICENCE'     , $data['TRANSPORTER_REGISTAION_LICENCE']     ?? null);
         $this->syncFile($contract, 'TRANSPORTER_INSURANCE_CERTIFICATE'  , $data['TRANSPORTER_INSURANCE_CERTIFICATE']  ?? null);
         $this->syncFile($contract, 'TRANSPORTER_TRANSPORTATION_LICENCE' , $data['TRANSPORTER_TRANSPORTATION_LICENCE'] ?? null);
+        $this->syncFile($contract, 'TRANSPORTER_CONTRACT'               , $data['TRANSPORTER_CONTRACT']               ?? null);
 
         $instanceData = $data + [
             'payment_term_id'       => $data['payment_term_id']       ?? null,
@@ -310,6 +314,68 @@ class TransporterService extends ModelService
         //    'translations' => fn($rel) => $rel,
         // ]);
         return parent::ajaxSelect($filter, $Options, $page, $limit);
+    }
+
+    public function previousCompaniesSelect($search = null, int $page = 1, int $limit = 20)
+    {
+        if (! $this->can('create')) {
+            $this->throwPermissionException('create');
+        }
+
+        $page  = max($page, 1);
+        $limit = min(max($limit, 1), 50);
+
+        $query = TransporterContract::query()
+        ->join('users AS previous_transporters', 'previous_transporters.id', '=', 'lgl_transporters_contracts.transporter_user_id')
+        ->whereNull('previous_transporters.deleted_at')
+        ->whereNotNull('previous_transporters.name')
+        ->whereNotNull('previous_transporters.email')
+        ->whereNotNull('previous_transporters.phone_number')
+        ->when(auth()->check() && auth()->user()->type == 'DEFAULT', function($query) {
+            $query->where('lgl_transporters_contracts.company_user_id', auth()->id());
+        })
+        ->when(auth()->check() && auth()->user()->type == 'TRANSPORTER', function($query) {
+            $query->where('lgl_transporters_contracts.transporter_user_id', auth()->id());
+        })
+        ->when(! empty($search), function($query) use($search) {
+            $query->where(function($query) use($search) {
+                $query->where('previous_transporters.name', 'like', "%{$search}%")
+                ->orWhere('previous_transporters.email', 'like', "%{$search}%")
+                ->orWhere('previous_transporters.phone_number', 'like', "%{$search}%");
+            });
+        })
+        ->select([
+            DB::raw('MIN(previous_transporters.id) AS id'),
+            'previous_transporters.name',
+            'previous_transporters.email',
+            'previous_transporters.phone_number',
+        ])
+        ->groupBy([
+            'previous_transporters.name',
+            'previous_transporters.email',
+            'previous_transporters.phone_number',
+        ])
+        ->orderBy('previous_transporters.name');
+
+        $companies = $query->paginate($limit, ['*'], 'page', $page);
+
+        return [
+            'results' => collect($companies->items())->map(function($company) {
+                $phoneNumber = (string) $company->phone_number;
+
+                return [
+                    'id'            => $company->id,
+                    'text'          => $company->name,
+                    'name'          => $company->name,
+                    'email'         => $company->email,
+                    'phone_number'  => preg_replace('/^\+966/', '', $phoneNumber),
+                    'phone_display' => $phoneNumber,
+                ];
+            })->values(),
+            'pagination' => [
+                'more' => $companies->hasMorePages(),
+            ],
+        ];
     }
 
     public function install() : bool

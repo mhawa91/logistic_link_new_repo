@@ -251,6 +251,11 @@ return [
         'placeholder' => 'Enter transportation license',
         'description' => 'Transportation license',
     ],
+    'contract_file' => [
+        'label'       => 'Contract',
+        'placeholder' => 'Select contract file',
+        'description' => 'Contract file (optional)',
+    ],
     'transportar_name' => [
         'label'       => 'Transport Company Name',
         'placeholder' => 'Enter transport company name',
@@ -265,6 +270,11 @@ return [
         'label'       => 'Transport Company Phone Number',
         'placeholder' => 'Enter transport company phone number',
         'description' => 'Transport company phone number',
+    ],
+    'previous_transporter' => [
+        'label'       => 'Search Previous Contract Companies',
+        'placeholder' => 'Search by name, email, or phone number',
+        'description' => 'Selecting a company fills its details automatically, and you can edit them afterwards.',
     ],
     'contract_status' => [
         'label'       => 'Contract Status',

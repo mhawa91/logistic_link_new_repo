@@ -17,7 +17,7 @@ class TransportersController extends SystemCoreHttpController
     {
         $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
         $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'read'))->only(['index', 'postIndex', 'read', 'postRead']);
-        $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'create'))->only(['create', 'postCreate']);
+        $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'create'))->only(['create', 'postCreate', 'previousCompaniesSelect']);
         $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'update'))->only(['update', 'postUpdate']);
         $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'statusUpdate'))->only(['postStatus']);
         $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'delete'))->only(['postDelete']);
@@ -153,6 +153,14 @@ class TransportersController extends SystemCoreHttpController
         return $TransporterService->ajaxSelect($Request->search ?? null, [
             'nullable' => $Request->nullable ?? true,
         ], $Request->page);
+    }
+
+    public function previousCompaniesSelect(Request $Request, ActionResponse $Response, TransporterService $TransporterService)
+    {
+        return $TransporterService->previousCompaniesSelect(
+            $Request->search ?? null,
+            $Request->page ?? 1
+        );
     }
 
     public function postStatus(Request $Request, ActionResponse $Response, TransporterService $TransporterService)

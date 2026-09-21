@@ -259,6 +259,18 @@
                                     ],
                                 ])
 
+                                @include('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'file',
+                                        'name'        => 'TRANSPORTER_CONTRACT',
+                                        'label'       => __('contenttypes::inputs.contract_file.label'),
+                                        'description' => __('contenttypes::inputs.contract_file.description'),
+                                        'placeholder' => null,
+                                        'value'       => null,
+                                    ],
+                                ])
+
                                 @include('ui::components.radios', [
                                     'options' => [
                                         'view'              => 'DEFAULT',

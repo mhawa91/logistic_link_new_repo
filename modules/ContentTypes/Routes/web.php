@@ -35,6 +35,7 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::post('restore'                 , 'TransportersController@postRestore')->name('TransportersController@postRestore');     
         Route::post('perma-delete'            , 'TransportersController@postPermaDelete')->name('TransportersController@postPermaDelete');
         Route::post('status-update'           , 'TransportersController@postStatus')->name('TransportersController@postStatus');       
+        Route::get('previous-companies/select', 'TransportersController@previousCompaniesSelect')->name('TransportersController@previousCompaniesSelect');
         Route::get('select'                   , 'TransportersController@select')->name('TransportersController@select');
         Route::post('export'                  , 'TransportersController@postExport')->name('TransportersController@postExport');       
         Route::get('{model}'                  , 'TransportersController@read')->name('TransportersController@read');

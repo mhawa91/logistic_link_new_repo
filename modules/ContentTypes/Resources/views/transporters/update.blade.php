@@ -190,6 +190,7 @@
                                         'value'             => $truckTypes->pluck('id')->toArray(),
                                         'search'            => true,
                                         'multiple'          => true,
+                                        'select_all'        => true,
                                         'options'           => $truckTypes,
                                         'option_text'       => function($key, $option)                   { return $option['text']; },
                                         'option_value'      => function($key, $option)                   { return $option['id']; },
@@ -298,6 +299,26 @@
                                             : ''
                                         ),
                                         'description' => __('contenttypes::inputs.contract_transportation_license.description'),
+                                        'placeholder' => null,
+                                        'value'       => null,
+                                    ],
+                                ])
+
+                                @include('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'file',
+                                        'name'        => 'TRANSPORTER_CONTRACT',
+                                        'label'       => __('contenttypes::inputs.contract_file.label')
+                                        . (
+                                            $model->TRANSPORTER_CONTRACT
+                                            ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->TRANSPORTER_CONTRACT->file_path) .'" target="_blank">
+                                                <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
+                                                '. __('contenttypes::inputs.files.options.view') .'
+                                                </a>'
+                                            : ''
+                                        ),
+                                        'description' => __('contenttypes::inputs.contract_file.description'),
                                         'placeholder' => null,
                                         'value'       => null,
                                     ],
@@ -451,9 +472,9 @@
                                                     @endcomponent
                                                 </td>
                                                 <td style="vertical-align: middle;">
-                                                    @{{ item.from_city.name_ar }}<br>
+                                                    @{{ item.from_city['name_' + locale] }}<br>
                                                     <small class="text-primary">
-                                                        @{{ item.from_city?.country.name_ar }}
+                                                        @{{ item.from_city?.country?.['name_' + locale] }}
                                                     </small>
                                                     @component('ui::components.input', [
                                                         'options' => [
@@ -468,9 +489,9 @@
                                                     @endcomponent
                                                 </td>
                                                 <td style="vertical-align: middle;">
-                                                    @{{ item.to_city.name_ar }}<br>
+                                                    @{{ item.to_city['name_' + locale] }}<br>
                                                     <small class="text-primary">
-                                                        @{{ item.to_city?.country.name_ar }}
+                                                        @{{ item.to_city?.country?.['name_' + locale] }}
                                                     </small>
                                                     @component('ui::components.input', [
                                                         'options' => [
@@ -805,6 +826,7 @@
         const CrudApp = new Vue({
             el: '#vue-form',
             data: {
+                locale       : @json(app()->getLocale()),
                 items        : @json($items),
                 is_loading   : false,
                 current_item : {

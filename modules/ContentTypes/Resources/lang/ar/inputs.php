@@ -251,6 +251,11 @@ return [
         'placeholder' => 'أدخل رخصة النقل',
         'description' => 'رخصة النقل',
     ],
+    'contract_file' => [
+        'label'       => 'العقد',
+        'placeholder' => 'اختر ملف العقد',
+        'description' => 'ملف العقد (اختياري)',
+    ],
     'transportar_name' => [
         'label'       => 'اسم شركة النقل',
         'placeholder' => 'أدخل اسم شركة النقل',
@@ -265,6 +270,11 @@ return [
         'label'       => 'رقم هاتف شركة النقل',
         'placeholder' => 'أدخل رقم هاتف شركة النقل',
         'description' => 'رقم هاتف شركة النقل',
+    ],
+    'previous_transporter' => [
+        'label'       => 'البحث في شركات العقود السابقة',
+        'placeholder' => 'ابحث بالاسم أو البريد الإلكتروني أو رقم الهاتف',
+        'description' => 'اختيار شركة يملأ بياناتها تلقائياً، ويمكنك تعديلها بعد ذلك.',
     ],
     'contract_status' => [
         'label'       => 'حالة العقد',

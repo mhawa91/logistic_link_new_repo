@@ -25,6 +25,52 @@
 @section('content')
 
 @section('content')
+    <style>
+        .previous-company-search {
+            background: linear-gradient(135deg, rgba(101, 118, 255, 0.08), rgba(255, 255, 255, 0.95));
+            border-color: rgba(101, 118, 255, 0.22) !important;
+        }
+        .previous-company-search .company-search-icon {
+            align-items: center;
+            background: rgba(101, 118, 255, 0.14);
+            border-radius: 50%;
+            color: #6576ff;
+            display: inline-flex;
+            flex: 0 0 42px;
+            font-size: 21px;
+            height: 42px;
+            justify-content: center;
+            width: 42px;
+        }
+        .previous-company-search .select2-container {
+            width: 100% !important;
+        }
+        .previous-company-search .select2-selection--single {
+            align-items: center;
+            display: flex;
+            min-height: 44px;
+        }
+        .previous-company-search .select2-selection__arrow {
+            height: 42px !important;
+        }
+        .previous-company-search .select2-selection__clear {
+            margin-inline: 0.55rem;
+        }
+        .previous-transporter-dropdown .select2-results__option {
+            padding: 0.65rem 0.75rem;
+        }
+        .previous-transporter-result {
+            min-width: 0;
+        }
+        .previous-transporter-result .company-details {
+            direction: ltr;
+            overflow-wrap: anywhere;
+        }
+        .previous-transporter-result .company-details .icon {
+            margin-inline-end: 0.4rem;
+        }
+    </style>
+
     @component('ui::components.form', [
         'options' => [
             'id'                => null,
@@ -44,6 +90,39 @@
                 <div class="card card-bordered">
                     <div class="card-inner">
                         <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="previous-company-search rounded border p-3">
+                                    <div class="row align-items-center g-3">
+                                        <div class="col-lg-5">
+                                            <div class="d-flex align-items-center">
+                                                <span class="company-search-icon mr-3">
+                                                    <em class="icon ni ni-building"></em>
+                                                </span>
+                                                <div>
+                                                    <label class="form-label mb-1" for="previous_transporter_select">
+                                                        {{ __('contenttypes::inputs.previous_transporter.label') }}
+                                                    </label>
+                                                    <span class="form-note">
+                                                        {{ __('contenttypes::inputs.previous_transporter.description') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-7">
+                                            <div class="form-control-wrap">
+                                                <select
+                                                    id="previous_transporter_select"
+                                                    name="previous_transporter_id"
+                                                    class="form-control"
+                                                    data-placeholder="{{ __('contenttypes::inputs.previous_transporter.placeholder') }}">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="col-md-3">
 
                                 @include('ui::components.input', [
@@ -158,6 +237,7 @@
                                         'value'             => null,
                                         'search'            => true,
                                         'multiple'          => true,
+                                        'select_all'        => true,
                                         'options'           => [],
                                         'option_text'       => function($key, $option)                   { return $option['native']; },
                                         'option_value'      => function($key, $option)                   { return $key; },
@@ -234,6 +314,18 @@
                                         'name'        => 'TRANSPORTER_TRANSPORTATION_LICENCE',
                                         'label'       => __('contenttypes::inputs.contract_transportation_license.label'),
                                         'description' => __('contenttypes::inputs.contract_transportation_license.description'),
+                                        'placeholder' => null,
+                                        'value'       => null,
+                                    ],
+                                ])
+
+                                @include('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'file',
+                                        'name'        => 'TRANSPORTER_CONTRACT',
+                                        'label'       => __('contenttypes::inputs.contract_file.label'),
+                                        'description' => __('contenttypes::inputs.contract_file.description'),
                                         'placeholder' => null,
                                         'value'       => null,
                                     ],
@@ -386,9 +478,9 @@
                                             @endcomponent
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            @{{ item.from_city.name_ar }}<br>
+                                            @{{ item.from_city['name_' + locale] }}<br>
                                             <small class="text-primary">
-                                                @{{ item.from_city?.country.name_ar }}
+                                                @{{ item.from_city?.country?.['name_' + locale] }}
                                             </small>
                                             @component('ui::components.input', [
                                                 'options' => [
@@ -403,9 +495,9 @@
                                             @endcomponent
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            @{{ item.to_city.name_ar }}<br>
+                                            @{{ item.to_city['name_' + locale] }}<br>
                                             <small class="text-primary">
-                                                @{{ item.to_city?.country.name_ar }}
+                                                @{{ item.to_city?.country?.['name_' + locale] }}
                                             </small>
                                             @component('ui::components.input', [
                                                 'options' => [
@@ -577,6 +669,7 @@
                     'value'             => null,
                     'search'            => true,
                     'multiple'          => true,
+                    'sync_from'         => '#trucks_type_id_select',
                     'options'           => [],
                     'option_text'       => function($key, $option)                   { return $option['native']; },
                     'option_value'      => function($key, $option)                   { return $key; },
@@ -732,9 +825,32 @@
 
 @push('script')
     <script>
+        function formatPreviousTransporterResult(item) {
+            if (item.loading || !item.id) {
+                return item.text;
+            }
+
+            const $result = $('<div>', { class: 'previous-transporter-result d-flex align-items-center py-1' });
+            $('<span>', { class: 'user-avatar user-avatar-sm bg-primary-dim text-primary mr-3' })
+                .append($('<em>', { class: 'icon ni ni-building' }))
+                .appendTo($result);
+
+            const $content = $('<div>', { class: 'flex-grow-1' });
+            $('<div>', { class: 'font-weight-bold text-dark', text: item.name || item.text }).appendTo($content);
+
+            const $details = $('<div>', { class: 'company-details small text-soft mt-1' });
+            $('<div>').append($('<em>', { class: 'icon ni ni-mail' }), document.createTextNode(item.email || '')).appendTo($details);
+            $('<div>').append($('<em>', { class: 'icon ni ni-call' }), document.createTextNode(item.phone_display || '')).appendTo($details);
+            $details.appendTo($content);
+            $content.appendTo($result);
+
+            return $result;
+        }
+
         const CrudApp = new Vue({
             el: '#vue-form',
             data: {
+                locale       : @json(app()->getLocale()),
                 items        : [],
                 is_loading   : false,
                 current_item : {
@@ -890,6 +1006,36 @@
                     return truckTypesCount * loadingTypesCount * fromCitiesCount * toCitiesCount;
                 }
             }
+        });
+
+        var previous_transporter_jsSelect2 = $('#previous_transporter_select').select2({
+            width: '100%',
+            allowClear: true,
+            placeholder: '{{ __('contenttypes::inputs.previous_transporter.placeholder') }}',
+            dropdownCssClass: 'previous-transporter-dropdown',
+            ajax: {
+                delay: 250,
+                url: '{{ route('TransportersController@previousCompaniesSelect') }}',
+                data: function(params) {
+                    return {
+                        search: params.term,
+                        page: params.page || 1,
+                    };
+                },
+                processResults: function(data) {
+                    return data;
+                },
+            },
+            templateResult: formatPreviousTransporterResult,
+            templateSelection: function(item) {
+                return item.name || item.text;
+            },
+        }).on('select2:select', function(event) {
+            const company = event.params.data;
+
+            $('[name="name"]').val(company.name || '').trigger('input').trigger('change');
+            $('[name="email"]').val(company.email || '').trigger('input').trigger('change');
+            $('[name="phone_number"]').val(company.phone_number || '').trigger('input').trigger('change');
         });
 
         var payment_term_id_jsSelect2 = $('#payment_term_id_select').select2({
