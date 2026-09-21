@@ -128,6 +128,11 @@ return [
         'destination'                       => 'الوجهة',
         'save'                              => 'حفظ الشحنة',
         'save_and_send_rfq'                 => 'حفظ وارسال طلب تسعير',
+        'current_location'                  => 'استخدام موقعي الحالي',
+        'location_unavailable'              => 'تعذر تحديد موقعك الحالي. تحقق من تشغيل خدمات الموقع في النظام والسماح بها للمتصفح، ثم حاول مجدداً.',
+        'location_permission_denied'        => 'لم يتم السماح بالوصول إلى موقعك. فعّل إذن الموقع للمتصفح ثم حاول مجدداً.',
+        'invalid_google_maps_link'          => 'تعذر قراءة رابط خرائط Google. تحقق من الرابط ثم حاول مجدداً.',
+        'google_maps_link_hint'             => 'يمكنك أيضاً لصق رابط خرائط Google المختصر أو الكامل.',
     ],
     'messages' => [
         'transportarApprove' => [

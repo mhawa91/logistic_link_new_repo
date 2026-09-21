@@ -4,6 +4,7 @@ namespace Modules\ContentTypes\Http\Controllers;
 
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\ContentTypes\Entities\ShippmentService;
@@ -56,6 +57,49 @@ class ShippmentsController extends SystemCoreHttpController
         ->get();
 
         return view($this->viewsFolderPath . '.create', $this->data);
+    }
+
+    public function resolveGoogleMapsUrl(Request $Request, ShippmentService $ShippmentService)
+    {
+        if (! $ShippmentService->can('create') && ! $ShippmentService->can('update')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $url = (string) $Request->query('url');
+        if (! $this->isAllowedGoogleMapsUrl($url)) {
+            return response()->json(['message' => __('contenttypes::strings.shippments.invalid_google_maps_link')], 422);
+        }
+
+        try {
+            $resolvedUrl = $url;
+            for ($redirect = 0; $redirect < 5 && parse_url($resolvedUrl, PHP_URL_HOST) === 'maps.app.goo.gl'; $redirect++) {
+                $response = Http::timeout(6)->withOptions(['allow_redirects' => false])->head($resolvedUrl);
+                $location = $response->header('Location');
+
+                if (! $location || ! $this->isAllowedGoogleMapsUrl($location)) {
+                    break;
+                }
+                $resolvedUrl = $location;
+            }
+
+            return response()->json(['url' => $resolvedUrl]);
+        } catch (\Throwable $exception) {
+            return response()->json(['message' => __('contenttypes::strings.shippments.invalid_google_maps_link')], 422);
+        }
+    }
+
+    private function isAllowedGoogleMapsUrl(string $url): bool
+    {
+        if (! filter_var($url, FILTER_VALIDATE_URL) || parse_url($url, PHP_URL_SCHEME) !== 'https') {
+            return false;
+        }
+
+        return in_array(strtolower((string) parse_url($url, PHP_URL_HOST)), [
+            'maps.app.goo.gl',
+            'google.com',
+            'www.google.com',
+            'maps.google.com',
+        ], true);
     }
 
     public function update(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)

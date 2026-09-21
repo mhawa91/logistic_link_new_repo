@@ -31,12 +31,18 @@
                         <div class="stepper">
                             <div class="step" :class="{'active': step == 1}">
                                 <div class="circle" :class="{'inactive': step == 2}">1</div>
-                                <div class="label" :class="{'text-muted': step == 2}">{{ __('contenttypes::strings.shippments.steps.step1') }}</div>
+                                <div class="label" :class="{'text-muted': step == 2}">
+                                    {{ __('contenttypes::strings.shippments.steps.step1') }}
+                                    <span v-if="stepErrors[1]" class="badge badge-danger ml-1">@{{ stepErrors[1] }}</span>
+                                </div>
                             </div>
                             <div class="arrow">›</div>
                             <div class="step" :class="{'active': step == 2}">
                                 <div class="circle" :class="{'inactive': step == 1}">2</div>
-                                <div class="label" :class="{'text-muted': step == 1}">{{ __('contenttypes::strings.shippments.steps.step2') }}</div>
+                                <div class="label" :class="{'text-muted': step == 1}">
+                                    {{ __('contenttypes::strings.shippments.steps.step2') }}
+                                    <span v-if="stepErrors[2]" class="badge badge-danger ml-1">@{{ stepErrors[2] }}</span>
+                                </div>
                             </div>
                         </div>
                     </li>
@@ -65,7 +71,7 @@
                 ],
             ])
 
-                <div :style="{ 'display': step == 2 ? 'none' : 'block' }">
+                <div data-shippment-step="1" :style="{ 'display': step == 2 ? 'none' : 'block' }">
                     <div class="nk-block-head">
                         <div class="nk-block-head-content">
                             <h4 class="nk-block-title">{{ __('contenttypes::strings.shippments.steps.step1') }}</h4>
@@ -456,7 +462,7 @@
                         </div>
                     </div>
                 </div>
-                <div :style="{ 'display': step == 2 ? 'block' : 'none' }">
+                <div data-shippment-step="2" :style="{ 'display': step == 2 ? 'block' : 'none' }">
                     <div class="nk-block-head">
                         <div class="nk-block-head-content">
                             <h4 class="nk-block-title">{{ __('contenttypes::strings.shippments.steps.step2') }}</h4>
@@ -624,6 +630,10 @@
                                             ],
                                         ],
                                     ])
+                                    <span class="form-note text-primary mt-1">
+                                        <em class="icon ni ni-link mr-1"></em>
+                                        {{ __('contenttypes::strings.shippments.google_maps_link_hint') }}
+                                    </span>
                                     @include('ui::components.input', [
                                         'options' => [
                                             'view'        => 'INLINE',
@@ -815,6 +825,10 @@
                                             ],
                                         ],
                                     ])
+                                    <span class="form-note text-primary mt-1">
+                                        <em class="icon ni ni-link mr-1"></em>
+                                        {{ __('contenttypes::strings.shippments.google_maps_link_hint') }}
+                                    </span>
                                     @include('ui::components.input', [
                                         'options' => [
                                             'view'        => 'INLINE',
@@ -1051,10 +1065,14 @@
             el: '#vue-header',
             data: {
                 step: 1,
+                stepErrors: { 1: 0, 2: 0 },
             },
             methods: {
                 switchStep: function(step) {
                     this.step = step
+                },
+                setStepErrors: function(stepErrors) {
+                    this.stepErrors = stepErrors;
                 }
             }
         });
@@ -1063,6 +1081,9 @@
             el: '#vue-form',
             data: {
                 total_weight     : 5,
+                equipment_length: 0,
+                equipment_width : 0,
+                temperature     : 0,
                 step             : 1,
                 loading_type     : 'CITY_TO_CITY',
                 is_draft         : 'N',
@@ -1080,23 +1101,71 @@
                 to_addresses : [],
             },
             methods: {
+                extractMapCoordinates: function(value) {
+                    let decodedValue = String(value || '').trim();
+                    try {
+                        decodedValue = decodeURIComponent(decodedValue);
+                    } catch (error) {}
+
+                    const patterns = [
+                        /^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/,
+                        /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+                        /\/maps\/(?:search|place)\/(-?\d+(?:\.\d+)?),\+?(-?\d+(?:\.\d+)?)/,
+                        /[?&](?:q|query|ll)=(-?\d+(?:\.\d+)?),\+?(-?\d+(?:\.\d+)?)/,
+                        /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+                    ];
+
+                    for (const pattern of patterns) {
+                        const match = decodedValue.match(pattern);
+                        if (match) {
+                            const lat = Number(match[1]);
+                            const lng = Number(match[2]);
+                            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                                return { lat: lat, lng: lng };
+                            }
+                        }
+                    }
+                    return null;
+                },
+                applyMapCoordinates: function(coordinates, item = undefined) {
+                    const latlng = `${coordinates.lat},${coordinates.lng}`;
+                    if (item) {
+                        item.lat = coordinates.lat;
+                        item.lng = coordinates.lng;
+                        item.latlng = latlng;
+                        item.map.placeMarker(new google.maps.LatLng(coordinates.lat, coordinates.lng));
+                    } else {
+                        this.loading_address.lat = coordinates.lat;
+                        this.loading_address.lng = coordinates.lng;
+                        this.loading_address.latlng = latlng;
+                        companyMap.placeMarker(new google.maps.LatLng(coordinates.lat, coordinates.lng));
+                    }
+                },
                 setLatlng: function(value, item = undefined) {
-                    let _latlng = value.split(',');
-                    if (_latlng.length != 2) {
+                    const coordinates = this.extractMapCoordinates(value);
+                    if (coordinates) {
+                        this.applyMapCoordinates(coordinates, item);
                         return;
                     }
 
-                    if (item) {
-                        item.lat    = _latlng[0];
-                        item.lng    = _latlng[1];
-                        item.latlng = value;
-                        item.map.placeMarker(new google.maps.LatLng(item.lat, item.lng));
-                    } else {
-                        this.loading_address.lat    = _latlng[0];
-                        this.loading_address.lng    = _latlng[1];
-                        this.loading_address.latlng = value;
-                        companyMap.placeMarker(new google.maps.LatLng(this.loading_address.lat, this.loading_address.lng));
+                    if (!/^https:\/\//i.test(String(value || '').trim())) {
+                        return;
                     }
+
+                    $.ajax({
+                        url: @json(route('ShippmentsController@resolveGoogleMapsUrl')),
+                        method: 'GET',
+                        data: { url: String(value).trim() }
+                    }).done((response) => {
+                        const resolvedCoordinates = this.extractMapCoordinates(response.url);
+                        if (resolvedCoordinates) {
+                            this.applyMapCoordinates(resolvedCoordinates, item);
+                            return;
+                        }
+                        NioApp.Toast(@json(__('contenttypes::strings.shippments.invalid_google_maps_link')), 'error', {ui: 'is-dark'});
+                    }).fail(() => {
+                        NioApp.Toast(@json(__('contenttypes::strings.shippments.invalid_google_maps_link')), 'error', {ui: 'is-dark'});
+                    });
                 },
                 switchStep: function(step) {
                     this.step = step
@@ -1200,11 +1269,42 @@
                     });
                 },
                 submit: function() {
+                    HeaderApp.setStepErrors({ 1: 0, 2: 0 });
                     this.$nextTick(() => {
                         $('#shippment_form').submit();
                     });
                 }
             },
+        });
+
+        $('#shippment_form').on('bs:validation-errors', function(event, errors) {
+            const $form = $(this);
+            const stepErrors = { 1: 0, 2: 0 };
+            let $firstStepOneError = null;
+            let $firstStepTwoError = null;
+
+            errors.forEach(function(error) {
+                const inputName = error.field.replace(/\.(.+?)(?=\.|$)/g, (match, name) => `[${name}]`);
+                const $input = $form.find("[name^='" + inputName + "']").first();
+                const step = Number($input.closest('[data-shippment-step]').data('shippment-step'));
+
+                if (step === 1 || step === 2) {
+                    stepErrors[step]++;
+                    if (step === 1 && ! $firstStepOneError) $firstStepOneError = $input;
+                    if (step === 2 && ! $firstStepTwoError) $firstStepTwoError = $input;
+                }
+            });
+
+            HeaderApp.setStepErrors(stepErrors);
+            const targetStep = stepErrors[1] > 0 ? 1 : (stepErrors[2] > 0 ? 2 : CrudApp.step);
+            const $targetInput = targetStep === 1 ? $firstStepOneError : $firstStepTwoError;
+            CrudApp.switchStep(targetStep);
+            CrudApp.$nextTick(function() {
+                if ($targetInput && $targetInput.length) {
+                    $targetInput[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    $targetInput.focus();
+                }
+            });
         });
 
         const slider = document.getElementById('weightRange');
@@ -1298,6 +1398,90 @@
                         center: { lat: state.lat, lng: state.lng },
                         zoom  : state.zoom,
                     });
+
+                    const locationButton = document.createElement('button');
+                    locationButton.type = 'button';
+                    locationButton.className = 'btn btn-white btn-icon shadow-sm m-2';
+                    locationButton.title = @json(__('contenttypes::strings.shippments.current_location'));
+                    locationButton.setAttribute('aria-label', @json(__('contenttypes::strings.shippments.current_location')));
+                    locationButton.innerHTML = '<em class="icon ni ni-location"></em>';
+                    locationButton.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        if (!navigator.geolocation) {
+                            NioApp.Toast(@json(__('contenttypes::strings.shippments.location_unavailable')), 'error', {ui: 'is-dark'});
+                            return;
+                        }
+
+                        let locationWatchId = null;
+                        let locationWatchTimeout = null;
+                        let locationRequestFinished = false;
+                        const finishLocationRequest = function() {
+                            if (locationRequestFinished) {
+                                return false;
+                            }
+
+                            locationRequestFinished = true;
+                            if (locationWatchId !== null) {
+                                navigator.geolocation.clearWatch(locationWatchId);
+                            }
+                            if (locationWatchTimeout !== null) {
+                                window.clearTimeout(locationWatchTimeout);
+                            }
+                            locationButton.disabled = false;
+                            locationButton.removeAttribute('aria-busy');
+                            return true;
+                        };
+                        const usePosition = function(position) {
+                            if (!finishLocationRequest()) {
+                                return;
+                            }
+
+                            methods.placeMarker(new google.maps.LatLng(
+                                position.coords.latitude,
+                                position.coords.longitude
+                            ), true);
+                        };
+                        const showLocationError = function(error) {
+                            if (!finishLocationRequest()) {
+                                return;
+                            }
+
+                            const message = error && error.code === 1
+                                ? @json(__('contenttypes::strings.shippments.location_permission_denied'))
+                                : @json(__('contenttypes::strings.shippments.location_unavailable'));
+                            NioApp.Toast(message, 'error', {ui: 'is-dark'});
+                        };
+                        const watchForPosition = function() {
+                            locationWatchId = navigator.geolocation.watchPosition(usePosition, function(error) {
+                                if (error.code === 1) {
+                                    showLocationError(error);
+                                }
+                            }, {
+                                enableHighAccuracy: true,
+                                timeout: 10000,
+                                maximumAge: 0,
+                            });
+                            locationWatchTimeout = window.setTimeout(function() {
+                                showLocationError(null);
+                            }, 30000);
+                        };
+
+                        locationButton.disabled = true;
+                        locationButton.setAttribute('aria-busy', 'true');
+                        navigator.geolocation.getCurrentPosition(usePosition, function(error) {
+                            if (error.code === 1) {
+                                showLocationError(error);
+                                return;
+                            }
+
+                            watchForPosition();
+                        }, {
+                            enableHighAccuracy: false,
+                            timeout: 15000,
+                            maximumAge: 300000,
+                        });
+                    });
+                    state.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(locationButton);
 
                     state.map.addListener("click", (e) => {
                         methods.placeMarker(e.latLng, true);

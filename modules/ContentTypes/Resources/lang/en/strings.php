@@ -128,6 +128,11 @@ return [
         'destination'                       => 'Destination',
         'save'                              => 'Save Shipment',
         'save_and_send_rfq'                 => 'Save and Send RFQ',
+        'current_location'                  => 'Use my current location',
+        'location_unavailable'              => 'Your current location could not be determined. Make sure system Location Services are enabled for the browser, then try again.',
+        'location_permission_denied'        => 'Location access was not allowed. Enable location permission for the browser and try again.',
+        'invalid_google_maps_link'          => 'The Google Maps link could not be read. Check the link and try again.',
+        'google_maps_link_hint'             => 'You can also paste a short or full Google Maps link.',
     ],
     'messages' => [
         'transportarApprove' => [

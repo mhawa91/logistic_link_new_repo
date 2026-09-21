@@ -54,6 +54,7 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::post('create'                            , 'ShippmentsController@postCreate')->name('ShippmentsController@postCreate');
         Route::get('update/{model}'                     , 'ShippmentsController@update')->name('ShippmentsController@update');
         Route::post('update'                            , 'ShippmentsController@postUpdate')->name('ShippmentsController@postUpdate');
+        Route::get('resolve-google-maps-url'            , 'ShippmentsController@resolveGoogleMapsUrl')->name('ShippmentsController@resolveGoogleMapsUrl');
         Route::post('bulk-send'                         , 'ShippmentsController@postBulkSend')->name('ShippmentsController@postBulkSend');
         Route::post('delete'                            , 'ShippmentsController@postDelete')->name('ShippmentsController@postDelete');
         Route::post('restore'                           , 'ShippmentsController@postRestore')->name('ShippmentsController@postRestore');

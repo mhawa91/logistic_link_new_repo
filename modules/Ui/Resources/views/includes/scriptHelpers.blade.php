@@ -84,6 +84,7 @@
         if (_CLICK_)   { $(_CLICK_).click(); }
         if (_CLICK_2_) { $(_CLICK_2_).click(); }
         if (_FOCUS_)   { _FOCUS_.focus(); }
+        $Form.trigger('bs:validation-errors', [$Errors]);
     };
 
     BS.RESET_FORM_VALIDATION_ERRORS = function($Form) {
