@@ -308,6 +308,7 @@
                                     'description' => __('contenttypes::inputs.equipment_length.description'),
                                     'attributes'  => [
                                         'v-model' => 'equipment_length',
+                                        'min'     => 0,
                                     ]
                                 ],
                             ])
@@ -329,6 +330,7 @@
                                     'description' => __('contenttypes::inputs.equipment_width.description'),
                                     'attributes'  => [
                                         'v-model' => 'equipment_width',
+                                        'min'     => 0,
                                     ]
                                 ],
                             ])
@@ -565,7 +567,7 @@
                                             'label'       => __('contenttypes::inputs.address_name.label'),
                                             'placeholder' => __('contenttypes::inputs.address_name.placeholder'),
                                             'description' => __('contenttypes::inputs.address_name.description'),
-                                            'value'       => null,
+                                            'value'       => $loadingAddressDefaults['primary_contact_company_name'],
                                         ],
                                     ])
                                 </div>
@@ -578,7 +580,7 @@
                                             'label'       => __('contenttypes::inputs.address_primary_contact.label'),
                                             'placeholder' => __('contenttypes::inputs.address_primary_contact.placeholder'),
                                             'description' => __('contenttypes::inputs.address_primary_contact.description'),
-                                            'value'       => null,
+                                            'value'       => $loadingAddressDefaults['primary_contact_name'],
                                         ],
                                     ])
                                 </div>
@@ -591,7 +593,7 @@
                                             'label'       => __('contenttypes::inputs.address_email.label'),
                                             'placeholder' => __('contenttypes::inputs.address_email.placeholder'),
                                             'description' => __('contenttypes::inputs.address_email.description'),
-                                            'value'       => null,
+                                            'value'       => $loadingAddressDefaults['primary_contact_email'],
                                         ],
                                     ])
                                 </div>
@@ -604,6 +606,7 @@
                                             'label'       => __('contenttypes::inputs.address_phone_number.label'),
                                             'placeholder' => __('contenttypes::inputs.address_phone_number.placeholder'),
                                             'description' => __('contenttypes::inputs.address_phone_number.description'),
+                                            'value'       => $loadingAddressDefaults['primary_contact_phone_number'],
                                             'attributes'  => ['dir' => 'ltr', 'style' => 'text-align: ' . ($_DIR_ == 'ltr' ? 'left' : 'right')],
                                         ],
                                     ])
@@ -675,7 +678,7 @@
                                             'label'       => __('contenttypes::inputs.full_address.label'),
                                             'placeholder' => __('contenttypes::inputs.full_address.placeholder'),
                                             'description' => __('contenttypes::inputs.full_address.description'),
-                                            'value'       => null
+                                            'value'       => $loadingAddressDefaults['full_address']
                                         ],
                                     ])
                                 </div>
@@ -1090,10 +1093,10 @@
                 is_rfq           : 'N',
                 loading_address : {
                     id      : null,
-                    city    : null,
-                    lat     : null,
-                    lng     : null,
-                    latlng  : null,
+                    city    : @json($loadingAddressDefaults['city']),
+                    lat     : @json($loadingAddressDefaults['lat']),
+                    lng     : @json($loadingAddressDefaults['lng']),
+                    latlng  : @json($loadingAddressDefaults['latlng']),
                 },
                 to_address : {
                     city : null,
@@ -1543,10 +1546,10 @@
         $(document).ready(function() {
             companyMap = createGeoMap({
                 el      : 'geo_map',
-                lat     : Number('{{ config("address.map.lat") }}'),
-                lng     : Number('{{ config("address.map.lng") }}'),
+                lat     : Number(@json($loadingAddressDefaults['lat'] ?? (float) config('address.map.lat'))),
+                lng     : Number(@json($loadingAddressDefaults['lng'] ?? (float) config('address.map.lng'))),
                 zoom    : Number('{{ config("address.map.zoom") }}'),
-                selected: null,
+                selected: @json($loadingAddressDefaults['map_selected']),
                 onMapReady: () => {
                     // CrudApp.mapReady();
                     console.log('mapReady');

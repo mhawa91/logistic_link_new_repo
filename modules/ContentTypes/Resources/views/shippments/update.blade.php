@@ -337,7 +337,7 @@
                                     'label'       => __('contenttypes::inputs.equipment_length.label'),
                                     'placeholder' => __('contenttypes::inputs.equipment_length.placeholder'),
                                     'description' => __('contenttypes::inputs.equipment_length.description'),
-                                    'attributes'  => [],
+                                    'attributes'  => ['min' => 0],
                                     'value'       => $model->equipment_length,
                                 ],
                             ])
@@ -357,7 +357,7 @@
                                     'label'       => __('contenttypes::inputs.equipment_width.label'),
                                     'placeholder' => __('contenttypes::inputs.equipment_width.placeholder'),
                                     'description' => __('contenttypes::inputs.equipment_width.description'),
-                                    'attributes'  => [],
+                                    'attributes'  => ['min' => 0],
                                     'value'       => $model->equipment_width,
                                 ],
                             ])

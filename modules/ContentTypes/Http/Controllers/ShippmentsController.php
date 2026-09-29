@@ -56,7 +56,55 @@ class ShippmentsController extends SystemCoreHttpController
         ->where('sys_status', 'ACTIVE')
         ->get();
 
+        $user = auth()->user();
+        if ($user && $user->type === 'DEFAULT') {
+            $user->loadMissing('company.address.city.country');
+        }
+        $this->data['loadingAddressDefaults'] = $this->loadingAddressDefaults($user);
+
         return view($this->viewsFolderPath . '.create', $this->data);
+    }
+
+    private function loadingAddressDefaults($user): array
+    {
+        $company = $user && $user->type === 'DEFAULT' ? $user->company : null;
+        $address = $company ? $company->address : null;
+        $city = $address ? $address->city : null;
+        $locale = in_array(app()->getLocale(), ['ar', 'en']) ? app()->getLocale() : 'ar';
+        $countryId = $address ? ($address->country_id ?: ($city ? $city->country_id : null)) : null;
+
+        $cityOption = null;
+        if ($city && (int) $countryId === 191) {
+            $cityName = $city->{'name_' . $locale};
+            $countryName = $city->country ? $city->country->{'name_' . $locale} : null;
+            $cityOption = [
+                'id'   => $city->id,
+                'text' => $countryName ? $cityName . ' - [' . $countryName . ']' : $cityName,
+                'data' => $city->toArray(),
+            ];
+        }
+
+        $lat = $address && ! is_null($address->lat) ? (float) $address->lat : null;
+        $lng = $address && ! is_null($address->lng) ? (float) $address->lng : null;
+
+        return [
+            'primary_contact_company_name' => $company ? $company->company_name : null,
+            'primary_contact_name'         => $address && $address->primary_contact_name
+                ? $address->primary_contact_name
+                : ($company ? ($company->contact_name ?: $user->name) : null),
+            'primary_contact_email'        => $address && $address->primary_contact_email
+                ? $address->primary_contact_email
+                : ($company ? ($company->company_email ?: $user->email) : null),
+            'primary_contact_phone_number' => $address && $address->primary_contact_phone_number
+                ? $address->primary_contact_phone_number
+                : ($company ? ($company->company_phone_number ?: $user->phone_number) : null),
+            'full_address'                 => $address ? $address->full_address : null,
+            'lat'                          => $lat,
+            'lng'                          => $lng,
+            'latlng'                       => ! is_null($lat) && ! is_null($lng) ? $lat . ',' . $lng : null,
+            'city'                         => $cityOption,
+            'map_selected'                 => ! is_null($lat) && ! is_null($lng) ? ['lat' => $lat, 'lng' => $lng] : null,
+        ];
     }
 
     public function resolveGoogleMapsUrl(Request $Request, ShippmentService $ShippmentService)

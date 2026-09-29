@@ -101,8 +101,8 @@ class ShippmentService extends ModelService
             // 'number_of_trucks'      => 'required|numeric|min:1',
             'truck_type_id'         => 'required|numeric',
             'temperature'           => 'required|numeric',
-            'equipment_length'      => 'required|numeric|min:0.1',
-            'equipment_width'       => 'required|numeric|min:0.1',
+            'equipment_length'      => 'required|numeric|min:0',
+            'equipment_width'       => 'required|numeric|min:0',
             'delivery_required_at'  => 'required|date_format:Y-m-d',
             'public_notes'          => 'nullable',
             'private_notes'         => 'nullable',
@@ -141,12 +141,75 @@ class ShippmentService extends ModelService
             'offloading_address.*.private_notes'                   => 'nullable',
             'offloading_address.*.round_trip'                      => 'required_if:offloading_address.*.removed,N|in:YES,NO',
         ];
+        $attributes = [
+            'total_weight'                                       => __('contenttypes::inputs.weight.label'),
+            'commodity_id'                                       => __('contenttypes::inputs.commodity_id.label'),
+            'commodity_id.*'                                     => __('contenttypes::inputs.commodity_id.label'),
+            'declared_order_value'                               => __('contenttypes::inputs.declared_order_value.label'),
+            'load_size_id'                                       => __('contenttypes::inputs.load_size_id.label'),
+            'load_type_id'                                       => __('contenttypes::inputs.load_type_id.label'),
+            'number_of_pallets'                                  => __('contenttypes::inputs.number_of_pallets.label'),
+            'number_of_trucks'                                   => __('contenttypes::inputs.number_of_trucks.label'),
+            'truck_type_id'                                      => __('contenttypes::inputs.truck_type_id.label'),
+            'temperature'                                        => __('contenttypes::inputs.temperature.label'),
+            'equipment_length'                                   => __('contenttypes::inputs.equipment_length.label'),
+            'equipment_width'                                    => __('contenttypes::inputs.equipment_width.label'),
+            'delivery_required_at'                               => __('contenttypes::inputs.delivery_required_at.label'),
+            'public_notes'                                       => __('contenttypes::inputs.public_notes.label'),
+            'private_notes'                                      => __('contenttypes::inputs.private_notes.label'),
+            'ATTACHMENT_1'                                       => __('contenttypes::inputs.attachment_1.label'),
+            'ATTACHMENT_2'                                       => __('contenttypes::inputs.attachment_2.label'),
+            'ATTACHMENT_3'                                       => __('contenttypes::inputs.attachment_3.label'),
+            'ATTACHMENT_4'                                       => __('contenttypes::inputs.attachment_4.label'),
+            'from_city_id'                                       => __('contenttypes::inputs.from_city_id.label'),
+            'to_city_id'                                         => __('contenttypes::inputs.to_city_id.label'),
+            'loading_type'                                       => __('contenttypes::inputs.loading_type.label'),
+            'loading_address'                                    => __('contenttypes::strings.shippments.loading_address'),
+            'loading_address.primary_contact_company_name'       => __('contenttypes::inputs.address_name.label'),
+            'loading_address.primary_contact_name'               => __('contenttypes::inputs.address_primary_contact.label'),
+            'loading_address.primary_contact_email'              => __('contenttypes::inputs.address_email.label'),
+            'loading_address.primary_contact_phone_number'       => __('contenttypes::inputs.address_phone_number.label'),
+            'loading_address.lat_lng'                            => __('contenttypes::inputs.lat.label') . ' / ' . __('contenttypes::inputs.lng.label'),
+            'loading_address.lat'                                => __('contenttypes::inputs.lat.label'),
+            'loading_address.lng'                                => __('contenttypes::inputs.lng.label'),
+            'loading_address.full_address'                       => __('contenttypes::inputs.full_address.label'),
+            'loading_address.public_notes'                       => __('contenttypes::inputs.public_notes.label'),
+            'loading_address.private_notes'                      => __('contenttypes::inputs.private_notes.label'),
+            'offloading_address'                                 => __('contenttypes::strings.shippments.offloading_address'),
+            'offloading_address.*.primary_contact_company_name'  => __('contenttypes::inputs.address_name.label'),
+            'offloading_address.*.primary_contact_name'          => __('contenttypes::inputs.address_primary_contact.label'),
+            'offloading_address.*.primary_contact_email'         => __('contenttypes::inputs.address_email.label'),
+            'offloading_address.*.primary_contact_phone_number'  => __('contenttypes::inputs.address_phone_number.label'),
+            'offloading_address.*.lat_lng'                       => __('contenttypes::inputs.lat.label') . ' / ' . __('contenttypes::inputs.lng.label'),
+            'offloading_address.*.lat'                           => __('contenttypes::inputs.lat.label'),
+            'offloading_address.*.lng'                           => __('contenttypes::inputs.lng.label'),
+            'offloading_address.*.full_address'                  => __('contenttypes::inputs.full_address.label'),
+            'offloading_address.*.public_notes'                  => __('contenttypes::inputs.public_notes.label'),
+            'offloading_address.*.private_notes'                 => __('contenttypes::inputs.private_notes.label'),
+            'offloading_address.*.round_trip'                    => __('contenttypes::inputs.round_trip.label'),
+        ];
+        $messages = [];
+        foreach ([
+            'offloading_address.*.primary_contact_company_name',
+            'offloading_address.*.primary_contact_name',
+            'offloading_address.*.primary_contact_email',
+            'offloading_address.*.primary_contact_phone_number',
+            'offloading_address.*.lat_lng',
+            'offloading_address.*.lat',
+            'offloading_address.*.lng',
+            'offloading_address.*.full_address',
+            'offloading_address.*.round_trip',
+        ] as $field) {
+            $messages[$field . '.required_if'] = __('validation.required', [
+                'attribute' => $attributes[$field],
+            ]);
+        }
         if ($type == 'create') {
             $rules['number_of_trucks'] = 'required|numeric|min:1';
-            return Validator::make($data, $rules);
+            return Validator::make($data, $rules, $messages, $attributes);
         }
         if ($type == 'update') {
-            return Validator::make($data, $rules);
+            return Validator::make($data, $rules, $messages, $attributes);
         }
     }
 
