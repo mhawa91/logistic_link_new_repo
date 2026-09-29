@@ -133,6 +133,14 @@ return [
         'location_permission_denied'        => 'لم يتم السماح بالوصول إلى موقعك. فعّل إذن الموقع للمتصفح ثم حاول مجدداً.',
         'invalid_google_maps_link'          => 'تعذر قراءة رابط خرائط Google. تحقق من الرابط ثم حاول مجدداً.',
         'google_maps_link_hint'             => 'يمكنك أيضاً لصق رابط خرائط Google المختصر أو الكامل.',
+        'select_destination_city_first'     => 'حدد مدينة الوصول أولاً قبل إضافة عنوان توصيل.',
+        'checking_destination_city'         => 'جارٍ التحقق من أن الموقع ضمن مدينة الوصول...',
+        'address_inside_destination_city'   => 'الموقع ضمن مدينة الوصول المحددة.',
+        'address_outside_destination_city'  => 'يجب أن يقع عنوان التوصيل داخل مدينة الوصول المحددة.',
+        'address_city_check_failed'         => 'تعذر التحقق من مدينة هذا الموقع. أعد تحديد الموقع ثم حاول مجدداً.',
+        'wait_for_address_city_check'        => 'انتظر حتى يكتمل التحقق من مواقع عناوين التوصيل.',
+        'destination_city_location_failed'  => 'تعذر تحديد موقع مدينة الوصول على الخريطة.',
+        'multiple_locations_type_required'  => 'لإضافة عنوان توصيل آخر، اختر نوع التحميل «من مدينة إلى مدينة بعدة مواقع».',
     ],
     'messages' => [
         'transportarApprove' => [

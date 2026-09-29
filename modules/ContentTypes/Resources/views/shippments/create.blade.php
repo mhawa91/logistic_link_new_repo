@@ -832,6 +832,22 @@
                                         <em class="icon ni ni-link mr-1"></em>
                                         {{ __('contenttypes::strings.shippments.google_maps_link_hint') }}
                                     </span>
+                                    <span v-if="address.city_validation_status === 'pending'" class="form-note text-warning mt-1">
+                                        <span class="spinner-border spinner-border-sm mr-1" role="status"></span>
+                                        {{ __('contenttypes::strings.shippments.checking_destination_city') }}
+                                    </span>
+                                    <span v-else-if="address.city_validation_status === 'valid'" class="form-note text-success mt-1">
+                                        <em class="icon ni ni-check-circle mr-1"></em>
+                                        {{ __('contenttypes::strings.shippments.address_inside_destination_city') }}
+                                    </span>
+                                    <span v-else-if="address.city_validation_status === 'invalid'" class="form-note text-danger mt-1">
+                                        <em class="icon ni ni-cross-circle mr-1"></em>
+                                        {{ __('contenttypes::strings.shippments.address_outside_destination_city') }}
+                                    </span>
+                                    <span v-else-if="address.city_validation_status === 'error'" class="form-note text-danger mt-1">
+                                        <em class="icon ni ni-alert-circle mr-1"></em>
+                                        {{ __('contenttypes::strings.shippments.address_city_check_failed') }}
+                                    </span>
                                     @include('ui::components.input', [
                                         'options' => [
                                             'view'        => 'INLINE',
@@ -853,6 +869,18 @@
                                             'attributes'  => [
                                                 'v-model' => 'address.lng',
                                                 ':name'   => "'offloading_address[' + address_index + '][lng]'",
+                                            ]
+                                        ],
+                                    ])
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'INLINE',
+                                            'type'        => 'hidden',
+                                            'name'        => 'destination_city_token',
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.destination_city_token',
+                                                ':name'   => "'offloading_address[' + address_index + '][destination_city_token]'",
                                             ]
                                         ],
                                     ])
@@ -967,10 +995,19 @@
                         </div>
                     </div>
 
-                    <a class="link link-primary link-sm" tabindex="-1" href="javascript:;" style="color: #FB4F28 !important;" v-on:click="addToAddress()">
+                    <button type="button" class="btn btn-link link link-primary link-sm p-0" style="color: #FB4F28 !important;"
+                        :disabled="!hasDestinationCity() || loading_type !== 'CITY_TO_CITY_MULTIPLE_LOCATIONS'"
+                        v-on:click="addToAddress()">
                         <i class="fas fa-plus" style="margin-left: 5px; margin-right: 5px;"></i>
                         {{ __('contenttypes::strings.shippments.add_offloading_address') }}
-                    </a>
+                    </button>
+                    <span v-if="!hasDestinationCity()" class="form-note text-warning mt-1">
+                        {{ __('contenttypes::strings.shippments.select_destination_city_first') }}
+                    </span>
+                    <span v-else-if="loading_type !== 'CITY_TO_CITY_MULTIPLE_LOCATIONS'" class="form-note text-muted mt-1">
+                        <em class="icon ni ni-info mr-1"></em>
+                        {{ __('contenttypes::strings.shippments.multiple_locations_type_required') }}
+                    </span>
                 </div>
 
                 @include('ui::components.input', [
@@ -1063,6 +1100,8 @@
 @push('script')
     <script>
         var companyMap = null;
+        var destinationCityValidationQueue = Promise.resolve();
+        var destinationCityValidationLastRequestAt = 0;
 
         const HeaderApp = new Vue({
             el: '#vue-header',
@@ -1101,9 +1140,120 @@
                 to_address : {
                     city : null,
                 },
+                destination_city_center: null,
+                destination_city_location_request_id: 0,
                 to_addresses : [],
             },
             methods: {
+                hasDestinationCity: function() {
+                    return this.to_address.city && this.to_address.city.id && this.to_address.city.id != 0;
+                },
+                focusDestinationCity: function() {
+                    const requestId = ++this.destination_city_location_request_id;
+                    this.destination_city_center = null;
+                    if (!this.hasDestinationCity()) {
+                        return;
+                    }
+
+                    const selectedCityId = String(this.to_address.city.id);
+                    $.ajax({
+                        url: @json(route('ShippmentsController@destinationCityLocation')),
+                        method: 'POST',
+                        data: {
+                            _token : @json(csrf_token()),
+                            city_id: selectedCityId,
+                        },
+                    }).done((response) => {
+                        if (requestId !== this.destination_city_location_request_id
+                            || !this.hasDestinationCity()
+                            || String(this.to_address.city.id) !== selectedCityId) {
+                            return;
+                        }
+
+                        const center = {
+                            lat: Number(response.lat),
+                            lng: Number(response.lng),
+                        };
+                        if (!Number.isFinite(center.lat) || !Number.isFinite(center.lng)) {
+                            return;
+                        }
+
+                        this.destination_city_center = center;
+                        this.to_addresses
+                            .filter((address) => address.removed === 'N'
+                                && address.map
+                                && typeof address.map.focusMap === 'function')
+                            .forEach((address) => address.map.focusMap(center.lat, center.lng, 10));
+                    }).fail(() => {
+                        if (requestId === this.destination_city_location_request_id) {
+                            NioApp.Toast(
+                                @json(__('contenttypes::strings.shippments.destination_city_location_failed')),
+                                'error',
+                                {ui: 'is-dark'}
+                            );
+                        }
+                    });
+                },
+                verifyAddressDestinationCity: function(address) {
+                    address.destination_city_token = null;
+                    if (address.removed === 'Y' || address.lat === null || address.lng === null) {
+                        address.city_validation_status = 'idle';
+                        return;
+                    }
+                    if (!this.hasDestinationCity()) {
+                        address.city_validation_status = 'invalid';
+                        return;
+                    }
+
+                    const validationId = ++address.city_validation_request_id;
+                    const selectedCityId = String(this.to_address.city.id);
+                    address.city_validation_status = 'pending';
+
+                    destinationCityValidationQueue = destinationCityValidationQueue.then(() => new Promise((resolve) => {
+                        if (validationId !== address.city_validation_request_id
+                            || address.removed === 'Y'
+                            || !this.hasDestinationCity()
+                            || String(this.to_address.city.id) !== selectedCityId) {
+                            resolve();
+                            return;
+                        }
+
+                        const wait = Math.max(0, 1100 - (Date.now() - destinationCityValidationLastRequestAt));
+                        window.setTimeout(() => {
+                            if (validationId !== address.city_validation_request_id
+                                || !this.hasDestinationCity()
+                                || String(this.to_address.city.id) !== selectedCityId) {
+                                resolve();
+                                return;
+                            }
+
+                            destinationCityValidationLastRequestAt = Date.now();
+                            $.ajax({
+                                url: @json(route('ShippmentsController@verifyDestinationCity')),
+                                method: 'POST',
+                                data: {
+                                    _token : @json(csrf_token()),
+                                    city_id: selectedCityId,
+                                    lat    : address.lat,
+                                    lng    : address.lng,
+                                },
+                            }).done((response) => {
+                                if (validationId !== address.city_validation_request_id
+                                    || !this.hasDestinationCity()
+                                    || String(this.to_address.city.id) !== selectedCityId) {
+                                    return;
+                                }
+
+                                address.city_validation_status = response.valid ? 'valid' : 'invalid';
+                                address.destination_city_token = response.valid ? response.token : null;
+                            }).fail(() => {
+                                if (validationId === address.city_validation_request_id) {
+                                    address.city_validation_status = 'error';
+                                }
+                            }).always(resolve);
+                        }, wait);
+                    }));
+                },
                 extractMapCoordinates: function(value) {
                     let decodedValue = String(value || '').trim();
                     try {
@@ -1137,6 +1287,7 @@
                         item.lng = coordinates.lng;
                         item.latlng = latlng;
                         item.map.placeMarker(new google.maps.LatLng(coordinates.lat, coordinates.lng));
+                        this.verifyAddressDestinationCity(item);
                     } else {
                         this.loading_address.lat = coordinates.lat;
                         this.loading_address.lng = coordinates.lng;
@@ -1187,6 +1338,31 @@
                 },
                 toCitySelected: function(selected, item = undefined) {
                     this.to_address.city = selected || null;
+                    this.to_addresses.forEach((address) => {
+                        address.destination_city_token = null;
+                        address.city_validation_status = address.lat !== null && address.lng !== null ? 'pending' : 'idle';
+                    });
+
+                    if (!this.hasDestinationCity()) {
+                        this.destination_city_center = null;
+                        this.destination_city_location_request_id++;
+                        this.to_addresses.forEach((address) => {
+                            address.city_validation_request_id++;
+                            if (address.lat !== null && address.lng !== null) {
+                                address.city_validation_status = 'invalid';
+                            }
+                        });
+                        return;
+                    }
+
+                    this.focusDestinationCity();
+                    if (!this.to_addresses.some((address) => address.removed === 'N')) {
+                        this.addToAddress();
+                    } else {
+                        this.to_addresses
+                            .filter((address) => address.removed === 'N' && address.lat !== null && address.lng !== null)
+                            .forEach((address) => this.verifyAddressDestinationCity(address));
+                    }
                 },
                 citySelectOptions: function(options) {
                     options.ajax = {
@@ -1208,6 +1384,10 @@
                     };
                 },
                 addToAddress: function() {
+                    if (!this.hasDestinationCity()) {
+                        NioApp.Toast(@json(__('contenttypes::strings.shippments.select_destination_city_first')), 'warning', {ui: 'is-dark'});
+                        return;
+                    }
                     const notRemoved = this.to_addresses.filter(address => address.removed == 'N');
                     if (this.loading_type == 'CITY_TO_CITY' && notRemoved.length >= 1) {
                         return;
@@ -1218,6 +1398,7 @@
                         id                           : null,
                         primary_contact_company_name : null,
                         primary_contact_name         : null,
+                        primary_contact_email        : null,
                         primary_contact_phone_number : null,
                         lat                          : null,
                         lng                          : null,
@@ -1227,20 +1408,35 @@
                         public_notes                 : null,
                         private_notes                : null,
                         removed                      : 'N',
+                        destination_city_token       : null,
+                        city_validation_status       : 'idle',
+                        city_validation_request_id   : 0,
                         map: () => {
                             address.map = createGeoMap({
                                 el      : el,
-                                lat     : Number('{{ config("address.map.lat") }}'),
-                                lng     : Number('{{ config("address.map.lng") }}'),
+                                lat     : this.destination_city_center
+                                    ? this.destination_city_center.lat
+                                    : Number('{{ config("address.map.lat") }}'),
+                                lng     : this.destination_city_center
+                                    ? this.destination_city_center.lng
+                                    : Number('{{ config("address.map.lng") }}'),
                                 zoom    : Number('{{ config("address.map.zoom") }}'),
                                 selected: null,
                                 onMapReady: () => {
+                                    if (this.destination_city_center) {
+                                        address.map.focusMap(
+                                            this.destination_city_center.lat,
+                                            this.destination_city_center.lng,
+                                            10
+                                        );
+                                    }
                                     console.log('mapReady');
                                 },
                                 onReverseGeocode: (lat, lng, state) => {
                                     address.lat    = lat;
                                     address.lng    = lng;
                                     address.latlng = `${lat},${lng}`
+                                    this.verifyAddressDestinationCity(address);
                                     console.log('deliveryAddress: onReverseGeocode', `${lat},${lng}`);
                                 }
                             })
@@ -1261,6 +1457,8 @@
                         return;
                     }
                     this.to_addresses[index].removed = 'Y';
+                    this.to_addresses[index].destination_city_token = null;
+                    this.to_addresses[index].city_validation_request_id++;
                 },
                 leaveOnlyTheFirstAddress: function() {
                     this.to_addresses.filter(address => address.removed == 'N').forEach((address, index) => {
@@ -1272,6 +1470,30 @@
                     });
                 },
                 submit: function() {
+                    if (!this.hasDestinationCity()) {
+                        this.switchStep(2);
+                        NioApp.Toast(@json(__('contenttypes::strings.shippments.select_destination_city_first')), 'warning', {ui: 'is-dark'});
+                        return;
+                    }
+
+                    const locatedAddresses = this.to_addresses.filter((address) =>
+                        address.removed === 'N' && address.lat !== null && address.lng !== null
+                    );
+                    if (locatedAddresses.some((address) => address.city_validation_status === 'pending')) {
+                        this.switchStep(2);
+                        NioApp.Toast(@json(__('contenttypes::strings.shippments.wait_for_address_city_check')), 'warning', {ui: 'is-dark'});
+                        return;
+                    }
+                    const invalidAddress = locatedAddresses.find((address) => address.city_validation_status !== 'valid');
+                    if (invalidAddress) {
+                        this.switchStep(2);
+                        const message = invalidAddress.city_validation_status === 'error'
+                            ? @json(__('contenttypes::strings.shippments.address_city_check_failed'))
+                            : @json(__('contenttypes::strings.shippments.address_outside_destination_city'));
+                        NioApp.Toast(message, 'error', {ui: 'is-dark'});
+                        return;
+                    }
+
                     HeaderApp.setStepErrors({ 1: 0, 2: 0 });
                     this.$nextTick(() => {
                         $('#shippment_form').submit();
@@ -1565,8 +1787,6 @@
             });
 
             companyMap.init();
-
-            CrudApp.addToAddress();
         });
 
         $(document).on('click', '#save_as_draft', function() {

@@ -4,9 +4,12 @@ namespace Modules\ContentTypes\Http\Controllers;
 
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Modules\Address\Entities\OpenStreetMapService;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
+use Modules\SystemCore\Entities\City;
 use Modules\ContentTypes\Entities\ShippmentService;
 use Modules\ContentTypes\Entities\Shippment;
 use Modules\ContentTypes\Entities\DriverService;
@@ -25,7 +28,12 @@ class ShippmentsController extends SystemCoreHttpController
     {
         $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'read'))->only(['index', 'postIndex', 'read', 'postRead']);
-        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'create'))->only(['create', 'postCreate']);
+        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'create'))->only([
+            'create',
+            'postCreate',
+            'destinationCityLocation',
+            'verifyDestinationCity',
+        ]);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'update'))->only(['update', 'postUpdate']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'statusUpdate'))->only(['postStatus']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'delete'))->only(['postDelete']);
@@ -134,6 +142,143 @@ class ShippmentsController extends SystemCoreHttpController
         } catch (\Throwable $exception) {
             return response()->json(['message' => __('contenttypes::strings.shippments.invalid_google_maps_link')], 422);
         }
+    }
+
+    public function verifyDestinationCity(
+        Request $Request,
+        ShippmentService $ShippmentService,
+        OpenStreetMapService $OpenStreetMapService
+    ) {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $validator = Validator::make($Request->all(), [
+            'city_id' => 'required|numeric',
+            'lat'     => 'required|numeric|between:-90,90',
+            'lng'     => 'required|numeric|between:-180,180',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
+        $cacheKey = 'shippment_destination_city:' . sha1(
+            number_format((float) $Request->lat, 5, '.', '') . ','
+            . number_format((float) $Request->lng, 5, '.', '')
+        );
+
+        try {
+            $location = Cache::remember($cacheKey, now()->addDays(30), function() use($Request, $OpenStreetMapService) {
+                $response = $OpenStreetMapService
+                    ->geoLocale($Request->lat, $Request->lng, 'ar')
+                    ->response('ar');
+                $address = $response['address'] ?? [];
+
+                if (empty($address)) {
+                    throw new \RuntimeException('OpenStreetMap returned no address data.');
+                }
+
+                return [
+                    'country_code' => strtoupper((string) ($address['country_code'] ?? '')),
+                    'names'        => array_values(array_filter([
+                        $address['state'] ?? null,
+                        $address['province'] ?? null,
+                        $address['region'] ?? null,
+                        $address['state_district'] ?? null,
+                        $address['county'] ?? null,
+                        $address['municipality'] ?? null,
+                        $address['city'] ?? null,
+                        $address['town'] ?? null,
+                        $address['village'] ?? null,
+                    ])),
+                ];
+            });
+        } catch (\Throwable $exception) {
+            report($exception);
+            return response()->json([
+                'message' => __('contenttypes::strings.shippments.address_city_check_failed'),
+            ], 503);
+        }
+
+        $expectedNames = array_filter([
+            $this->normalizeDestinationCityName($city->name_ar),
+            $this->normalizeDestinationCityName($city->name_en),
+        ]);
+        $locationNames = array_filter(array_map(function($name) {
+            return $this->normalizeDestinationCityName($name);
+        }, $location['names']));
+        $valid = $location['country_code'] === 'SA'
+            && ! empty(array_intersect($expectedNames, $locationNames));
+
+        return response()->json([
+            'valid' => $valid,
+            'token' => $valid ? ShippmentService::destinationCityVerificationToken(
+                $city->id,
+                $Request->lat,
+                $Request->lng
+            ) : null,
+        ]);
+    }
+
+    public function destinationCityLocation(
+        Request $Request,
+        ShippmentService $ShippmentService,
+        OpenStreetMapService $OpenStreetMapService
+    ) {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $validator = Validator::make($Request->all(), [
+            'city_id' => 'required|numeric',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
+
+        try {
+            $location = Cache::remember(
+                'shippment_destination_city_location:' . $city->id,
+                now()->addDays(30),
+                function() use($city, $OpenStreetMapService) {
+                    $response = $OpenStreetMapService
+                        ->searchLocale($city->name_ar . '، السعودية', 'ar')
+                        ->response('ar');
+
+                    if (empty($response['lat']) || empty($response['lon'])) {
+                        throw new \RuntimeException('OpenStreetMap returned no city location.');
+                    }
+
+                    return [
+                        'lat' => (float) $response['lat'],
+                        'lng' => (float) $response['lon'],
+                    ];
+                }
+            );
+        } catch (\Throwable $exception) {
+            report($exception);
+            return response()->json([
+                'message' => __('contenttypes::strings.shippments.address_city_check_failed'),
+            ], 503);
+        }
+
+        return response()->json($location);
+    }
+
+    private function normalizeDestinationCityName($value): string
+    {
+        $value = mb_strtolower(trim((string) $value), 'UTF-8');
+        $value = preg_replace('/[\x{064B}-\x{065F}\x{0670}]/u', '', $value);
+        $value = str_replace(['أ', 'إ', 'آ'], 'ا', $value);
+        $value = preg_replace('/^(?:منطقة|المنطقة|محافظة|المحافظة|مقاطعة|المقاطعة)\s+/u', '', $value);
+        $value = preg_replace('/\b(?:province|region|state|governorate)\b/u', '', $value);
+        $value = preg_replace('/^(?:al|ar|ash)[\s-]+/u', '', $value);
+        $value = preg_replace('/[^a-z0-9\x{0600}-\x{06FF}]+/u', ' ', $value);
+
+        return trim($value);
     }
 
     private function isAllowedGoogleMapsUrl(string $url): bool

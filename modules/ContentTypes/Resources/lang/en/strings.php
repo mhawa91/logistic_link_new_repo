@@ -133,6 +133,14 @@ return [
         'location_permission_denied'        => 'Location access was not allowed. Enable location permission for the browser and try again.',
         'invalid_google_maps_link'          => 'The Google Maps link could not be read. Check the link and try again.',
         'google_maps_link_hint'             => 'You can also paste a short or full Google Maps link.',
+        'select_destination_city_first'     => 'Select the destination city before adding a delivery address.',
+        'checking_destination_city'         => 'Checking that the location is within the destination city...',
+        'address_inside_destination_city'   => 'The location is within the selected destination city.',
+        'address_outside_destination_city'  => 'The delivery address must be within the selected destination city.',
+        'address_city_check_failed'         => 'The city of this location could not be verified. Select the location again and retry.',
+        'wait_for_address_city_check'        => 'Wait until all delivery address locations have been verified.',
+        'destination_city_location_failed'  => 'The destination city could not be located on the map.',
+        'multiple_locations_type_required'  => 'To add another delivery address, select the “City to city with multiple locations” loading type.',
     ],
     'messages' => [
         'transportarApprove' => [

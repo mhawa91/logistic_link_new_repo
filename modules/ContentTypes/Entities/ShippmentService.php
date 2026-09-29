@@ -121,8 +121,8 @@ class ShippmentService extends ModelService
             'loading_address.primary_contact_email'                => 'required|email',
             'loading_address.primary_contact_phone_number'         => 'required',
             'loading_address.lat_lng'                              => 'required',
-            'loading_address.lat'                                  => 'required',
-            'loading_address.lng'                                  => 'required',
+            'loading_address.lat'                                  => 'required|numeric|between:-90,90',
+            'loading_address.lng'                                  => 'required|numeric|between:-180,180',
             'loading_address.full_address'                         => 'required',
             'loading_address.public_notes'                         => 'nullable',
             'loading_address.private_notes'                        => 'nullable',
@@ -134,8 +134,8 @@ class ShippmentService extends ModelService
             'offloading_address.*.primary_contact_email'           => 'required_if:offloading_address.*.removed,N',
             'offloading_address.*.primary_contact_phone_number'    => 'required_if:offloading_address.*.removed,N',
             'offloading_address.*.lat_lng'                         => 'required_if:offloading_address.*.removed,N',
-            'offloading_address.*.lat'                             => 'required_if:offloading_address.*.removed,N',
-            'offloading_address.*.lng'                             => 'required_if:offloading_address.*.removed,N',
+            'offloading_address.*.lat'                             => 'required_if:offloading_address.*.removed,N|numeric|between:-90,90',
+            'offloading_address.*.lng'                             => 'required_if:offloading_address.*.removed,N|numeric|between:-180,180',
             'offloading_address.*.full_address'                    => 'required_if:offloading_address.*.removed,N',
             'offloading_address.*.public_notes'                    => 'nullable',
             'offloading_address.*.private_notes'                   => 'nullable',
@@ -206,11 +206,47 @@ class ShippmentService extends ModelService
         }
         if ($type == 'create') {
             $rules['number_of_trucks'] = 'required|numeric|min:1';
-            return Validator::make($data, $rules, $messages, $attributes);
+            $rules['offloading_address.*.destination_city_token'] = 'nullable|string|size:64';
+            $validator = Validator::make($data, $rules, $messages, $attributes);
+            $validator->after(function($validator) use($data) {
+                foreach ((array) ($data['offloading_address'] ?? []) as $index => $address) {
+                    if (! is_array($address)
+                        || ($address['removed'] ?? 'N') === 'Y'
+                        || ! array_key_exists('lat', $address)
+                        || ! array_key_exists('lng', $address)
+                        || $address['lat'] === null
+                        || $address['lat'] === ''
+                        || $address['lng'] === null
+                        || $address['lng'] === '') {
+                        continue;
+                    }
+                    $expectedToken = static::destinationCityVerificationToken(
+                        $data['to_city_id'] ?? null,
+                        $address['lat'],
+                        $address['lng']
+                    );
+                    if (! hash_equals($expectedToken, (string) ($address['destination_city_token'] ?? ''))) {
+                        $validator->errors()->add(
+                            'offloading_address.' . $index . '.lat_lng',
+                            __('contenttypes::strings.shippments.address_outside_destination_city')
+                        );
+                    }
+                }
+            });
+            return $validator;
         }
         if ($type == 'update') {
             return Validator::make($data, $rules, $messages, $attributes);
         }
+    }
+
+    public static function destinationCityVerificationToken($cityId, $lat, $lng): string
+    {
+        $payload = (string) $cityId . '|'
+            . number_format((float) $lat, 7, '.', '') . '|'
+            . number_format((float) $lng, 7, '.', '');
+
+        return hash_hmac('sha256', $payload, (string) config('app.key'));
     }
 
     protected function keywordFilter($query, string $keyword = null)
