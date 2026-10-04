@@ -28,6 +28,11 @@
                                 <em class="icon ni ni-plus"></em><span>{{ __('contenttypes::strings.shippments.create') }}</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('ShippmentsController@downloadImportTemplate') }}" class="btn btn-outline-primary">
+                                <em class="icon ni ni-download-cloud"></em><span>{{ __('contenttypes::strings.shipment_import.download_template') }}</span>
+                            </a>
+                        </li>
                         {{-- <li class="nk-block-tools-opt">
                             <a href="#" class="btn btn-white btn-outline-light">
                                 <em class="icon ni ni-download-cloud"></em><span>Export</span>

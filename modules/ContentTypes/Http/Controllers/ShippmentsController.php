@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Modules\Address\Entities\OpenStreetMapService;
+use Modules\ContentTypes\Exports\ShippmentImportTemplate;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\SystemCore\Entities\City;
@@ -17,6 +18,7 @@ use Modules\ContentTypes\Entities\Driver;
 use Modules\ContentTypes\Entities\UploadedFile;
 use Modules\ContentManager\Entities\Content;
 use Validator;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 use Modules\ContentTypes\Jobs;
 
@@ -31,6 +33,7 @@ class ShippmentsController extends SystemCoreHttpController
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'create'))->only([
             'create',
             'postCreate',
+            'downloadImportTemplate',
             'destinationCityLocation',
             'verifyDestinationCity',
         ]);
@@ -71,6 +74,26 @@ class ShippmentsController extends SystemCoreHttpController
         $this->data['loadingAddressDefaults'] = $this->loadingAddressDefaults($user);
 
         return view($this->viewsFolderPath . '.create', $this->data);
+    }
+
+    public function downloadImportTemplate(
+        ShippmentService $ShippmentService,
+        ShippmentImportTemplate $ShippmentImportTemplate
+    ) {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $spreadsheet = $ShippmentImportTemplate->build();
+        $filename = 'shipment-import-template-' . app()->getLocale() . '.xlsx';
+
+        return response()->streamDownload(function() use($spreadsheet) {
+            (new Xlsx($spreadsheet))->save('php://output');
+            $spreadsheet->disconnectWorksheets();
+        }, $filename, [
+            'Content-Type'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0, no-cache, no-store, must-revalidate',
+        ]);
     }
 
     private function loadingAddressDefaults($user): array
