@@ -3,6 +3,7 @@
 /public/storage
 /storage/*.key
 /vendor
+/docs/MANUAL_DEPLOYMENT.md
 .env
 .env.backup
 .env.production

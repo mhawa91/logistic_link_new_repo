@@ -83,6 +83,26 @@ class AdminDashboardController extends SystemCoreHttpController
             $this->data['progress'] = 100;
         }
 
+        $this->data['pendingTransporterRequestsCount'] = 0;
+        if ($Request->user()->type == 'TRANSPORTER') {
+            $this->data['pendingTransporterRequestsCount'] = Shippment::where(function($query) use($Request) {
+                $query->where(function($query) use($Request) {
+                    $query->where('sys_status', 'PENDING_TRANSPORTER_APPROVAL')
+                    ->whereHas('matchedTransportars', function($relation) use($Request) {
+                        $relation->where('transporter_user_id', $Request->user()->id)
+                        ->where('status', 'PENDING_RESPONSE');
+                    });
+                })
+                ->orWhere(function($query) use($Request) {
+                    $query->where('sys_status', 'RFQ_PENDING_TRANSPORTER_OFFER')
+                    ->whereHas('rfqs', function($relation) use($Request) {
+                        $relation->where('transporter_user_id', $Request->user()->id)
+                        ->where('status', 'PENDING_RESPONSE');
+                    });
+                });
+            })->count();
+        }
+
         return view('admin::dashboard', $this->data);
     }
 

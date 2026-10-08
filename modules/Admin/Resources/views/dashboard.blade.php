@@ -42,8 +42,160 @@
     
 @endcomponent
 
+@push('head')
+    <style>
+        .pending-request-alert {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(101, 118, 255, 0.28);
+            border-radius: 10px;
+            background: linear-gradient(110deg, rgba(101, 118, 255, 0.12), rgba(255, 255, 255, 0.96) 58%);
+            box-shadow: 0 10px 28px rgba(31, 43, 74, 0.07);
+        }
+        .pending-request-alert::before {
+            position: absolute;
+            inset-block: 0;
+            inset-inline-start: 0;
+            width: 4px;
+            background: #6576ff;
+            content: '';
+        }
+        .pending-request-alert__content {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 20px 24px;
+        }
+        .pending-request-alert__icon {
+            position: relative;
+            display: inline-flex;
+            flex: 0 0 54px;
+            align-items: center;
+            justify-content: center;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #6576ff;
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(101, 118, 255, 0.28);
+            font-size: 25px;
+        }
+        .pending-request-alert__pulse {
+            position: absolute;
+            inset-block-start: 0;
+            inset-inline-end: 1px;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            background: #f4bd0e;
+            box-shadow: 0 0 0 4px rgba(244, 189, 14, 0.18);
+        }
+        .pending-request-alert__body {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        .pending-request-alert__label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 5px;
+            color: #6576ff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .pending-request-alert__count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 7px;
+            border-radius: 12px;
+            background: #6576ff;
+            color: #fff;
+            font-size: 12px;
+        }
+        .pending-request-alert__title {
+            margin: 0 0 4px;
+            color: #25396f;
+            font-size: 19px;
+        }
+        .pending-request-alert__description {
+            margin: 0;
+            color: #667085;
+            font-size: 13px;
+        }
+        .pending-request-alert__action {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+        body.dark-mode .pending-request-alert {
+            background: linear-gradient(110deg, rgba(101, 118, 255, 0.2), rgba(17, 23, 31, 0.96) 58%);
+        }
+        body.dark-mode .pending-request-alert__title {
+            color: #e5e9f2;
+        }
+        body.dark-mode .pending-request-alert__description {
+            color: #b6c6e3;
+        }
+        @media (max-width: 767px) {
+            .pending-request-alert__content {
+                align-items: flex-start;
+                flex-wrap: wrap;
+                padding: 18px;
+            }
+            .pending-request-alert__body {
+                flex-basis: calc(100% - 76px);
+            }
+            .pending-request-alert__action {
+                width: 100%;
+                margin-inline-start: 72px;
+            }
+            .pending-request-alert__action .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        @media (max-width: 420px) {
+            .pending-request-alert__action {
+                margin-inline-start: 0;
+            }
+        }
+    </style>
+@endpush
+
 @section('content')
     <div id="vue-dashboard">
+        @if(auth()->check() && auth()->user()->type == 'TRANSPORTER' && $pendingTransporterRequestsCount > 0)
+            <div class="pending-request-alert mb-4" role="status" aria-live="polite">
+                <div class="pending-request-alert__content">
+                    <div class="pending-request-alert__icon" aria-hidden="true">
+                        <em class="icon ni ni-bell-fill"></em>
+                        <span class="pending-request-alert__pulse"></span>
+                    </div>
+                    <div class="pending-request-alert__body">
+                        <div class="pending-request-alert__label">
+                            <span>{{ __('contenttypes::dashboard.new_requests') }}</span>
+                            <span class="pending-request-alert__count">{{ $pendingTransporterRequestsCount }}</span>
+                        </div>
+                        <h4 class="pending-request-alert__title">
+                            {{ __('contenttypes::dashboard.pending_requests_title') }}
+                        </h4>
+                        <p class="pending-request-alert__description">
+                            {{ trans_choice('contenttypes::dashboard.pending_requests_description', $pendingTransporterRequestsCount, ['count' => $pendingTransporterRequestsCount]) }}
+                        </p>
+                    </div>
+                    <div class="pending-request-alert__action">
+                        <a href="{{ route('ShippmentsController@index') }}" class="btn btn-primary">
+                            <em class="icon ni ni-inbox-in"></em>
+                            <span>{{ __('contenttypes::dashboard.review_pending_requests') }}</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="row g-gs">
             <div class="col-lg-4">
                 <div class="card card-bordered h-100">
