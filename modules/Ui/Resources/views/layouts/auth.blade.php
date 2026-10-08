@@ -72,7 +72,7 @@
                                                         @foreach ($_ALL_DISPLAY_LOCALES_ as $_LOCALE_BASE_CODE => $_LOCALE_DETAILS)
                                                             @if (in_array($_LOCALE_BASE_CODE, config('ui.display_language')))
                                                                 <li>
-                                                                    <a href="{{  LaravelLocalization::getLocalizedURL($_LOCALE_BASE_CODE, request()->fullUrl(), []) }}" class="language-item">
+                                                                    <a href="{{  LaravelLocalization::getLocalizedURL($_LOCALE_BASE_CODE, request()->fullUrl(), []) }}" class="language-item" data-locale="{{ $_LOCALE_BASE_CODE }}">
                                                                         <img src="{{ asset( config('ui.logos.' . $_LOCALE_BASE_CODE . '.flag.publicPath') ) }}" alt="" class="language-flag" style="border-radius: 50%;">
                                                                         <span class="language-name">{{ $_LOCALE_DETAILS['native'] }}</span>
                                                                     </a>

@@ -73,6 +73,7 @@ class TransporterService extends ModelService
             'name'                                  => 'required|string|max:255',
             'email'                                 => 'required|string|email|max:255',
             'phone_number'                          => 'required|string|max:255',
+            'transporter_user_id'                   => 'nullable|numeric|exists:users,id,type,TRANSPORTER',
             // CONTRACT
             'payment_term_id'                       => 'required|numeric|exists:contents,id',
             'insurance_value_limit'                 => 'required|numeric',
@@ -84,12 +85,14 @@ class TransporterService extends ModelService
             'TRANSPORTER_REGISTAION_LICENCE'        => 'nullable|file',
             'TRANSPORTER_INSURANCE_CERTIFICATE'     => 'nullable|file',
             'TRANSPORTER_TRANSPORTATION_LICENCE'    => 'nullable|file',
+            'TRANSPORTER_CONTRACT'                  => 'nullable|file',
             'sys_status'                            => 'required|in:ACTIVE,DISABLED',
+            'items_json'                            => 'nullable|json',
             'items'                                 => 'required|array',
-            'items.*.truck_type_id'                 => 'required|numeric|exists:contents,id',
+            'items.*.truck_type_id'                 => 'required|numeric',
             'items.*.loading_type_id'               => 'required|in:' . collect(config('contenttypes.loadingTypes'))->pluck('id')->implode(','),
-            'items.*.from_city_id'                  => 'required|numeric|exists:cities,id',
-            'items.*.to_city_id'                    => 'required|numeric|exists:cities,id',
+            'items.*.from_city_id'                  => 'required|numeric',
+            'items.*.to_city_id'                    => 'required|numeric',
             'items.*.price'                         => 'required|numeric',
             'items.*.pre_additional_location_price' => 'required_if:items.*.loading_type_id,CITY_TO_CITY_MULTIPLE_LOCATIONS',
             'TERMS_AND_CONDITIONS'                  => 'nullable|string',
@@ -101,9 +104,8 @@ class TransporterService extends ModelService
                 'contract_daterange_from'               => 'required|date_format:m/d/Y',
                 'contract_daterange_to'                 => 'required|date_format:m/d/Y',    
             ];
-            return Validator::make($data, $rules);
         }
-        if ($type == 'createByUserId') {
+        else if ($type == 'createByUserId') {
             unset($rules['name']);
             unset($rules['email']);
             unset($rules['phone_number']);
@@ -112,14 +114,51 @@ class TransporterService extends ModelService
                 'contract_daterange_from' => 'required|date_format:m/d/Y',
                 'contract_daterange_to'   => 'required|date_format:m/d/Y',
             ];
-            $rules = $rules + [
-                
-            ];
-            return Validator::make($data, $rules);
         }
-        if ($type == 'update') {
-            return Validator::make($data, $rules);
-        }
+
+        $validator = Validator::make($data, $rules);
+        $validator->after(function($validator) use($data) {
+            $items = collect($data['items'] ?? []);
+            if ($items->isEmpty()) {
+                return;
+            }
+
+            $truckTypeIds = $items->pluck('truck_type_id')->filter(function($id) {
+                return is_numeric($id);
+            })->unique()->values()->all();
+            $cityIds = $items->pluck('from_city_id')->merge($items->pluck('to_city_id'))->filter(function($id) {
+                return is_numeric($id);
+            })->unique()->values()->all();
+
+            $validTruckTypeIds = DB::table('contents')->whereIn('id', $truckTypeIds)->pluck('id')->mapWithKeys(function($id) {
+                return [(string) $id => true];
+            });
+            $validCityIds = DB::table('cities')->whereIn('id', $cityIds)->pluck('id')->mapWithKeys(function($id) {
+                return [(string) $id => true];
+            });
+
+            foreach ($items as $index => $item) {
+                if (! is_array($item)) {
+                    continue;
+                }
+
+                $truckTypeId = $item['truck_type_id'] ?? null;
+                $fromCityId = $item['from_city_id'] ?? null;
+                $toCityId = $item['to_city_id'] ?? null;
+
+                if (is_numeric($truckTypeId) && ! $validTruckTypeIds->has((string) $truckTypeId)) {
+                    $validator->errors()->add("items.{$index}.truck_type_id", __('validation.exists', ['attribute' => __('contenttypes::inputs.truck_type_id.label')]));
+                }
+                if (is_numeric($fromCityId) && ! $validCityIds->has((string) $fromCityId)) {
+                    $validator->errors()->add("items.{$index}.from_city_id", __('validation.exists', ['attribute' => __('contenttypes::inputs.from_city_id.label')]));
+                }
+                if (is_numeric($toCityId) && ! $validCityIds->has((string) $toCityId)) {
+                    $validator->errors()->add("items.{$index}.to_city_id", __('validation.exists', ['attribute' => __('contenttypes::inputs.to_city_id.label')]));
+                }
+            }
+        });
+
+        return $validator;
     }
 
     protected function keywordFilter($query, string $keyword = null)
@@ -159,11 +198,13 @@ class TransporterService extends ModelService
         $table = parent::dataTable($Filter);
 
         $table->addColumn('client_avatar', function($row) {
-            return $row->client && $row->client->company ? app('GraphManager')->src('400x400', 'company', $row->client->company?->company_logo) : app('GraphManager')->defaultSrc('400x400', 'company');
+            $logo = $row->client?->company?->company_logo;
+            return $logo ? app('GraphManager')->src('400x400', 'company', $logo) : null;
         });
 
         $table->addColumn('transporter_avatar', function($row) {
-            return $row->transporter && $row->transporter->company ? app('GraphManager')->src('400x400', 'company', $row->transporter->company?->company_logo) : app('GraphManager')->defaultSrc('400x400', 'company');
+            $logo = $row->transporter?->company?->company_logo;
+            return $logo ? app('GraphManager')->src('400x400', 'company', $logo) : null;
         });
 
         return $table;
@@ -189,11 +230,9 @@ class TransporterService extends ModelService
 
     public function create(array $data = [])
     {
-        $user      = $this->createTransporterUser(
-            $data['name'], 
-            $data['email'], 
-            $data['phone_number']
-        );
+        $user = ! empty($data['transporter_user_id'])
+            ? User::where('id', $data['transporter_user_id'])->where('type', 'TRANSPORTER')->firstOrFail()
+            : $this->createTransporterUser($data['name'], $data['email'], $data['phone_number']);
 
         $ModelData = [
             'company_user_id'     => auth()->id(),
@@ -212,6 +251,7 @@ class TransporterService extends ModelService
         $this->syncFile($contract, 'TRANSPORTER_REGISTAION_LICENCE'     , $data['TRANSPORTER_REGISTAION_LICENCE']     ?? null);
         $this->syncFile($contract, 'TRANSPORTER_INSURANCE_CERTIFICATE'  , $data['TRANSPORTER_INSURANCE_CERTIFICATE']  ?? null);
         $this->syncFile($contract, 'TRANSPORTER_TRANSPORTATION_LICENCE' , $data['TRANSPORTER_TRANSPORTATION_LICENCE'] ?? null);
+        $this->syncFile($contract, 'TRANSPORTER_CONTRACT'               , $data['TRANSPORTER_CONTRACT']               ?? null);
 
         $instanceData = $data + [
             'payment_term_id'       => $data['payment_term_id']       ?? null,
@@ -249,6 +289,7 @@ class TransporterService extends ModelService
         $this->syncFile($contract, 'TRANSPORTER_REGISTAION_LICENCE'     , $data['TRANSPORTER_REGISTAION_LICENCE']     ?? null);
         $this->syncFile($contract, 'TRANSPORTER_INSURANCE_CERTIFICATE'  , $data['TRANSPORTER_INSURANCE_CERTIFICATE']  ?? null);
         $this->syncFile($contract, 'TRANSPORTER_TRANSPORTATION_LICENCE' , $data['TRANSPORTER_TRANSPORTATION_LICENCE'] ?? null);
+        $this->syncFile($contract, 'TRANSPORTER_CONTRACT'               , $data['TRANSPORTER_CONTRACT']               ?? null);
 
         $instanceData = $data + [
             'payment_term_id'       => $data['payment_term_id']       ?? null,
@@ -285,6 +326,7 @@ class TransporterService extends ModelService
         $this->syncFile($contract, 'TRANSPORTER_REGISTAION_LICENCE'     , $data['TRANSPORTER_REGISTAION_LICENCE']     ?? null);
         $this->syncFile($contract, 'TRANSPORTER_INSURANCE_CERTIFICATE'  , $data['TRANSPORTER_INSURANCE_CERTIFICATE']  ?? null);
         $this->syncFile($contract, 'TRANSPORTER_TRANSPORTATION_LICENCE' , $data['TRANSPORTER_TRANSPORTATION_LICENCE'] ?? null);
+        $this->syncFile($contract, 'TRANSPORTER_CONTRACT'               , $data['TRANSPORTER_CONTRACT']               ?? null);
 
         $instanceData = $data + [
             'payment_term_id'       => $data['payment_term_id']       ?? null,
@@ -310,6 +352,68 @@ class TransporterService extends ModelService
         //    'translations' => fn($rel) => $rel,
         // ]);
         return parent::ajaxSelect($filter, $Options, $page, $limit);
+    }
+
+    public function companyAccountsSelect($search = null, int $page = 1, int $limit = 20)
+    {
+        if (! $this->can('create')) {
+            $this->throwPermissionException('create');
+        }
+
+        $page  = max($page, 1);
+        $limit = min(max($limit, 1), 50);
+
+        $query = User::query()
+        ->where('type', 'TRANSPORTER')
+        ->with('company')
+        ->where(function($query) {
+            $query->where(function($userQuery) {
+                $userQuery->whereNotNull('name')->where('name', '!=', '');
+            })->orWhereHas('company', function($companyQuery) {
+                $companyQuery->whereNotNull('company_name')->where('company_name', '!=', '');
+            });
+        })
+        ->when(! empty($search), function($query) use($search) {
+            $query->where(function($query) use($search) {
+                $query->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('phone_number', 'like', "%{$search}%")
+                ->orWhereHas('company', function($companyQuery) use($search) {
+                    $companyQuery->where('company_name', 'like', "%{$search}%")
+                    ->orWhere('company_email', 'like', "%{$search}%")
+                    ->orWhere('company_phone_number', 'like', "%{$search}%");
+                });
+            });
+        })
+        ->orderBy('name');
+
+        $companies = $query->paginate($limit, ['*'], 'page', $page);
+
+        return [
+            'results' => collect($companies->items())->map(function($company) {
+                $profile = $company->company;
+                $name = $profile?->company_name ?: $company->name;
+                $email = $profile?->company_email ?: $company->email;
+                $phoneNumber = $profile?->company_phone_number
+                    ? '+' . ltrim((string) ($profile->company_phone_number_ext ?: '966'), '+') . $profile->company_phone_number
+                    : (string) $company->phone_number;
+
+                return [
+                    'id'            => $company->id,
+                    'text'          => $name,
+                    'name'          => $name,
+                    'email'         => $email,
+                    'logo'          => $profile && $profile->company_logo
+                        ? app('GraphManager')->src('400x400', 'company', $profile->company_logo)
+                        : null,
+                    'phone_number'  => preg_replace('/^\+966/', '', $phoneNumber),
+                    'phone_display' => $phoneNumber,
+                ];
+            })->values(),
+            'pagination' => [
+                'more' => $companies->hasMorePages(),
+            ],
+        ];
     }
 
     public function install() : bool
@@ -526,7 +630,9 @@ class TransporterService extends ModelService
         });
 
         if ($items->isNotEmpty()) {
-            TransporterContractInstancePrice::insert($items->toArray());
+            $items->chunk(250)->each(function($chunk) {
+                TransporterContractInstancePrice::insert($chunk->values()->toArray());
+            });
         }
 
         return $instance;

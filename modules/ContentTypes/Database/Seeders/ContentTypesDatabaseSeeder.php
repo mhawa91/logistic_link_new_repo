@@ -70,6 +70,17 @@ class ContentTypesDatabaseSeeder extends Seeder
         $this->data['TRANSPORTER_Role']->{'title:ar'}       = 'ناقل';
         $this->data['TRANSPORTER_Role']->{'description:ar'} = 'مجموعة الناقلين.';
         $this->data['TRANSPORTER_Role']->save();
+
+        $readShippments = Ability::where(
+            'name',
+            str_replace('\\', '_', Entities\Shippment::class) . '@read'
+        )->first();
+
+        if ($readShippments) {
+            $this->data['TRANSPORTER_Role']->abilities()->syncWithoutDetaching([
+                $readShippments->id,
+            ]);
+        }
     }
 
     /**

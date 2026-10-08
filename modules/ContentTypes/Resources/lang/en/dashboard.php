@@ -16,4 +16,8 @@ return [
     'active_contract'            => 'Active Contracts',
     'not_active_contract'        => 'Inactive Contracts',
     'add_more_transporters'      => 'Add More Transporters',
+    'new_requests'               => 'New requests',
+    'pending_requests_title'      => 'Shipment requests are waiting for your response',
+    'pending_requests_description' => '{1} One request needs your review before the response window closes.|[2,*] :count requests need your review before the response window closes.',
+    'review_pending_requests'     => 'Review Requests',
 ];

@@ -32,12 +32,13 @@
             'method'            => 'POST',
             'class'             => '',
             'attributes'        => [
-                'onsubmit'                     => 'BS.AJAX_FORM(event)',
+                'onsubmit'                     => 'CrudApp.submit(event)',
                 'data-keep-loading-on-success' => 'true',
             ],
         ],
     ])
     <div class="row" id="vue-form">
+        <input ref="itemsJson" type="hidden" name="items_json">
         <!-- Form Fields Section -->
         <div class="col-md-12 mb-4">
             <div class="nk-block nk-block-lg">
@@ -259,6 +260,18 @@
                                     ],
                                 ])
 
+                                @include('ui::components.input', [
+                                    'options' => [
+                                        'view'        => 'DEFAULT',
+                                        'type'        => 'file',
+                                        'name'        => 'TRANSPORTER_CONTRACT',
+                                        'label'       => __('contenttypes::inputs.contract_file.label'),
+                                        'description' => __('contenttypes::inputs.contract_file.description'),
+                                        'placeholder' => null,
+                                        'value'       => null,
+                                    ],
+                                ])
+
                                 @include('ui::components.radios', [
                                     'options' => [
                                         'view'              => 'DEFAULT',
@@ -372,8 +385,9 @@
                                                 'options' => [
                                                     'type'        => 'hidden',
                                                     'name'        => '--',
-                                                    'attributes'  => [
-                                                        ':name'   => "'items[' + item_index + '][id]'",
+                                                        'attributes'  => [
+                                                            'data-json-only' => 'true',
+                                                            ':name'   => "'items[' + item_index + '][id]'",
                                                         ':value'  => 'item.id',
                                                     ],
                                                 ],
@@ -383,8 +397,9 @@
                                                 'options' => [
                                                     'type'        => 'hidden',
                                                     'name'        => '--',
-                                                    'attributes'  => [
-                                                        ':name'   => "'items[' + item_index + '][truck_type_id]'",
+                                                        'attributes'  => [
+                                                            'data-json-only' => 'true',
+                                                            ':name'   => "'items[' + item_index + '][truck_type_id]'",
                                                         ':value'  => 'item.truck_type?.id || null',
                                                     ],
                                                 ],
@@ -397,8 +412,9 @@
                                                 'options' => [
                                                     'type'        => 'hidden',
                                                     'name'        => '--',
-                                                    'attributes'  => [
-                                                        ':name'   => "'items[' + item_index + '][loading_type_id]'",
+                                                        'attributes'  => [
+                                                            'data-json-only' => 'true',
+                                                            ':name'   => "'items[' + item_index + '][loading_type_id]'",
                                                         ':value'  => 'item.loading_type',
                                                     ],
                                                 ],
@@ -414,8 +430,9 @@
                                                 'options' => [
                                                     'type'        => 'hidden',
                                                     'name'        => '--',
-                                                    'attributes'  => [
-                                                        ':name'   => "'items[' + item_index + '][from_city_id]'",
+                                                        'attributes'  => [
+                                                            'data-json-only' => 'true',
+                                                            ':name'   => "'items[' + item_index + '][from_city_id]'",
                                                         ':value'  => 'item.from_city?.id',
                                                     ],
                                                 ],
@@ -431,8 +448,9 @@
                                                 'options' => [
                                                     'type'        => 'hidden',
                                                     'name'        => '--',
-                                                    'attributes'  => [
-                                                        ':name'   => "'items[' + item_index + '][to_city_id]'",
+                                                        'attributes'  => [
+                                                            'data-json-only' => 'true',
+                                                            ':name'   => "'items[' + item_index + '][to_city_id]'",
                                                         ':value'  => 'item.to_city?.id',
                                                     ],
                                                 ],
@@ -448,8 +466,9 @@
                                                     'label'       => __('contenttypes::inputs.price.label'),
                                                     'placeholder' => __('contenttypes::inputs.price.placeholder'),
                                                     'description' => __('contenttypes::inputs.price.description'),
-                                                    'attributes'  => [
-                                                        ':name'   => "'items[' + item_index + '][price]'",
+                                                        'attributes'  => [
+                                                            'data-json-only' => 'true',
+                                                            ':name'   => "'items[' + item_index + '][price]'",
                                                         'v-model' => 'item.price',
                                                     ]
                                                 ],
@@ -474,8 +493,9 @@
                                                         'label'       => __('contenttypes::inputs.pre_additional_location_price.label'),
                                                         'placeholder' => __('contenttypes::inputs.pre_additional_location_price.placeholder'),
                                                         'description' => __('contenttypes::inputs.pre_additional_location_price.description'),
-                                                        'attributes'  => [
-                                                            ':name'   => "'items[' + item_index + '][pre_additional_location_price]'",
+                                                            'attributes'  => [
+                                                                'data-json-only' => 'true',
+                                                                ':name'   => "'items[' + item_index + '][pre_additional_location_price]'",
                                                             'v-model'   => 'item.pre_additional_location_price',
                                                             ':disabled' => "item.loading_type != 'CITY_TO_CITY_MULTIPLE_LOCATIONS'",
                                                         ]
@@ -752,7 +772,7 @@
 
 @push('script')
     <script>
-        const CrudApp = new Vue({
+        window.CrudApp = new Vue({
             el: '#vue-form',
             data: {
                 items        : [],
@@ -768,6 +788,11 @@
                 },
             },
             methods: {
+                submit: function(event) {
+                    event.preventDefault();
+                    this.$refs.itemsJson.value = this.itemsJson;
+                    return BS.AJAX_FORM(event);
+                },
                 removeItem: function(index) {
                     this.items.splice(index, 1);
                 },
@@ -781,6 +806,9 @@
                         price                         : null,
                         pre_additional_location_price : null,
                     };
+                },
+                itemKey: function(item) {
+                    return [item.truck_type?.id, item.loading_type, item.from_city?.id, item.to_city?.id].join(':');
                 },
                 addItem: function() {
                     BS.RESET_FORM_VALIDATION_ERRORS($('#itemsModal'));
@@ -816,39 +844,40 @@
                         return;
                     }
 
-                    // Generate all combinations (Cartesian product)
-                    const combinations = this.generateCombinations(
-                        this.current_item.truck_types,
-                        this.current_item.loading_types,
-                        this.current_item.from_cities,
-                        this.current_item.to_cities
-                    );
-
-                    // Add each combination as a separate item
-                    combinations.forEach(combination => {
-                        const existingItem = this.findItemByData({
-                            truck_type: combination.truck_type,
-                            loading_type: combination.loading_type,
-                            from_city: combination.from_city,
-                            to_city: combination.to_city
-                        });
-
-                        if (existingItem) {
-                            // Update existing item
-                            existingItem.price = this.current_item.price;
-                            existingItem.pre_additional_location_price = this.current_item.pre_additional_location_price;
-                        } else {
-                            // Add new item
-                            this.items.push({
-                                id: null,
-                                truck_type: combination.truck_type,
-                                loading_type: combination.loading_type,
-                                from_city: combination.from_city,
-                                to_city: combination.to_city,
-                                price: this.current_item.price,
-                                pre_additional_location_price: this.current_item.pre_additional_location_price
-                            });
+                    const itemsByKey = new Map();
+                    this.items.forEach(item => {
+                        const key = this.itemKey(item);
+                        if (!itemsByKey.has(key)) {
+                            itemsByKey.set(key, item);
                         }
+                    });
+
+                    this.current_item.truck_types.forEach(truckType => {
+                        this.current_item.loading_types.forEach(loadingType => {
+                            this.current_item.from_cities.forEach(fromCity => {
+                                this.current_item.to_cities.forEach(toCity => {
+                                    const item = {
+                                        id: null,
+                                        truck_type: truckType,
+                                        loading_type: loadingType,
+                                        from_city: fromCity,
+                                        to_city: toCity,
+                                        price: this.current_item.price,
+                                        pre_additional_location_price: this.current_item.pre_additional_location_price
+                                    };
+                                    const key = this.itemKey(item);
+                                    const existingItem = itemsByKey.get(key);
+
+                                    if (existingItem) {
+                                        existingItem.price = item.price;
+                                        existingItem.pre_additional_location_price = item.pre_additional_location_price;
+                                    } else {
+                                        this.items.push(item);
+                                        itemsByKey.set(key, item);
+                                    }
+                                });
+                            });
+                        });
                     });
 
                     // Close modal and reset form
@@ -860,38 +889,20 @@
                     $('#loading_type_select').val(null).trigger('change');
                     $('#from_city_select').val(null).trigger('change');
                     $('#to_city_select').val(null).trigger('change');
-                },
-                generateCombinations: function(truckTypes, loadingTypes, fromCities, toCities) {
-                    const combinations = [];
-                    
-                    truckTypes.forEach(truckType => {
-                        loadingTypes.forEach(loadingType => {
-                            fromCities.forEach(fromCity => {
-                                toCities.forEach(toCity => {
-                                    combinations.push({
-                                        truck_type: truckType,
-                                        loading_type: loadingType,
-                                        from_city: fromCity,
-                                        to_city: toCity
-                                    });
-                                });
-                            });
-                        });
-                    });
-                    
-                    return combinations;
-                },
-                findItemByData: function(item) {
-                    const result = this.items.filter(function(_item) {
-                        return _item.truck_type.id == item.truck_type.id && 
-                               _item.loading_type == item.loading_type && 
-                               _item.from_city.id == item.from_city.id && 
-                               _item.to_city.id == item.to_city.id;
-                    });
-                    return result.length > 0 ? result[0] : null;
                 }
             },
             computed: {
+                itemsJson: function() {
+                    return JSON.stringify(this.items.map(item => ({
+                        id: item.id || null,
+                        truck_type_id: item.truck_type?.id || null,
+                        loading_type_id: item.loading_type,
+                        from_city_id: item.from_city?.id || null,
+                        to_city_id: item.to_city?.id || null,
+                        price: item.price,
+                        pre_additional_location_price: item.pre_additional_location_price
+                    })));
+                },
                 loadingTypes: function() {
                     return @json(collect(config('contenttypes.loadingTypes'))->mapWithKeys(function ($item) {
                         return [$item['id'] => __($item['label'])];

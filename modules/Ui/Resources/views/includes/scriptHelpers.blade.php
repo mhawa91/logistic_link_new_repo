@@ -16,6 +16,28 @@
 
     const BS = {};
 
+    $(document).on('click', 'a.language-item[data-locale]', function(event) {
+        if ($(this).data('locale') === '{{ app()->getLocale() }}') {
+            return;
+        }
+
+        event.preventDefault();
+        const targetUrl = this.href;
+
+        Swal.fire({
+            title             : @json(__('ui::strings.confirmations.language_change.title')),
+            text              : @json(__('ui::strings.confirmations.language_change.text')),
+            icon              : 'warning',
+            showCancelButton  : true,
+            confirmButtonText : @json(__('ui::strings.confirmations.language_change.confirm')),
+            cancelButtonText  : @json(__('ui::strings.confirmations.language_change.cancel')),
+        }).then(function(result) {
+            if (result.value || result.isConfirmed) {
+                window.location.assign(targetUrl);
+            }
+        });
+    });
+
     BS.CONFIG = function(key, val = null) {
         if (! val) {
             return BS_CONFIG[ key ] || null;
@@ -62,6 +84,7 @@
         if (_CLICK_)   { $(_CLICK_).click(); }
         if (_CLICK_2_) { $(_CLICK_2_).click(); }
         if (_FOCUS_)   { _FOCUS_.focus(); }
+        $Form.trigger('bs:validation-errors', [$Errors]);
     };
 
     BS.RESET_FORM_VALIDATION_ERRORS = function($Form) {
@@ -90,7 +113,17 @@
             _AS_SUBMIT = $Form.find('[data-type=submit]'),
             _URL    = $Form.attr('action') || 'javascript:;',
             _METHOD = $Form.attr('method') || 'POST';
-            _DATA   = new FormData($Event.target); //_NODE_.serialize(); 
+        var $JsonOnlyFields = $Form.find('[data-json-only="true"]'),
+            jsonOnlyDisabledStates = [];
+
+        $JsonOnlyFields.each(function(index) {
+            jsonOnlyDisabledStates[index] = this.disabled;
+            this.disabled = true;
+        });
+        var _DATA = new FormData($Event.target); //_NODE_.serialize();
+        $JsonOnlyFields.each(function(index) {
+            this.disabled = jsonOnlyDisabledStates[index];
+        });
         
         var _OPT = $.extend({
             keepLoadingOnSuccess: false,

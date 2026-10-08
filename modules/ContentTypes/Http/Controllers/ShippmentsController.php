@@ -4,8 +4,13 @@ namespace Modules\ContentTypes\Http\Controllers;
 
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Modules\Address\Entities\OpenStreetMapService;
+use Modules\ContentTypes\Exports\ShippmentImportTemplate;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
+use Modules\SystemCore\Entities\City;
 use Modules\ContentTypes\Entities\ShippmentService;
 use Modules\ContentTypes\Entities\Shippment;
 use Modules\ContentTypes\Entities\DriverService;
@@ -13,6 +18,7 @@ use Modules\ContentTypes\Entities\Driver;
 use Modules\ContentTypes\Entities\UploadedFile;
 use Modules\ContentManager\Entities\Content;
 use Validator;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 use Modules\ContentTypes\Jobs;
 
@@ -24,7 +30,13 @@ class ShippmentsController extends SystemCoreHttpController
     {
         $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'read'))->only(['index', 'postIndex', 'read', 'postRead']);
-        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'create'))->only(['create', 'postCreate']);
+        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'create'))->only([
+            'create',
+            'postCreate',
+            'downloadImportTemplate',
+            'destinationCityLocation',
+            'verifyDestinationCity',
+        ]);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'update'))->only(['update', 'postUpdate']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'statusUpdate'))->only(['postStatus']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'delete'))->only(['postDelete']);
@@ -55,7 +67,255 @@ class ShippmentsController extends SystemCoreHttpController
         ->where('sys_status', 'ACTIVE')
         ->get();
 
+        $user = auth()->user();
+        if ($user && $user->type === 'DEFAULT') {
+            $user->loadMissing('company.address.city.country');
+        }
+        $this->data['loadingAddressDefaults'] = $this->loadingAddressDefaults($user);
+
         return view($this->viewsFolderPath . '.create', $this->data);
+    }
+
+    public function downloadImportTemplate(
+        ShippmentService $ShippmentService,
+        ShippmentImportTemplate $ShippmentImportTemplate
+    ) {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $spreadsheet = $ShippmentImportTemplate->build();
+        $filename = 'shipment-import-template-' . app()->getLocale() . '.xlsx';
+
+        return response()->streamDownload(function() use($spreadsheet) {
+            (new Xlsx($spreadsheet))->save('php://output');
+            $spreadsheet->disconnectWorksheets();
+        }, $filename, [
+            'Content-Type'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0, no-cache, no-store, must-revalidate',
+        ]);
+    }
+
+    private function loadingAddressDefaults($user): array
+    {
+        $company = $user && $user->type === 'DEFAULT' ? $user->company : null;
+        $address = $company ? $company->address : null;
+        $city = $address ? $address->city : null;
+        $locale = in_array(app()->getLocale(), ['ar', 'en']) ? app()->getLocale() : 'ar';
+        $countryId = $address ? ($address->country_id ?: ($city ? $city->country_id : null)) : null;
+
+        $cityOption = null;
+        if ($city && (int) $countryId === 191) {
+            $cityName = $city->{'name_' . $locale};
+            $countryName = $city->country ? $city->country->{'name_' . $locale} : null;
+            $cityOption = [
+                'id'   => $city->id,
+                'text' => $countryName ? $cityName . ' - [' . $countryName . ']' : $cityName,
+                'data' => $city->toArray(),
+            ];
+        }
+
+        $lat = $address && ! is_null($address->lat) ? (float) $address->lat : null;
+        $lng = $address && ! is_null($address->lng) ? (float) $address->lng : null;
+
+        return [
+            'primary_contact_company_name' => $company ? $company->company_name : null,
+            'primary_contact_name'         => $address && $address->primary_contact_name
+                ? $address->primary_contact_name
+                : ($company ? ($company->contact_name ?: $user->name) : null),
+            'primary_contact_email'        => $address && $address->primary_contact_email
+                ? $address->primary_contact_email
+                : ($company ? ($company->company_email ?: $user->email) : null),
+            'primary_contact_phone_number' => $address && $address->primary_contact_phone_number
+                ? $address->primary_contact_phone_number
+                : ($company ? ($company->company_phone_number ?: $user->phone_number) : null),
+            'full_address'                 => $address ? $address->full_address : null,
+            'lat'                          => $lat,
+            'lng'                          => $lng,
+            'latlng'                       => ! is_null($lat) && ! is_null($lng) ? $lat . ',' . $lng : null,
+            'city'                         => $cityOption,
+            'map_selected'                 => ! is_null($lat) && ! is_null($lng) ? ['lat' => $lat, 'lng' => $lng] : null,
+        ];
+    }
+
+    public function resolveGoogleMapsUrl(Request $Request, ShippmentService $ShippmentService)
+    {
+        if (! $ShippmentService->can('create') && ! $ShippmentService->can('update')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $url = (string) $Request->query('url');
+        if (! $this->isAllowedGoogleMapsUrl($url)) {
+            return response()->json(['message' => __('contenttypes::strings.shippments.invalid_google_maps_link')], 422);
+        }
+
+        try {
+            $resolvedUrl = $url;
+            for ($redirect = 0; $redirect < 5 && parse_url($resolvedUrl, PHP_URL_HOST) === 'maps.app.goo.gl'; $redirect++) {
+                $response = Http::timeout(6)->withOptions(['allow_redirects' => false])->head($resolvedUrl);
+                $location = $response->header('Location');
+
+                if (! $location || ! $this->isAllowedGoogleMapsUrl($location)) {
+                    break;
+                }
+                $resolvedUrl = $location;
+            }
+
+            return response()->json(['url' => $resolvedUrl]);
+        } catch (\Throwable $exception) {
+            return response()->json(['message' => __('contenttypes::strings.shippments.invalid_google_maps_link')], 422);
+        }
+    }
+
+    public function verifyDestinationCity(
+        Request $Request,
+        ShippmentService $ShippmentService,
+        OpenStreetMapService $OpenStreetMapService
+    ) {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $validator = Validator::make($Request->all(), [
+            'city_id' => 'required|numeric',
+            'lat'     => 'required|numeric|between:-90,90',
+            'lng'     => 'required|numeric|between:-180,180',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
+        $cacheKey = 'shippment_destination_city:' . sha1(
+            number_format((float) $Request->lat, 5, '.', '') . ','
+            . number_format((float) $Request->lng, 5, '.', '')
+        );
+
+        try {
+            $location = Cache::remember($cacheKey, now()->addDays(30), function() use($Request, $OpenStreetMapService) {
+                $response = $OpenStreetMapService
+                    ->geoLocale($Request->lat, $Request->lng, 'ar')
+                    ->response('ar');
+                $address = $response['address'] ?? [];
+
+                if (empty($address)) {
+                    throw new \RuntimeException('OpenStreetMap returned no address data.');
+                }
+
+                return [
+                    'country_code' => strtoupper((string) ($address['country_code'] ?? '')),
+                    'names'        => array_values(array_filter([
+                        $address['state'] ?? null,
+                        $address['province'] ?? null,
+                        $address['region'] ?? null,
+                        $address['state_district'] ?? null,
+                        $address['county'] ?? null,
+                        $address['municipality'] ?? null,
+                        $address['city'] ?? null,
+                        $address['town'] ?? null,
+                        $address['village'] ?? null,
+                    ])),
+                ];
+            });
+        } catch (\Throwable $exception) {
+            report($exception);
+            return response()->json([
+                'message' => __('contenttypes::strings.shippments.address_city_check_failed'),
+            ], 503);
+        }
+
+        $expectedNames = array_filter([
+            $this->normalizeDestinationCityName($city->name_ar),
+            $this->normalizeDestinationCityName($city->name_en),
+        ]);
+        $locationNames = array_filter(array_map(function($name) {
+            return $this->normalizeDestinationCityName($name);
+        }, $location['names']));
+        $valid = $location['country_code'] === 'SA'
+            && ! empty(array_intersect($expectedNames, $locationNames));
+
+        return response()->json([
+            'valid' => $valid,
+            'token' => $valid ? ShippmentService::destinationCityVerificationToken(
+                $city->id,
+                $Request->lat,
+                $Request->lng
+            ) : null,
+        ]);
+    }
+
+    public function destinationCityLocation(
+        Request $Request,
+        ShippmentService $ShippmentService,
+        OpenStreetMapService $OpenStreetMapService
+    ) {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $validator = Validator::make($Request->all(), [
+            'city_id' => 'required|numeric',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
+
+        try {
+            $location = Cache::remember(
+                'shippment_destination_city_location:' . $city->id,
+                now()->addDays(30),
+                function() use($city, $OpenStreetMapService) {
+                    $response = $OpenStreetMapService
+                        ->searchLocale($city->name_ar . '، السعودية', 'ar')
+                        ->response('ar');
+
+                    if (empty($response['lat']) || empty($response['lon'])) {
+                        throw new \RuntimeException('OpenStreetMap returned no city location.');
+                    }
+
+                    return [
+                        'lat' => (float) $response['lat'],
+                        'lng' => (float) $response['lon'],
+                    ];
+                }
+            );
+        } catch (\Throwable $exception) {
+            report($exception);
+            return response()->json([
+                'message' => __('contenttypes::strings.shippments.address_city_check_failed'),
+            ], 503);
+        }
+
+        return response()->json($location);
+    }
+
+    private function normalizeDestinationCityName($value): string
+    {
+        $value = mb_strtolower(trim((string) $value), 'UTF-8');
+        $value = preg_replace('/[\x{064B}-\x{065F}\x{0670}]/u', '', $value);
+        $value = str_replace(['أ', 'إ', 'آ'], 'ا', $value);
+        $value = preg_replace('/^(?:منطقة|المنطقة|محافظة|المحافظة|مقاطعة|المقاطعة)\s+/u', '', $value);
+        $value = preg_replace('/\b(?:province|region|state|governorate)\b/u', '', $value);
+        $value = preg_replace('/^(?:al|ar|ash)[\s-]+/u', '', $value);
+        $value = preg_replace('/[^a-z0-9\x{0600}-\x{06FF}]+/u', ' ', $value);
+
+        return trim($value);
+    }
+
+    private function isAllowedGoogleMapsUrl(string $url): bool
+    {
+        if (! filter_var($url, FILTER_VALIDATE_URL) || parse_url($url, PHP_URL_SCHEME) !== 'https') {
+            return false;
+        }
+
+        return in_array(strtolower((string) parse_url($url, PHP_URL_HOST)), [
+            'maps.app.goo.gl',
+            'google.com',
+            'www.google.com',
+            'maps.google.com',
+        ], true);
     }
 
     public function update(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)

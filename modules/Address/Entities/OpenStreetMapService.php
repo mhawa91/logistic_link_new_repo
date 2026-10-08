@@ -90,6 +90,17 @@ class OpenStreetMapService
         return $this;
     }
 
+    public function geoLocale($lat, $lng, string $locale)
+    {
+        $this->request['lat'] = $lat;
+        $this->request['lng'] = $lng;
+
+        $this->response[$locale] = $this->requestGeo($locale);
+        $this->data[$locale] = static::mapResponseToData($this->response[$locale]);
+
+        return $this;
+    }
+
     public function search(string $address)
     {
         $this->request['address'] = $address;
@@ -103,6 +114,15 @@ class OpenStreetMapService
         $this->request['lng'] = $this->response['ar']['lon'] ?? null;
 
         return ! $this->request['lat'] || ! $this->request['lng'] ? null : $this->geo($this->request['lat'], $this->request['lng']);
+    }
+
+    public function searchLocale(string $address, string $locale)
+    {
+        $this->request['address'] = $address;
+        $results = $this->requestSearch($locale);
+        $this->response[$locale] = ! empty($results) ? $results[0] : null;
+
+        return $this;
     }
 
     public function response($locale)
@@ -163,8 +183,10 @@ class OpenStreetMapService
         ], $data);
 
         $response = Http::withHeaders([
-            'Accept-Language' => $data['language'] ?? app()->getLocale()
+            'Accept-Language' => $data['language'] ?? app()->getLocale(),
+            'User-Agent'      => config('app.name') . ' address-service (' . config('app.url') . ')',
         ])
+        ->timeout(10)
         ->withOptions([
             'verify' => false,
         ])

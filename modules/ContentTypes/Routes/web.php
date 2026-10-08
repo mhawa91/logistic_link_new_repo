@@ -35,6 +35,7 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::post('restore'                 , 'TransportersController@postRestore')->name('TransportersController@postRestore');     
         Route::post('perma-delete'            , 'TransportersController@postPermaDelete')->name('TransportersController@postPermaDelete');
         Route::post('status-update'           , 'TransportersController@postStatus')->name('TransportersController@postStatus');       
+        Route::get('company-accounts/select', 'TransportersController@companyAccountsSelect')->name('TransportersController@companyAccountsSelect');
         Route::get('select'                   , 'TransportersController@select')->name('TransportersController@select');
         Route::post('export'                  , 'TransportersController@postExport')->name('TransportersController@postExport');       
         Route::get('{model}'                  , 'TransportersController@read')->name('TransportersController@read');
@@ -51,8 +52,12 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::post('list'                              , 'ShippmentsController@postIndex')->name('ShippmentsController@postIndex');
         Route::get('create'                             , 'ShippmentsController@create')->name('ShippmentsController@create');
         Route::post('create'                            , 'ShippmentsController@postCreate')->name('ShippmentsController@postCreate');
+        Route::get('import-template'                    , 'ShippmentsController@downloadImportTemplate')->name('ShippmentsController@downloadImportTemplate');
         Route::get('update/{model}'                     , 'ShippmentsController@update')->name('ShippmentsController@update');
         Route::post('update'                            , 'ShippmentsController@postUpdate')->name('ShippmentsController@postUpdate');
+        Route::get('resolve-google-maps-url'            , 'ShippmentsController@resolveGoogleMapsUrl')->name('ShippmentsController@resolveGoogleMapsUrl');
+        Route::post('destination-city-location'         , 'ShippmentsController@destinationCityLocation')->name('ShippmentsController@destinationCityLocation');
+        Route::post('verify-destination-city'           , 'ShippmentsController@verifyDestinationCity')->name('ShippmentsController@verifyDestinationCity');
         Route::post('bulk-send'                         , 'ShippmentsController@postBulkSend')->name('ShippmentsController@postBulkSend');
         Route::post('delete'                            , 'ShippmentsController@postDelete')->name('ShippmentsController@postDelete');
         Route::post('restore'                           , 'ShippmentsController@postRestore')->name('ShippmentsController@postRestore');
