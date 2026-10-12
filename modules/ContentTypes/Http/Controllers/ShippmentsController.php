@@ -8,11 +8,13 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Modules\Address\Entities\OpenStreetMapService;
 use Modules\ContentTypes\Exports\ShippmentImportTemplate;
+use Modules\ContentTypes\Services\DestinationCityVerifier;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\SystemCore\Entities\City;
 use Modules\ContentTypes\Entities\ShippmentService;
 use Modules\ContentTypes\Entities\Shippment;
+use Modules\ContentTypes\Entities\ShippmentImport;
 use Modules\ContentTypes\Entities\DriverService;
 use Modules\ContentTypes\Entities\Driver;
 use Modules\ContentTypes\Entities\UploadedFile;
@@ -36,6 +38,10 @@ class ShippmentsController extends SystemCoreHttpController
             'downloadImportTemplate',
             'destinationCityLocation',
             'verifyDestinationCity',
+            'imports',
+            'postImport',
+            'readImport',
+            'importStatus',
         ]);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'update'))->only(['update', 'postUpdate']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'statusUpdate'))->only(['postStatus']);
@@ -94,6 +100,95 @@ class ShippmentsController extends SystemCoreHttpController
             'Content-Type'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Cache-Control' => 'max-age=0, no-cache, no-store, must-revalidate',
         ]);
+    }
+
+    public function imports(Request $Request, ShippmentService $ShippmentService)
+    {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $query = ShippmentImport::with('user')->latest();
+        if (! auth()->user()->isAn('ROOT') && auth()->user()->type !== 'SYSTEM_ADMIN') {
+            $query->where('user_id', auth()->id());
+        }
+        $this->data['imports'] = $query->paginate(20);
+
+        return view($this->viewsFolderPath . '.imports.index', $this->data);
+    }
+
+    public function postImport(Request $Request, ShippmentService $ShippmentService)
+    {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+        if (auth()->user()->type !== 'DEFAULT') {
+            abort(403, __('contenttypes::strings.shipment_import.errors.client_account_required'));
+        }
+
+        $Request->validate([
+            'file' => 'required|file|mimes:xlsx|max:10240',
+        ]);
+
+        $file = $Request->file('file');
+        $path = $file->storeAs(
+            'shippment-imports/' . auth()->id(),
+            now()->format('Ymd-His') . '-' . \Str::uuid() . '.xlsx',
+            'local'
+        );
+
+        $import = ShippmentImport::create([
+            'user_id' => auth()->id(),
+            'original_filename' => $file->getClientOriginalName(),
+            'disk' => 'local',
+            'file_path' => $path,
+            'locale' => in_array(app()->getLocale(), ['ar', 'en']) ? app()->getLocale() : 'en',
+            'status' => 'PENDING',
+        ]);
+
+        Jobs\ProcessShippmentImport::dispatch($import->id)
+            ->onConnection('database')
+            ->onQueue(config('queue.shippment_import_queue', 'default'));
+
+        return redirect()->route('ShippmentsController@readImport', ['import' => $import->id])
+            ->with('success', __('contenttypes::strings.shipment_import.queued'));
+    }
+
+    public function readImport(Request $Request, ShippmentService $ShippmentService, $import)
+    {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $query = ShippmentImport::with(['user', 'rows']);
+        if (! auth()->user()->isAn('ROOT') && auth()->user()->type !== 'SYSTEM_ADMIN') {
+            $query->where('user_id', auth()->id());
+        }
+        $this->data['import'] = $query->findOrFail($import);
+
+        return view($this->viewsFolderPath . '.imports.read', $this->data);
+    }
+
+    public function importStatus(Request $Request, ShippmentService $ShippmentService, $import)
+    {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $query = ShippmentImport::query();
+        if (! auth()->user()->isAn('ROOT') && auth()->user()->type !== 'SYSTEM_ADMIN') {
+            $query->where('user_id', auth()->id());
+        }
+        $model = $query->findOrFail($import);
+
+        return response()->json([
+            'status' => $model->status,
+            'total_rows' => (int) $model->total_rows,
+            'processed_rows' => (int) $model->processed_rows,
+            'created_count' => (int) $model->created_count,
+            'updated_count' => (int) $model->updated_count,
+            'failed_count' => (int) $model->failed_count,
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
     private function loadingAddressDefaults($user): array
@@ -170,7 +265,7 @@ class ShippmentsController extends SystemCoreHttpController
     public function verifyDestinationCity(
         Request $Request,
         ShippmentService $ShippmentService,
-        OpenStreetMapService $OpenStreetMapService
+        DestinationCityVerifier $DestinationCityVerifier
     ) {
         if (! $ShippmentService->can('create')) {
             $ShippmentService->throwPermissionException('create');
@@ -185,54 +280,14 @@ class ShippmentsController extends SystemCoreHttpController
             return response()->json(['message' => $validator->errors()->first()], 422);
         }
 
-        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
-        $cacheKey = 'shippment_destination_city:' . sha1(
-            number_format((float) $Request->lat, 5, '.', '') . ','
-            . number_format((float) $Request->lng, 5, '.', '')
-        );
-
         try {
-            $location = Cache::remember($cacheKey, now()->addDays(30), function() use($Request, $OpenStreetMapService) {
-                $response = $OpenStreetMapService
-                    ->geoLocale($Request->lat, $Request->lng, 'ar')
-                    ->response('ar');
-                $address = $response['address'] ?? [];
-
-                if (empty($address)) {
-                    throw new \RuntimeException('OpenStreetMap returned no address data.');
-                }
-
-                return [
-                    'country_code' => strtoupper((string) ($address['country_code'] ?? '')),
-                    'names'        => array_values(array_filter([
-                        $address['state'] ?? null,
-                        $address['province'] ?? null,
-                        $address['region'] ?? null,
-                        $address['state_district'] ?? null,
-                        $address['county'] ?? null,
-                        $address['municipality'] ?? null,
-                        $address['city'] ?? null,
-                        $address['town'] ?? null,
-                        $address['village'] ?? null,
-                    ])),
-                ];
-            });
+            $valid = $DestinationCityVerifier->verify((int) $Request->city_id, $Request->lat, $Request->lng);
         } catch (\Throwable $exception) {
             report($exception);
             return response()->json([
                 'message' => __('contenttypes::strings.shippments.address_city_check_failed'),
             ], 503);
         }
-
-        $expectedNames = array_filter([
-            $this->normalizeDestinationCityName($city->name_ar),
-            $this->normalizeDestinationCityName($city->name_en),
-        ]);
-        $locationNames = array_filter(array_map(function($name) {
-            return $this->normalizeDestinationCityName($name);
-        }, $location['names']));
-        $valid = $location['country_code'] === 'SA'
-            && ! empty(array_intersect($expectedNames, $locationNames));
 
         return response()->json([
             'valid' => $valid,
@@ -289,19 +344,6 @@ class ShippmentsController extends SystemCoreHttpController
         }
 
         return response()->json($location);
-    }
-
-    private function normalizeDestinationCityName($value): string
-    {
-        $value = mb_strtolower(trim((string) $value), 'UTF-8');
-        $value = preg_replace('/[\x{064B}-\x{065F}\x{0670}]/u', '', $value);
-        $value = str_replace(['أ', 'إ', 'آ'], 'ا', $value);
-        $value = preg_replace('/^(?:منطقة|المنطقة|محافظة|المحافظة|مقاطعة|المقاطعة)\s+/u', '', $value);
-        $value = preg_replace('/\b(?:province|region|state|governorate)\b/u', '', $value);
-        $value = preg_replace('/^(?:al|ar|ash)[\s-]+/u', '', $value);
-        $value = preg_replace('/[^a-z0-9\x{0600}-\x{06FF}]+/u', ' ', $value);
-
-        return trim($value);
     }
 
     private function isAllowedGoogleMapsUrl(string $url): bool

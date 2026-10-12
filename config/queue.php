@@ -15,6 +15,8 @@ return [
 
     'default' => env('QUEUE_CONNECTION', 'sync'),
 
+    'shippment_import_queue' => env('SHIPPMENT_IMPORT_QUEUE', 'default'),
+
     /*
     |--------------------------------------------------------------------------
     | Queue Connections

@@ -33,6 +33,13 @@
                                 <em class="icon ni ni-download-cloud"></em><span>{{ __('contenttypes::strings.shipment_import.download_template') }}</span>
                             </a>
                         </li>
+                        @if(auth()->user()->type === 'DEFAULT')
+                            <li>
+                                <a href="{{ route('ShippmentsController@imports') }}" class="btn btn-outline-primary">
+                                    <em class="icon ni ni-upload-cloud"></em><span>{{ __('contenttypes::strings.shipment_import.import_shipments') }}</span>
+                                </a>
+                            </li>
+                        @endif
                         {{-- <li class="nk-block-tools-opt">
                             <a href="#" class="btn btn-white btn-outline-light">
                                 <em class="icon ni ni-download-cloud"></em><span>Export</span>
