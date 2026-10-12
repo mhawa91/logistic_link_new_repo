@@ -144,6 +144,8 @@ return [
     ],
     'shipment_import' => [
         'download_template'         => 'Download Import Template',
+        'export_shipments'          => 'Export Shipments for Update',
+        'export_title'              => 'Shipment Export for Import',
         'import_shipments'          => 'Import Shipments',
         'import_history'            => 'Import History',
         'upload_title'              => 'Upload Import File',
@@ -182,6 +184,8 @@ return [
         'row_statuses' => ['PENDING' => 'Pending', 'SUCCESS' => 'Succeeded', 'FAILED' => 'Failed'],
         'errors' => [
             'client_account_required'     => 'Shipment imports can only be submitted by the owning client account.',
+            'no_exportable_shipments'     => 'There are no shipments in a status that can be updated through import.',
+            'export_too_many_rows'        => 'The export exceeds 500 shipments or 500 delivery addresses. Export a smaller set before importing it again.',
             'invalid_template_version'   => 'The template version is not supported. Download the latest template and try again.',
             'invalid_columns'            => 'The template column structure was changed or a column is missing.',
             'empty_file'                 => 'The file does not contain any shipments to import.',
@@ -233,7 +237,7 @@ return [
         'instructions' => [
             'data_rows'          => 'Enter data starting from row 3, and keep the template column order and structure unchanged.',
             'import_key'         => 'Give each shipment a unique key such as SHP-001. Use the same key in the Delivery Addresses sheet to link addresses to the shipment.',
-            'shipment_id'        => 'Leave Shipment ID blank when adding a new shipment. A future export of existing shipments will use this field to identify the shipment to update.',
+            'shipment_id'        => 'Leave Shipment ID blank when adding a new shipment. An export of existing shipments uses this field to identify the shipment to update.',
             'update_statuses'    => 'To protect requests already sent to transporters, imports may update shipments only in DRAFT, NO_MATCHING_CONTRACTS, or RFQ_PENDING_TRANSPORTER_SELECTION status.',
             'addresses'          => 'Every shipment requires at least one delivery address. CITY_TO_CITY accepts one address; CITY_TO_CITY_MULTIPLE_LOCATIONS accepts multiple addresses.',
             'references'         => 'Use the IDs listed in Reference Values for cities, commodities, load sizes, load types, and truck types.',

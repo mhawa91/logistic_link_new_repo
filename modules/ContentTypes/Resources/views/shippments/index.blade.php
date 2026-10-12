@@ -34,6 +34,13 @@
                             </a>
                         </li>
                         @if(auth()->user()->type === 'DEFAULT')
+                            @if($Service->can('update'))
+                                <li>
+                                    <a href="{{ route('ShippmentsController@downloadImportExport') }}" class="btn btn-outline-primary">
+                                        <em class="icon ni ni-file-download"></em><span>{{ __('contenttypes::strings.shipment_import.export_shipments') }}</span>
+                                    </a>
+                                </li>
+                            @endif
                             <li>
                                 <a href="{{ route('ShippmentsController@imports') }}" class="btn btn-outline-primary">
                                     <em class="icon ni ni-upload-cloud"></em><span>{{ __('contenttypes::strings.shipment_import.import_shipments') }}</span>

@@ -119,7 +119,7 @@ class ShippmentImportProcessor
             $this->validateReferences($source, $data, $shipment);
             app(ShippmentService::class)->validator('update', $data)->validate();
             $this->verifyDeliveryCities($data);
-            $this->attachRemoteFiles($source, $data, $tempFiles);
+            $this->attachRemoteFiles($source, $data, $tempFiles, $shipment);
 
             $service = app(ShippmentService::class);
             $validator = $service->validator($shipment ? 'update' : 'create', $data);
@@ -439,12 +439,19 @@ class ShippmentImportProcessor
         return (int) $id;
     }
 
-    private function attachRemoteFiles(array $source, array &$data, array &$tempFiles): void
+    private function attachRemoteFiles(array $source, array &$data, array &$tempFiles, ?Shippment $shipment): void
     {
         foreach (range(1, 4) as $index) {
             $url = trim((string) ($source['attachment_' . $index . '_url'] ?? ''));
             if ($url === '') {
                 continue;
+            }
+            if ($shipment) {
+                $file = $shipment->{'ATTACHMENT_' . $index};
+                $currentUrl = $file ? app('GraphManager')->src('original', 'files', $file->file_path) : null;
+                if ($currentUrl && hash_equals($currentUrl, $url)) {
+                    continue;
+                }
             }
             $data['ATTACHMENT_' . $index] = $this->downloadPublicFile($url, $tempFiles);
         }

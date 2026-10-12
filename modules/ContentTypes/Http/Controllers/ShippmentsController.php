@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Modules\Address\Entities\OpenStreetMapService;
+use Modules\ContentTypes\Exports\ShippmentImportExport;
 use Modules\ContentTypes\Exports\ShippmentImportTemplate;
+use Modules\ContentTypes\Imports\ShippmentImportDefinition;
 use Modules\ContentTypes\Services\DestinationCityVerifier;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
@@ -31,11 +33,12 @@ class ShippmentsController extends SystemCoreHttpController
     public function __construct(ShippmentService $ShippmentService)
     {
         $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
-        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'read'))->only(['index', 'postIndex', 'read', 'postRead']);
+        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'read'))->only(['index', 'postIndex', 'read', 'postRead', 'downloadImportExport']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'create'))->only([
             'create',
             'postCreate',
             'downloadImportTemplate',
+            'downloadImportExport',
             'destinationCityLocation',
             'verifyDestinationCity',
             'imports',
@@ -43,7 +46,7 @@ class ShippmentsController extends SystemCoreHttpController
             'readImport',
             'importStatus',
         ]);
-        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'update'))->only(['update', 'postUpdate']);
+        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'update'))->only(['update', 'postUpdate', 'downloadImportExport']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'statusUpdate'))->only(['postStatus']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'delete'))->only(['postDelete']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'restore'))->only(['postRestore']);
@@ -92,6 +95,57 @@ class ShippmentsController extends SystemCoreHttpController
 
         $spreadsheet = $ShippmentImportTemplate->build();
         $filename = 'shipment-import-template-' . app()->getLocale() . '.xlsx';
+
+        return response()->streamDownload(function() use($spreadsheet) {
+            (new Xlsx($spreadsheet))->save('php://output');
+            $spreadsheet->disconnectWorksheets();
+        }, $filename, [
+            'Content-Type'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0, no-cache, no-store, must-revalidate',
+        ]);
+    }
+
+    public function downloadImportExport(
+        ShippmentService $ShippmentService,
+        ShippmentImportExport $ShippmentImportExport
+    ) {
+        if (auth()->user()->type !== 'DEFAULT') {
+            abort(403, __('contenttypes::strings.shipment_import.errors.client_account_required'));
+        }
+        if (! $ShippmentService->can('read') || ! $ShippmentService->can('create') || ! $ShippmentService->can('update')) {
+            $ShippmentService->throwPermissionException('update');
+        }
+
+        $shipments = Shippment::where('company_user_id', auth()->id())
+            ->whereIn('sys_status', ShippmentImportDefinition::EDITABLE_STATUSES)
+            ->with([
+                'loadingLocation',
+                'offloadingLocations' => function ($query) {
+                    $query->orderBy('id');
+                },
+                'commodities',
+                'ATTACHMENT_1',
+                'ATTACHMENT_2',
+                'ATTACHMENT_3',
+                'ATTACHMENT_4',
+            ])
+            ->orderBy('id')
+            ->limit(501)
+            ->get();
+
+        if ($shipments->isEmpty()) {
+            return redirect()->back()->withErrors([
+                'export' => __('contenttypes::strings.shipment_import.errors.no_exportable_shipments'),
+            ]);
+        }
+
+        try {
+            $spreadsheet = $ShippmentImportExport->build($shipments);
+        } catch (\LengthException $exception) {
+            return redirect()->back()->withErrors(['export' => $exception->getMessage()]);
+        }
+
+        $filename = 'shipment-export-for-import-' . now()->format('Y-m-d') . '.xlsx';
 
         return response()->streamDownload(function() use($spreadsheet) {
             (new Xlsx($spreadsheet))->save('php://output');
