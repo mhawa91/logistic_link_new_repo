@@ -39,7 +39,7 @@ return [
         'database' => [
             'driver' => 'database',
             'table' => 'jobs',
-            'queue' => 'default',
+            'queue' => env('DB_QUEUE', 'default'),
             'retry_after' => 90,
             'after_commit' => false,
         ],
