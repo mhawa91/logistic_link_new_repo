@@ -53,6 +53,11 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::get('create'                             , 'ShippmentsController@create')->name('ShippmentsController@create');
         Route::post('create'                            , 'ShippmentsController@postCreate')->name('ShippmentsController@postCreate');
         Route::get('import-template'                    , 'ShippmentsController@downloadImportTemplate')->name('ShippmentsController@downloadImportTemplate');
+        Route::get('export-for-import'                  , 'ShippmentsController@downloadImportExport')->name('ShippmentsController@downloadImportExport');
+        Route::get('imports'                            , 'ShippmentsController@imports')->name('ShippmentsController@imports');
+        Route::post('imports'                           , 'ShippmentsController@postImport')->name('ShippmentsController@postImport');
+        Route::get('imports/{import}/status'            , 'ShippmentsController@importStatus')->name('ShippmentsController@importStatus');
+        Route::get('imports/{import}'                   , 'ShippmentsController@readImport')->name('ShippmentsController@readImport');
         Route::get('update/{model}'                     , 'ShippmentsController@update')->name('ShippmentsController@update');
         Route::post('update'                            , 'ShippmentsController@postUpdate')->name('ShippmentsController@postUpdate');
         Route::get('resolve-google-maps-url'            , 'ShippmentsController@resolveGoogleMapsUrl')->name('ShippmentsController@resolveGoogleMapsUrl');

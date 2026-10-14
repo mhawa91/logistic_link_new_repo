@@ -4,6 +4,7 @@ namespace Modules\ContentTypes\Exports;
 
 use Modules\ContentManager\Entities\Content;
 use Modules\SystemCore\Entities\City;
+use Modules\ContentTypes\Imports\ShippmentImportDefinition;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -14,8 +15,8 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ShippmentImportTemplate
 {
-    private const FIRST_DATA_ROW = 3;
-    private const LAST_DATA_ROW = 502;
+    private const FIRST_DATA_ROW = ShippmentImportDefinition::FIRST_DATA_ROW;
+    private const LAST_DATA_ROW = ShippmentImportDefinition::LAST_DATA_ROW;
 
     private $locale;
 
@@ -31,17 +32,17 @@ class ShippmentImportTemplate
             ->setCreator(config('app.name'))
             ->setTitle(__('contenttypes::strings.shipment_import.template_title'))
             ->setSubject(__('contenttypes::strings.shipment_import.template_description'))
-            ->setCustomProperty('shipment_import_schema_version', '1');
+            ->setCustomProperty('shipment_import_schema_version', ShippmentImportDefinition::SCHEMA_VERSION);
 
         $shipments = $spreadsheet->getActiveSheet();
         $shipments->setTitle(__('contenttypes::strings.shipment_import.shipments_sheet'));
-        $this->configureDataSheet($shipments, $this->shipmentColumns());
-        $this->configureShipmentValidations($shipments, $this->shipmentColumns());
+        $this->configureDataSheet($shipments, ShippmentImportDefinition::shipmentColumns());
+        $this->configureShipmentValidations($shipments, ShippmentImportDefinition::shipmentColumns());
 
         $addresses = $spreadsheet->createSheet();
         $addresses->setTitle(__('contenttypes::strings.shipment_import.delivery_addresses_sheet'));
-        $this->configureDataSheet($addresses, $this->deliveryAddressColumns());
-        $this->addListValidation($addresses, $this->columnIndex($this->deliveryAddressColumns(), 'round_trip'), ['YES', 'NO']);
+        $this->configureDataSheet($addresses, ShippmentImportDefinition::deliveryAddressColumns());
+        $this->addListValidation($addresses, $this->columnIndex(ShippmentImportDefinition::deliveryAddressColumns(), 'round_trip'), ['YES', 'NO']);
 
         $instructions = $spreadsheet->createSheet();
         $instructions->setTitle(__('contenttypes::strings.shipment_import.instructions_sheet'));
@@ -54,73 +55,6 @@ class ShippmentImportTemplate
         $spreadsheet->setActiveSheetIndex(0);
 
         return $spreadsheet;
-    }
-
-    private function shipmentColumns(): array
-    {
-        $loading = __('contenttypes::strings.shippments.loading_address');
-
-        return [
-            $this->column('import_key', __('contenttypes::strings.shipment_import.columns.import_key'), true, 18),
-            $this->column('id', __('contenttypes::strings.shipment_import.columns.shipment_id'), false, 12),
-            $this->column('from_city_id', __('contenttypes::inputs.from_city_id.label'), true, 18),
-            $this->column('to_city_id', __('contenttypes::inputs.to_city_id.label'), true, 18),
-            $this->column('loading_type', __('contenttypes::inputs.loading_type.label'), true, 30),
-            $this->column('commodity_ids', __('contenttypes::strings.shipment_import.columns.commodity_ids'), true, 22),
-            $this->column('load_size_id', __('contenttypes::inputs.load_size_id.label'), true, 18),
-            $this->column('load_type_id', __('contenttypes::inputs.load_type_id.label'), true, 18),
-            $this->column('truck_type_id', __('contenttypes::inputs.truck_type_id.label'), true, 18),
-            $this->column('total_weight', __('contenttypes::inputs.weight.label'), true, 16),
-            $this->column('declared_order_value', __('contenttypes::inputs.declared_order_value.label'), true, 20),
-            $this->column('number_of_pallets', __('contenttypes::inputs.number_of_pallets.label'), true, 17),
-            $this->column('number_of_trucks', __('contenttypes::inputs.number_of_trucks.label'), true, 17),
-            $this->column('temperature', __('contenttypes::inputs.temperature.label'), true, 18),
-            $this->column('equipment_length', __('contenttypes::inputs.equipment_length.label'), true, 18),
-            $this->column('equipment_width', __('contenttypes::inputs.equipment_width.label'), true, 18),
-            $this->column('delivery_required_at', __('contenttypes::inputs.delivery_required_at.label'), true, 20),
-            $this->column('is_draft', __('contenttypes::strings.shipment_import.columns.is_draft'), true, 14),
-            $this->column('is_rfq', __('contenttypes::strings.shipment_import.columns.is_rfq'), true, 14),
-            $this->column('public_notes', __('contenttypes::inputs.public_notes.label'), false, 28),
-            $this->column('private_notes', __('contenttypes::inputs.private_notes.label'), false, 28),
-            $this->column('loading_company_name', $loading . ' - ' . __('contenttypes::inputs.address_name.label'), true, 24),
-            $this->column('loading_contact_name', $loading . ' - ' . __('contenttypes::inputs.address_primary_contact.label'), true, 24),
-            $this->column('loading_contact_email', $loading . ' - ' . __('contenttypes::inputs.address_email.label'), true, 26),
-            $this->column('loading_contact_phone', $loading . ' - ' . __('contenttypes::inputs.address_phone_number.label'), true, 22),
-            $this->column('loading_lat', $loading . ' - ' . __('contenttypes::inputs.lat.label'), true, 18),
-            $this->column('loading_lng', $loading . ' - ' . __('contenttypes::inputs.lng.label'), true, 18),
-            $this->column('loading_full_address', $loading . ' - ' . __('contenttypes::inputs.full_address.label'), true, 34),
-            $this->column('loading_public_notes', $loading . ' - ' . __('contenttypes::inputs.public_notes.label'), false, 28),
-            $this->column('loading_private_notes', $loading . ' - ' . __('contenttypes::inputs.private_notes.label'), false, 28),
-            $this->column('attachment_1_url', __('contenttypes::strings.shipment_import.columns.attachment_1_url'), false, 32),
-            $this->column('attachment_2_url', __('contenttypes::strings.shipment_import.columns.attachment_2_url'), false, 32),
-            $this->column('attachment_3_url', __('contenttypes::strings.shipment_import.columns.attachment_3_url'), false, 32),
-            $this->column('attachment_4_url', __('contenttypes::strings.shipment_import.columns.attachment_4_url'), false, 32),
-        ];
-    }
-
-    private function deliveryAddressColumns(): array
-    {
-        return [
-            $this->column('shipment_import_key', __('contenttypes::strings.shipment_import.columns.shipment_import_key'), true, 20),
-            $this->column('shipment_id', __('contenttypes::strings.shipment_import.columns.shipment_id'), false, 14),
-            $this->column('address_id', __('contenttypes::strings.shipment_import.columns.address_id'), false, 14),
-            $this->column('sequence', __('contenttypes::strings.shipment_import.columns.sequence'), true, 12),
-            $this->column('company_name', __('contenttypes::inputs.address_name.label'), true, 24),
-            $this->column('contact_name', __('contenttypes::inputs.address_primary_contact.label'), true, 24),
-            $this->column('contact_email', __('contenttypes::inputs.address_email.label'), true, 26),
-            $this->column('contact_phone', __('contenttypes::inputs.address_phone_number.label'), true, 22),
-            $this->column('lat', __('contenttypes::inputs.lat.label'), true, 18),
-            $this->column('lng', __('contenttypes::inputs.lng.label'), true, 18),
-            $this->column('full_address', __('contenttypes::inputs.full_address.label'), true, 34),
-            $this->column('round_trip', __('contenttypes::inputs.round_trip.label'), true, 15),
-            $this->column('public_notes', __('contenttypes::inputs.public_notes.label'), false, 28),
-            $this->column('private_notes', __('contenttypes::inputs.private_notes.label'), false, 28),
-        ];
-    }
-
-    private function column(string $key, string $label, bool $required, int $width): array
-    {
-        return compact('key', 'label', 'required', 'width');
     }
 
     private function configureDataSheet(Worksheet $sheet, array $columns): void
@@ -224,7 +158,7 @@ class ShippmentImportTemplate
             $sheet->setCellValue('B' . $row, $instruction);
             $sheet->getStyle('A' . $row)->getFont()->setBold(true)->getColor()->setARGB('FF364A63');
             $sheet->getStyle('B' . $row)->getAlignment()->setWrapText(true)->setVertical(Alignment::VERTICAL_TOP);
-            $sheet->getRowDimension($row)->setRowHeight(32);
+            $sheet->getRowDimension($row)->setRowHeight(42);
         }
     }
 

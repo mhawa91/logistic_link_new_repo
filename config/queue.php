@@ -15,6 +15,8 @@ return [
 
     'default' => env('QUEUE_CONNECTION', 'sync'),
 
+    'shippment_import_queue' => env('SHIPPMENT_IMPORT_QUEUE', 'default'),
+
     /*
     |--------------------------------------------------------------------------
     | Queue Connections
@@ -37,7 +39,7 @@ return [
         'database' => [
             'driver' => 'database',
             'table' => 'jobs',
-            'queue' => 'default',
+            'queue' => env('DB_QUEUE', 'default'),
             'retry_after' => 90,
             'after_commit' => false,
         ],
