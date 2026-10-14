@@ -641,7 +641,7 @@
                     processing   : true,
                     serverSide   : true,
                     pageLength   : 50,
-                    order        :  [],
+                    order        :  [[10, 'desc'], [0, 'desc']],
                     drawCallback: function () {
                         $('.bs-datatable tbody tr').addClass('nk-tb-item');
                         $('.bs-datatable-card .pagination').addClass('pagination-sm');
@@ -650,7 +650,7 @@
                         {
                             className  : BS.CONFIG('defaultTableCellClass'),
                             data       : 'id',
-                            name       : 'id',
+                            name       : 'lgl_shippments.id',
                             orderable  : true,
                             searchable : true,
                             // visible    : false,
@@ -847,7 +847,7 @@
                         {
                             className  : BS.CONFIG('lgTableCellClass'),
                             data       : "created_at",
-                            name       : 'created_at',
+                            name       : 'lgl_shippments.created_at',
                             render     : function(data,type,Row,meta) {
                                 return `<small dir="ltr">${Row.new_created_at || Row.created_at}</small>`;
                             }

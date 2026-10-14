@@ -39,8 +39,6 @@ class ShippmentsController extends SystemCoreHttpController
             'postCreate',
             'downloadImportTemplate',
             'downloadImportExport',
-            'destinationCityLocation',
-            'verifyDestinationCity',
             'imports',
             'postImport',
             'readImport',
@@ -321,7 +319,7 @@ class ShippmentsController extends SystemCoreHttpController
         ShippmentService $ShippmentService,
         DestinationCityVerifier $DestinationCityVerifier
     ) {
-        if (! $ShippmentService->can('create')) {
+        if (! $ShippmentService->can('create') && ! $ShippmentService->can('update')) {
             $ShippmentService->throwPermissionException('create');
         }
 
@@ -360,7 +358,7 @@ class ShippmentsController extends SystemCoreHttpController
         ShippmentService $ShippmentService,
         OpenStreetMapService $OpenStreetMapService
     ) {
-        if (! $ShippmentService->can('create')) {
+        if (! $ShippmentService->can('create') && ! $ShippmentService->can('update')) {
             $ShippmentService->throwPermissionException('create');
         }
 
@@ -515,6 +513,9 @@ class ShippmentsController extends SystemCoreHttpController
                 'public_notes'                 => $location->public_notes,
                 'private_notes'                => $location->private_notes,
                 'removed'                      => 'N',
+                'destination_city_token'       => null,
+                'city_validation_status'       => 'pending',
+                'city_validation_request_id'   => 0,
                 'map'                          => null,
             ];
         });
