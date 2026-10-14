@@ -334,6 +334,8 @@ class ShippmentsController extends SystemCoreHttpController
             return response()->json(['message' => $validator->errors()->first()], 422);
         }
 
+        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
+
         try {
             $valid = $DestinationCityVerifier->verify((int) $Request->city_id, $Request->lat, $Request->lng);
         } catch (\Throwable $exception) {
