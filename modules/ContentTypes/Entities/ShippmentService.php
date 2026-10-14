@@ -206,6 +206,8 @@ class ShippmentService extends ModelService
         }
         if ($type == 'create') {
             $rules['number_of_trucks'] = 'required|numeric|min:1';
+        }
+        if (in_array($type, ['create', 'update'], true)) {
             $rules['offloading_address.*.destination_city_token'] = 'nullable|string|size:64';
             $validator = Validator::make($data, $rules, $messages, $attributes);
             $validator->after(function($validator) use($data) {
@@ -234,9 +236,6 @@ class ShippmentService extends ModelService
                 }
             });
             return $validator;
-        }
-        if ($type == 'update') {
-            return Validator::make($data, $rules, $messages, $attributes);
         }
     }
 
