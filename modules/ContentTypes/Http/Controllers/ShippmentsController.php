@@ -1273,9 +1273,23 @@ class ShippmentsController extends SystemCoreHttpController
         ]);
     }
 
-    public function driversSelect(Request $Request, ActionResponse $Response, DriverService $DriverService)
+    public function driversSelect(
+        Request $Request,
+        ActionResponse $Response,
+        DriverService $DriverService,
+        ShippmentService $ShippmentService
+    )
     {
-        return $DriverService->ajaxSelect($Request->search ?? null, [
+        $Request->validate([
+            'model' => 'required|integer',
+        ]);
+
+        $shippment = $ShippmentService->findOrFail($Request->model)->data();
+        if (auth()->user()->type === 'TRANSPORTER' && (int) $shippment->transporter_user_id !== (int) auth()->id()) {
+            abort(403);
+        }
+
+        return $DriverService->availableForShippment($shippment)->ajaxSelect($Request->search ?? null, [
             'nullable' => $Request->nullable ?? true,
         ], $Request->page);
     }
@@ -1328,7 +1342,12 @@ class ShippmentsController extends SystemCoreHttpController
         ]);
     }
 
-    public function postDriverAndWaybill(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
+    public function postDriverAndWaybill(
+        Request $Request,
+        ActionResponse $Response,
+        ShippmentService $ShippmentService,
+        DriverService $DriverService
+    )
     {
         $this->data['model'] = $ShippmentService->withTrashed()->findOrFail($Request->model)->data();
         $this->data['model']->load([
@@ -1368,7 +1387,7 @@ class ShippmentsController extends SystemCoreHttpController
         }
         $this->data['Validator'] = Validator::make($Request->all(), $rules)->validate();
 
-        DB::transaction(function() use($Request, $ShippmentService) {
+        DB::transaction(function() use($Request, $ShippmentService, $DriverService) {
             $driver = null;
 
             if($Request->driver_mode == 'new') {
@@ -1383,7 +1402,14 @@ class ShippmentsController extends SystemCoreHttpController
                 $driver->save();
             }
             else {
-                $driver = Driver::where('transporter_user_id', auth()->id())->findOrFail($Request->driver_id);
+                $driver = Driver::where('transporter_user_id', auth()->id())
+                    ->lockForUpdate()
+                    ->findOrFail($Request->driver_id);
+                if (! $DriverService->isAvailableForShippment($driver->id, $this->data['model'])) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'driver_id' => __('contenttypes::strings.shippments.driver_not_available'),
+                    ]);
+                }
             }
 
             $this->data['model']->driver_id = $driver->id;

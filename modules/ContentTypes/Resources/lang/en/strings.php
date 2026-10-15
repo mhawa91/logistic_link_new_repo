@@ -146,6 +146,8 @@ return [
         'previous_delivery_address_search'  => 'Search by address, company, contact, email, or phone',
         'previous_delivery_address_empty'   => 'No matching saved addresses were found in this city.',
         'previous_delivery_address_failed'  => 'Previous delivery addresses could not be loaded. Please try again.',
+        'driver_not_available'              => 'This driver is assigned to another shipment that overlaps this shipment date. Select an available driver.',
+        'driver_availability_hint'           => 'The list shows drivers whose ongoing shipments do not overlap this shipment date. A driver remains available when their current shipment ends before this date.',
     ],
     'shipment_import' => [
         'download_template'         => 'Download Import Template',

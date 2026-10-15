@@ -1145,6 +1145,9 @@
                                 'disabled'          => function($options, $key, $option, $value) { return false; },
                             ],
                         ])
+                        <span class="form-note mt-2">
+                            {{ __('contenttypes::strings.shippments.driver_availability_hint') }}
+                        </span>
                     </div>
 
                     <div class="col-lg-6">
@@ -1574,7 +1577,8 @@
                     data: function (params) {
                         var query = {
                             search   : params.term,
-                            page     : params.page || 1
+                            page     : params.page || 1,
+                            model    : @json($model->id)
                         }
                         return query;
                     },
