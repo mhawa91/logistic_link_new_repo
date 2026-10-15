@@ -11,6 +11,7 @@ use Modules\ContentTypes\Exports\ShippmentImportExport;
 use Modules\ContentTypes\Exports\ShippmentImportTemplate;
 use Modules\ContentTypes\Imports\ShippmentImportDefinition;
 use Modules\ContentTypes\Services\DestinationCityVerifier;
+use Modules\ContentTypes\Services\PreviousDeliveryAddressService;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\SystemCore\Entities\City;
@@ -398,6 +399,37 @@ class ShippmentsController extends SystemCoreHttpController
         }
 
         return response()->json($location);
+    }
+
+    public function previousDeliveryAddresses(
+        Request $Request,
+        ShippmentService $ShippmentService,
+        PreviousDeliveryAddressService $PreviousDeliveryAddressService
+    ) {
+        if (! $ShippmentService->can('create') && ! $ShippmentService->can('update')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+        if (auth()->user()->type !== 'DEFAULT') {
+            abort(403);
+        }
+
+        $validator = Validator::make($Request->all(), [
+            'city_id' => 'required|integer|exists:cities,id',
+            'search'  => 'nullable|string|max:100',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
+
+        return response()->json([
+            'results' => $PreviousDeliveryAddressService->search(
+                auth()->id(),
+                (int) $city->id,
+                $Request->search
+            ),
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
     private function isAllowedGoogleMapsUrl(string $url): bool

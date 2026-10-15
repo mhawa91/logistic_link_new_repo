@@ -722,6 +722,12 @@
                     <br>
 
                     <div class="row gy-4" v-for="(address, address_index) in to_addresses" :style="{ 'display': address.removed == 'Y' ? 'none' : 'flex' }">
+                        <div class="col-md-12">
+                            <previous-delivery-address-search
+                                :city-id="to_address.city ? to_address.city.id : null"
+                                v-on:selected="applyPreviousDeliveryAddress(address, $event)">
+                            </previous-delivery-address-search>
+                        </div>
                         <div class="col-md-4">
                             <div class="row gy-4">
                                 <div class="col-md-12">
@@ -1098,6 +1104,7 @@
 @endsection
 
 @push('script')
+    @include('contenttypes::shippments.partials.previous-delivery-address-search')
     <script>
         var companyMap = null;
         var destinationCityValidationQueue = Promise.resolve();
@@ -1382,6 +1389,9 @@
                             return data;
                         }
                     };
+                },
+                applyPreviousDeliveryAddress: function(address, selected) {
+                    window.fillPreviousDeliveryAddress(this, address, selected);
                 },
                 addToAddress: function() {
                     if (!this.hasDestinationCity()) {

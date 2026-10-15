@@ -141,6 +141,11 @@ return [
         'wait_for_address_city_check'        => 'انتظر حتى يكتمل التحقق من مواقع عناوين التوصيل.',
         'destination_city_location_failed'  => 'تعذر تحديد موقع مدينة الوصول على الخريطة.',
         'multiple_locations_type_required'  => 'لإضافة عنوان توصيل آخر، اختر نوع التحميل «من مدينة إلى مدينة بعدة مواقع».',
+        'previous_delivery_addresses'       => 'عناوين التوصيل السابقة',
+        'previous_delivery_address_hint'    => 'ابحث في العناوين المحفوظة ضمن مدينة الوصول المحددة واملأ بيانات هذا العنوان تلقائياً.',
+        'previous_delivery_address_search'  => 'ابحث بالعنوان أو الشركة أو جهة الاتصال أو البريد أو الهاتف',
+        'previous_delivery_address_empty'   => 'لا توجد عناوين محفوظة مطابقة ضمن هذه المدينة.',
+        'previous_delivery_address_failed'  => 'تعذر تحميل عناوين التوصيل السابقة. حاول مرة أخرى.',
     ],
     'shipment_import' => [
         'download_template'         => 'تنزيل قالب الاستيراد',

@@ -141,6 +141,11 @@ return [
         'wait_for_address_city_check'        => 'Wait until all delivery address locations have been verified.',
         'destination_city_location_failed'  => 'The destination city could not be located on the map.',
         'multiple_locations_type_required'  => 'To add another delivery address, select the “City to city with multiple locations” loading type.',
+        'previous_delivery_addresses'       => 'Previous delivery addresses',
+        'previous_delivery_address_hint'    => 'Search saved addresses in the selected destination city and fill this address automatically.',
+        'previous_delivery_address_search'  => 'Search by address, company, contact, email, or phone',
+        'previous_delivery_address_empty'   => 'No matching saved addresses were found in this city.',
+        'previous_delivery_address_failed'  => 'Previous delivery addresses could not be loaded. Please try again.',
     ],
     'shipment_import' => [
         'download_template'         => 'Download Import Template',
