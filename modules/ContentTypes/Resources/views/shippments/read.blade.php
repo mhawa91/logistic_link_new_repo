@@ -313,6 +313,13 @@
                                                         {{__('contenttypes::orders.pallets')}}
                                                     </p>
                                                 </div>
+                                                <div class="col-lg-6 mb-4">
+                                                    <img src="{{ asset('images/icons/date.svg') }}" alt="">
+                                                    <span class="name">{{ __('contenttypes::inputs.delivery_required_at.label') }}</span>
+                                                    <p class="value">
+                                                        {{ $model->delivery_required_at ? \Carbon\Carbon::parse($model->delivery_required_at)->format('Y-m-d') : '—' }}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
