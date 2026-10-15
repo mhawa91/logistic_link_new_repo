@@ -313,6 +313,13 @@
                                                         {{__('contenttypes::orders.pallets')}}
                                                     </p>
                                                 </div>
+                                                <div class="col-lg-6 mb-4">
+                                                    <img src="{{ asset('images/icons/date.svg') }}" alt="">
+                                                    <span class="name">{{ __('contenttypes::inputs.delivery_required_at.label') }}</span>
+                                                    <p class="value">
+                                                        {{ $model->delivery_required_at ? \Carbon\Carbon::parse($model->delivery_required_at)->format('Y-m-d') : '—' }}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1138,6 +1145,9 @@
                                 'disabled'          => function($options, $key, $option, $value) { return false; },
                             ],
                         ])
+                        <span class="form-note mt-2">
+                            {{ __('contenttypes::strings.shippments.driver_availability_hint') }}
+                        </span>
                     </div>
 
                     <div class="col-lg-6">
@@ -1567,7 +1577,8 @@
                     data: function (params) {
                         var query = {
                             search   : params.term,
-                            page     : params.page || 1
+                            page     : params.page || 1,
+                            model    : @json($model->id)
                         }
                         return query;
                     },

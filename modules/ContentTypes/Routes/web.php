@@ -61,6 +61,7 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::get('update/{model}'                     , 'ShippmentsController@update')->name('ShippmentsController@update');
         Route::post('update'                            , 'ShippmentsController@postUpdate')->name('ShippmentsController@postUpdate');
         Route::get('resolve-google-maps-url'            , 'ShippmentsController@resolveGoogleMapsUrl')->name('ShippmentsController@resolveGoogleMapsUrl');
+        Route::get('previous-delivery-addresses'        , 'ShippmentsController@previousDeliveryAddresses')->name('ShippmentsController@previousDeliveryAddresses');
         Route::post('destination-city-location'         , 'ShippmentsController@destinationCityLocation')->name('ShippmentsController@destinationCityLocation');
         Route::post('verify-destination-city'           , 'ShippmentsController@verifyDestinationCity')->name('ShippmentsController@verifyDestinationCity');
         Route::post('bulk-send'                         , 'ShippmentsController@postBulkSend')->name('ShippmentsController@postBulkSend');

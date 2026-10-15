@@ -1,6 +1,6 @@
 @php
     $totalLocations            = $locations->count() + ($from ? 1 : 0);
-    $progressPercentagePerStep = 100 / ($totalLocations ?? 1);
+    $progressPercentagePerStep = $totalLocations > 0 ? 100 / $totalLocations : 0;
     $deliveredLocations = $locations->filter(function ($location) {
         return $location->delivered_at;
     })->count() + ($from && $from->delivered_at ? 1 : 0);

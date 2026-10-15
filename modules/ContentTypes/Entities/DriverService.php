@@ -13,6 +13,11 @@ use Carbon\Carbon;
 
 class DriverService extends ModelService
 {
+    private const ACTIVE_SHIPPMENT_STATUSES = [
+        'PENDING_PICKUP',
+        'PENDING_DELIVERY',
+    ];
+
     public function register() 
     {
         $this->modelNamespace = Driver::class;
@@ -53,7 +58,7 @@ class DriverService extends ModelService
             ->where('lgl_drivers.name', 'LIKE', "%{$keyword}%")
             ->orWhere('lgl_drivers.id_number', 'LIKE', "%{$keyword}%")
             ->orWhereHas('nationality', function($query) use($keyword) {
-                $query->where(function($query) {
+                $query->where(function($query) use($keyword) {
                     $query->where('name_ar', 'LIKE', "%{$keyword}%");
                     $query->orWhere('name_en', 'LIKE', "%{$keyword}%");
                 });
@@ -146,6 +151,35 @@ class DriverService extends ModelService
         });
 
         return parent::ajaxSelect($filter, $Options, $page, $limit);
+    }
+
+    public function availableForShippment(Shippment $shippment): self
+    {
+        $targetDate = $shippment->delivery_required_at
+            ? Carbon::parse($shippment->delivery_required_at)->startOfDay()
+            : null;
+
+        $this->model()->whereDoesntHave('shippments', function($query) use($shippment, $targetDate) {
+            $query->where('lgl_shippments.id', '!=', $shippment->id)
+                ->whereIn('lgl_shippments.sys_status', self::ACTIVE_SHIPPMENT_STATUSES)
+                ->when($targetDate, function($query) use($targetDate) {
+                    $query->where(function($query) use($targetDate) {
+                        $query->whereNull('lgl_shippments.delivery_required_at')
+                            ->orWhere('lgl_shippments.delivery_required_at', '>=', $targetDate);
+                    });
+                });
+        });
+
+        return $this;
+    }
+
+    public function isAvailableForShippment(int $driverId, Shippment $shippment): bool
+    {
+        return $this->new()
+            ->availableForShippment($shippment)
+            ->model()
+            ->whereKey($driverId)
+            ->exists();
     }
 
     public function install() : bool

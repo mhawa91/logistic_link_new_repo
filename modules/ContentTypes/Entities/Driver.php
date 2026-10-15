@@ -40,6 +40,11 @@ class Driver extends Model
         return $this->belongsTo(Country::class, 'nationality_country_id', 'id');
     }
 
+    public function shippments()
+    {
+        return $this->hasMany(Shippment::class, 'driver_id', 'id');
+    }
+
     public function ATTACHMENT_1()
     {
         return $this->hasOne(UploadedFile::class, 'related_id', 'id')

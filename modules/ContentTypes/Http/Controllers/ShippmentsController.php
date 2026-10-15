@@ -11,6 +11,7 @@ use Modules\ContentTypes\Exports\ShippmentImportExport;
 use Modules\ContentTypes\Exports\ShippmentImportTemplate;
 use Modules\ContentTypes\Imports\ShippmentImportDefinition;
 use Modules\ContentTypes\Services\DestinationCityVerifier;
+use Modules\ContentTypes\Services\PreviousDeliveryAddressService;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\SystemCore\Entities\City;
@@ -398,6 +399,37 @@ class ShippmentsController extends SystemCoreHttpController
         }
 
         return response()->json($location);
+    }
+
+    public function previousDeliveryAddresses(
+        Request $Request,
+        ShippmentService $ShippmentService,
+        PreviousDeliveryAddressService $PreviousDeliveryAddressService
+    ) {
+        if (! $ShippmentService->can('create') && ! $ShippmentService->can('update')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+        if (auth()->user()->type !== 'DEFAULT') {
+            abort(403);
+        }
+
+        $validator = Validator::make($Request->all(), [
+            'city_id' => 'required|integer|exists:cities,id',
+            'search'  => 'nullable|string|max:100',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
+
+        return response()->json([
+            'results' => $PreviousDeliveryAddressService->search(
+                auth()->id(),
+                (int) $city->id,
+                $Request->search
+            ),
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
     private function isAllowedGoogleMapsUrl(string $url): bool
@@ -1241,9 +1273,23 @@ class ShippmentsController extends SystemCoreHttpController
         ]);
     }
 
-    public function driversSelect(Request $Request, ActionResponse $Response, DriverService $DriverService)
+    public function driversSelect(
+        Request $Request,
+        ActionResponse $Response,
+        DriverService $DriverService,
+        ShippmentService $ShippmentService
+    )
     {
-        return $DriverService->ajaxSelect($Request->search ?? null, [
+        $Request->validate([
+            'model' => 'required|integer',
+        ]);
+
+        $shippment = $ShippmentService->findOrFail($Request->model)->data();
+        if (auth()->user()->type === 'TRANSPORTER' && (int) $shippment->transporter_user_id !== (int) auth()->id()) {
+            abort(403);
+        }
+
+        return $DriverService->availableForShippment($shippment)->ajaxSelect($Request->search ?? null, [
             'nullable' => $Request->nullable ?? true,
         ], $Request->page);
     }
@@ -1296,7 +1342,12 @@ class ShippmentsController extends SystemCoreHttpController
         ]);
     }
 
-    public function postDriverAndWaybill(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
+    public function postDriverAndWaybill(
+        Request $Request,
+        ActionResponse $Response,
+        ShippmentService $ShippmentService,
+        DriverService $DriverService
+    )
     {
         $this->data['model'] = $ShippmentService->withTrashed()->findOrFail($Request->model)->data();
         $this->data['model']->load([
@@ -1336,7 +1387,7 @@ class ShippmentsController extends SystemCoreHttpController
         }
         $this->data['Validator'] = Validator::make($Request->all(), $rules)->validate();
 
-        DB::transaction(function() use($Request, $ShippmentService) {
+        DB::transaction(function() use($Request, $ShippmentService, $DriverService) {
             $driver = null;
 
             if($Request->driver_mode == 'new') {
@@ -1351,7 +1402,14 @@ class ShippmentsController extends SystemCoreHttpController
                 $driver->save();
             }
             else {
-                $driver = Driver::where('transporter_user_id', auth()->id())->findOrFail($Request->driver_id);
+                $driver = Driver::where('transporter_user_id', auth()->id())
+                    ->lockForUpdate()
+                    ->findOrFail($Request->driver_id);
+                if (! $DriverService->isAvailableForShippment($driver->id, $this->data['model'])) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'driver_id' => __('contenttypes::strings.shippments.driver_not_available'),
+                    ]);
+                }
             }
 
             $this->data['model']->driver_id = $driver->id;
