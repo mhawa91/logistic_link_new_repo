@@ -83,7 +83,8 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::get('transportar-waybill-and-driver'     , 'ShippmentsController@driverAndWaybill')->name('ShippmentsController@driverAndWaybill');
         Route::post('transportar-waybill-and-driver'    , 'ShippmentsController@postDriverAndWaybill')->name('ShippmentsController@postDriverAndWaybill');
         Route::get('transportar-drivers-select'         , 'ShippmentsController@driversSelect')->name('ShippmentsController@driversSelect');
-        Route::get('location-delivery'                  , 'ShippmentsController@locationDelivery')->name('ShippmentsController@locationDelivery');
+        Route::post('location-delivery'                 , 'ShippmentsController@locationDelivery')->name('ShippmentsController@locationDelivery');
+        Route::post('delivery-confirmation'             , 'ShippmentsController@postDeliveryConfirmation')->name('ShippmentsController@postDeliveryConfirmation');
 
         Route::post('transportar-rfq-approve'           , 'ShippmentsController@transportarRfqApprove')->name('ShippmentsController@transportarRfqApprove');
         Route::get('transportar-rfq-reject'             , 'ShippmentsController@transportarRfqReject')->name('ShippmentsController@transportarRfqReject');

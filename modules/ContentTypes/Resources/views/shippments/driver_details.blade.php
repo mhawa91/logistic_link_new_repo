@@ -26,4 +26,13 @@
             {{ $driver && $driver->nationality ? $driver->nationality->name_ar . ' / ' . $driver->nationality->name_en : '----' }}
         </div>
     </div>
+    <div class="box-info">
+        <div class="label">
+            <img src="{{ asset('images/icons/private_notes.svg') }}" alt="">
+            <span class="name">{{ __('contenttypes::inputs.car_information.label') }}</span>
+        </div>
+        <div class="info" style="white-space: pre-line">
+            {{ $driver && $driver->car_information ? $driver->car_information : '----' }}
+        </div>
+    </div>
 </div>

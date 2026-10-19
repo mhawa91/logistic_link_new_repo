@@ -305,6 +305,10 @@ return [
             'title'       => 'Shipment Delivered/Received at Location',
             'description' => 'Shipment was successfully delivered/received at the location',
         ],
+        'delivery_confirmation_saved' => [
+            'title'       => 'Proof of Delivery Saved',
+            'description' => 'The delivery status and proof of delivery details were updated successfully',
+        ],
         'select_one_transportar_at_least' => [
             'title'       => 'Select At Least One Transporter',
             'description' => 'Please select at least one transporter from the list to continue',

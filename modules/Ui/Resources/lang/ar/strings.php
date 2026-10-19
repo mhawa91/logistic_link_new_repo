@@ -47,6 +47,7 @@ return [
     'actions'                  => 'عمليات',
     'select_all'               => 'تحديد الكل',
     'deselect_all'             => 'إلغاء تحديد الكل',
+    'preview_file'             => 'استعراض الملف',
 
     'datatable'                => [
         'sProcessing'   => 'جارٍ التحميل...',

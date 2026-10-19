@@ -15,6 +15,9 @@
         'attributes'   => [],
         'class'        => '',
         'rows'         => 5,
+        'file_preview' => false,
+        'existing_file_url'  => null,
+        'existing_file_name' => null,
     ], isset($options) ? $options : []);
     $OPTIONS['id'] = $OPTIONS['id'] ? $OPTIONS['id'] : str_replace(['[', ']', '.'], '', $OPTIONS['name']);
     $ATTRIBUTES    = '';
@@ -94,17 +97,7 @@
                             {!! $ATTRIBUTES !!}>{!! $OPTIONS['value'] !!}</textarea>
                         {!! $AFTER !!}
                     @elseif($OPTIONS['type'] == 'file')
-                        <div class="custom-file">
-                            <input 
-                                name="{{ $OPTIONS['name'] }}" 
-                                type="file" 
-                                class="custom-file-input {{ $OPTIONS['class'] }}" 
-                                id="{{ $OPTIONS['id'] }}"
-                                {!! $ATTRIBUTES !!}>
-                            <label class="custom-file-label" for="{{ $OPTIONS['id'] }}">
-                                {{ $OPTIONS['value'] ?? $OPTIONS['placeholder'] }}
-                            </label>
-                        </div>
+                        @include('ui::components.file-input', ['options' => $OPTIONS, 'attributes' => $ATTRIBUTES])
                     @elseif($OPTIONS['type'] == 'file_with_preview')
                         <ul class="preview-list g-2">
                             <li class="preview-item">
@@ -205,17 +198,7 @@
                     {!! $ATTRIBUTES !!}>{!! $OPTIONS['value'] !!}</textarea>
                 {!! $AFTER !!}
             @elseif($OPTIONS['type'] == 'file')
-                <div class="custom-file">
-                    <input 
-                        name="{{ $OPTIONS['name'] }}" 
-                        type="file" 
-                        class="custom-file-input {{ $OPTIONS['class'] }}" 
-                        id="{{ $OPTIONS['id'] }}"
-                        {!! $ATTRIBUTES !!}>
-                    <label class="custom-file-label" for="{{ $OPTIONS['id'] }}">
-                        {{ $OPTIONS['value'] ?? $OPTIONS['placeholder'] }}
-                    </label>
-                </div>
+                @include('ui::components.file-input', ['options' => $OPTIONS, 'attributes' => $ATTRIBUTES])
             @elseif($OPTIONS['type'] == 'file_with_preview')
                 <ul class="preview-list g-2">
                     <li class="preview-item">
@@ -313,17 +296,7 @@
                     {!! $ATTRIBUTES !!}>{!! $OPTIONS['value'] !!}</textarea>
                 {!! $AFTER !!}
             @elseif($OPTIONS['type'] == 'file')
-                <div class="custom-file">
-                    <input 
-                        name="{{ $OPTIONS['name'] }}" 
-                        type="file" 
-                        class="custom-file-input {{ $OPTIONS['class'] }}" 
-                        id="{{ $OPTIONS['id'] }}"
-                        {!! $ATTRIBUTES !!}>
-                    <label class="custom-file-label" for="{{ $OPTIONS['id'] }}">
-                        {{ $OPTIONS['value'] ?? $OPTIONS['placeholder'] }}
-                    </label>
-                </div>
+                @include('ui::components.file-input', ['options' => $OPTIONS, 'attributes' => $ATTRIBUTES])
             @elseif($OPTIONS['type'] == 'file_with_preview')
                 <ul class="preview-list g-2">
                     <li class="preview-item">

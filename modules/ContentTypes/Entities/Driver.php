@@ -23,7 +23,9 @@ class Driver extends Model
     protected $fillable = [
         'transporter_user_id',
         'id_number',
+        'car_plate',
         'name',
+        'car_information',
         'nationality_country_id',
         'sys_status',
         'created_by_user_id',

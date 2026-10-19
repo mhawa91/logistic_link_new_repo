@@ -42,6 +42,7 @@ class Address extends Model
         'round_trip',
         'sys_status',
         'delivered_at',
+        'delivery_confirmation_notes',
         'created_by_user_id',
         'updated_by_user_id',
     ];
@@ -54,6 +55,13 @@ class Address extends Model
     public function city()
     {
         return $this->belongsTo(Entities\City::class, 'city_id', 'id');
+    }
+
+    public function DELIVERY_CONFIRMATION()
+    {
+        return $this->hasOne(UploadedFile::class, 'related_id', 'id')
+            ->where('related_type', 'address')
+            ->where('file_tag', 'DELIVERY_CONFIRMATION');
     }
 
     public function scopeWithCountryAndCitySelect($query)

@@ -119,6 +119,46 @@ table th.fit, table td.fit {
     border-radius: 5px;
     height: 90%;
 }
+.order-details .offloading-points-box{
+    height: auto;
+}
+.order-details .offloading-points-box .shipments-items{
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+}
+.order-details .offloading-points-box .shipments-items:last-child{
+    margin-bottom: 0 !important;
+    padding-bottom: 0;
+}
+.order-details .offloading-points-box .shipments-items:not(:last-child){
+    border-bottom: 1px solid #DBDFEA;
+}
+.order-details .offloading-points-box .delivery-proof-wrapper{
+    margin-top: 8px;
+}
+.delivery-proof{
+    background-color: #f8fcfb;
+    border: 1px solid #d8e8e5;
+    border-inline-start: 3px solid #24BDA6;
+    box-shadow: 0 2px 8px rgba(54, 74, 99, .05);
+}
+.delivery-proof__icon{
+    width: 32px;
+    height: 32px;
+    color: #1c8a79;
+    background-color: rgba(36, 189, 166, .12);
+}
+.delivery-proof__edit{
+    color: #1c8a79;
+    background-color: #fff;
+    border: 1px solid #b7dcd6;
+}
+.delivery-proof__edit:hover,
+.delivery-proof__edit:focus{
+    color: #fff;
+    background-color: #1c8a79;
+    border-color: #1c8a79;
+}
 .order-details .general-info .name{
     font-weight: 500;
     font-size: 14px;
@@ -210,9 +250,6 @@ table th.fit, table td.fit {
     position: absolute;
     font-weight: 600;
     font-size: 14px;
-}
-.shipments-items:not(:last-child) {
-    border-bottom: 1px solid #DBDFEA;
 }
 .custom-title-2{
     color: #FB4F28;
