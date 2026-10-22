@@ -8,6 +8,7 @@ use Modules\SystemCore\Entities\Role;
 use Modules\SystemCore\Entities\AbilityGroup;
 use Modules\SystemCore\Entities\Ability;
 use Modules\SystemCore\System\Services\ModelService;
+use Illuminate\Validation\Rule;
 
 class CountriesService extends ModelService
 {
@@ -34,12 +35,21 @@ class CountriesService extends ModelService
 
     public function validator($type = 'create', array $data = [])
     {
-        if ($type == 'create') {
-            return Validator::make($data, []);
-        }
-        if ($type == 'update') {
-            return Validator::make($data, []);
-        }
+        $countryId = $type === 'update' ? ($data['model'] ?? null) : null;
+
+        return Validator::make($data, [
+            'sortname'   => ['required', 'string', 'size:2', Rule::unique('countries', 'sortname')->ignore($countryId)],
+            'code'       => ['nullable', 'string', 'max:10'],
+            'sys_status' => ['nullable', 'in:DISABLED,ACTIVE'],
+            'name_ar'    => ['required', 'string', 'max:100', Rule::unique('countries', 'name_ar')->ignore($countryId)],
+            'name_en'    => ['required', 'string', 'max:100', Rule::unique('countries', 'name_en')->ignore($countryId)],
+        ], [], [
+            'sortname'   => __('systemcore::inputs.country_sortname.label'),
+            'code'       => __('systemcore::inputs.country_code.label'),
+            'sys_status' => __('admin::inputs.status.label'),
+            'name_ar'    => __('systemcore::inputs.name_ar.label'),
+            'name_en'    => __('systemcore::inputs.name_en.label'),
+        ]);
     }
 
     protected function keywordFilter($query, string $keyword = null)
@@ -56,19 +66,19 @@ class CountriesService extends ModelService
     protected function advancedFilter($query, array $filter = [])
     {
         if (! empty($filter['sortname'])) {
-            $Model->where('sortname', 'like', "%{$filter['sortname']}%");
+            $query->where('sortname', 'like', "%{$filter['sortname']}%");
         }
         if (! empty($filter['code'])) {
-            $Model->where('code', 'like', "%{$filter['code']}%");
+            $query->where('code', 'like', "%{$filter['code']}%");
         }
         if (! empty($filter['name_ar'])) {
-            $Model->where('name_ar', 'like', "%{$filter['name_ar']}%");
+            $query->where('name_ar', 'like', "%{$filter['name_ar']}%");
         }
         if (! empty($filter['name_en'])) {
-            $Model->where('name_en', 'like', "%{$filter['name_en']}%");
+            $query->where('name_en', 'like', "%{$filter['name_en']}%");
         }
         if (! empty($filter['sys_status'])) {
-            $Model->where('sys_status', $filter['sys_status']);
+            $query->where('sys_status', $filter['sys_status']);
         }
     }
 
@@ -92,6 +102,7 @@ class CountriesService extends ModelService
 
     public function create(array $data = [])
     {
+        $data['sortname'] = strtoupper(trim($data['sortname'] ?? ''));
         $data = array_merge([
             'created_by_user_id' => auth()->check() ? auth()->user()->id : null,
             'updated_by_user_id' => null,
@@ -102,6 +113,7 @@ class CountriesService extends ModelService
 
     public function update(array $data = [])
     {
+        $data['sortname'] = strtoupper(trim($data['sortname'] ?? ''));
         $data = array_merge([
             'updated_by_user_id' => auth()->check() ? auth()->user()->id : null,
             'sys_status'         => 'ACTIVE',

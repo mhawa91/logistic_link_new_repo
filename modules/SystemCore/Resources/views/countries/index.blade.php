@@ -15,6 +15,24 @@
         ],
     ]
 ])
+    @if ($Service->can('create'))
+        <div class="nk-block-head-content">
+            <div class="toggle-wrap nk-block-tools-toggle">
+                <a href="javascript:;" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu">
+                    <em class="icon ni ni-menu-alt-r"></em>
+                </a>
+                <div class="toggle-expand-content" data-content="pageMenu">
+                    <ul class="nk-block-tools g-3">
+                        <li>
+                            <a href="{{ route('CountriesController@create') }}" class="btn btn-primary">
+                                <em class="icon ni ni-plus"></em><span>{{ __('systemcore::strings.countries.create') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    @endif
 @endcomponent
 
 @section('content')

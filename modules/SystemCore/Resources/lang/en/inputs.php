@@ -32,8 +32,8 @@ return [
         'description' => '',
     ],
     'city' => [
-        'label'       => 'Province',
-        'placeholder' => 'Province',
+        'label'       => 'City',
+        'placeholder' => 'City',
         'description' => '',
     ],
     'municipality' => [
