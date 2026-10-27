@@ -10,6 +10,7 @@ use Modules\SystemCore\Entities\Ability;
 use Modules\SystemCore\System\Services\ModelService;
 use Modules\SystemCore\System\Services\ExportService;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class ShippmentService extends ModelService
 {
@@ -49,10 +50,10 @@ class ShippmentService extends ModelService
         }
         if ($this->can('update')) {
             $this->registerDataTableAction('update', function($Row) {
-                return [
+                return $Row->sys_status === 'DRAFT' && ! $Row->trashed() ? [
                     'label'  => __('ui::strings.update'),
                     'action' => route('ShippmentsController@update', ['model' => $Row->id]),
-                ];
+                ] : null;
             });
         }
         if ($this->can('delete')) {
@@ -577,6 +578,16 @@ class ShippmentService extends ModelService
 
     public function update(array $data = [])
     {
+        $currentStatus = $this->data
+            ? Shippment::whereKey($this->data->id)->lockForUpdate()->value('sys_status')
+            : null;
+
+        if ($currentStatus !== 'DRAFT') {
+            throw ValidationException::withMessages([
+                'model' => [__('contenttypes::strings.messages.shippment_edit_draft_only.description')],
+            ]);
+        }
+
         $ModelData = [
             'company_user_id'      => $this->data->company_user_id,
             'from_country_id'      => 191,

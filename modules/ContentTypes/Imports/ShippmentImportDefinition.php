@@ -7,7 +7,7 @@ class ShippmentImportDefinition
     public const SCHEMA_VERSION = '1';
     public const FIRST_DATA_ROW = 3;
     public const LAST_DATA_ROW = 502;
-    public const EDITABLE_STATUSES = ['DRAFT', 'NO_MATCHING_CONTRACTS', 'RFQ_PENDING_TRANSPORTER_SELECTION'];
+    public const EDITABLE_STATUSES = ['DRAFT'];
 
     public static function shipmentColumns(): array
     {

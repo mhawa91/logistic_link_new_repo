@@ -393,6 +393,9 @@
         @endif
 
         @php
+            $showLegacyDashboardCards = (int) $dashboardStatistics['total_contracts'] === 0
+                && (int) $dashboardStatistics['total_shippments'] === 0;
+
             $dashboardMetricCards = [
                 [
                     'key'   => 'total_contracts',
@@ -413,21 +416,21 @@
                     'label' => __('contenttypes::dashboard.delivered_shippments'),
                     'icon'  => 'ni-check-circle',
                     'class' => 'delivered',
-                    'link'  => route('ShippmentsController@index'),
+                    'link'  => route('ShippmentsController@index', ['dashboard_filter' => 'delivered']),
                 ],
                 [
                     'key'   => 'in_progress',
                     'label' => __('contenttypes::dashboard.in_progress_shippments'),
                     'icon'  => 'ni-loader',
                     'class' => 'progress',
-                    'link'  => route('ShippmentsController@index'),
+                    'link'  => route('ShippmentsController@index', ['dashboard_filter' => 'in_progress']),
                 ],
                 [
                     'key'   => 'open_invoices',
                     'label' => __('contenttypes::dashboard.open_invoices'),
                     'icon'  => 'ni-reports-alt',
                     'class' => 'invoices',
-                    'link'  => route('InvoicesController@index'),
+                    'link'  => route('InvoicesController@index', ['dashboard_filter' => 'open']),
                 ],
             ];
         @endphp
@@ -487,6 +490,7 @@
             </div>
         </section>
 
+        @if($showLegacyDashboardCards)
         <div class="row g-gs">
             <div class="col-lg-4">
                 <div class="card card-bordered h-100">
@@ -594,6 +598,7 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 
     <div class="card card-full mt-4 how-it-works">
@@ -738,10 +743,11 @@
     </script>
 
     <script>
-        const ctx = document.getElementById('progressChart').getContext('2d');
+        const progressChartCanvas = document.getElementById('progressChart');
         const progressValue = Number('{{ $progress }}');
 
-        new Chart(ctx, {
+        if (progressChartCanvas && typeof Chart !== 'undefined') {
+        new Chart(progressChartCanvas.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: ['Progress', 'Remaining'],
@@ -783,6 +789,7 @@
                 }
             }]
         });
+        }
     </script>
 
 @endpush

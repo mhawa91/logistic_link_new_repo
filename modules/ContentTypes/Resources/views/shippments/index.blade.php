@@ -154,7 +154,7 @@
                     'placeholder'       => __('contenttypes::inputs.shippment_status.placeholder'),
                     'description'       => __('contenttypes::inputs.shippment_status.description'),
                     'attributes'        => [],
-                    'value'             => '0',
+                    'value'             => $dashboardShippmentStatuses ?? [],
                     'search'            => true,
                     'multiple'          => true,
                     'nullable'          => true,
@@ -163,7 +163,7 @@
                     'option_text'       => function($key, $option)                   { return $option; },
                     'option_value'      => function($key, $option)                   { return $key; },
                     'option_attributes' => function($key, $option)                   { return []; },
-                    'selected'          => function($options, $key, $option, $value) { return null; },
+                    'selected'          => function($options, $key, $option, $value) { return in_array($key, (array) $value, true); },
                     'disabled'          => function($options, $key, $option, $value) { return false; },
                 ],
             ])

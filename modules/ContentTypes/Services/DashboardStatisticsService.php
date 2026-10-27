@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\ContentTypes\Entities\Invoice;
 use Modules\ContentTypes\Entities\Shippment;
-use Modules\ContentTypes\Entities\TransporterContractInstance;
+use Modules\ContentTypes\Entities\TransporterContract;
 
 class DashboardStatisticsService
 {
@@ -26,6 +26,19 @@ class DashboardStatisticsService
         'PENDING',
         'PENDING_SUPPLIER_REVIEW',
     ];
+
+    public static function shippmentStatusesForFilter(?string $filter): array
+    {
+        return [
+            'delivered'   => self::DELIVERED_SHIPPMENT_STATUSES,
+            'in_progress' => self::IN_PROGRESS_SHIPPMENT_STATUSES,
+        ][$filter] ?? [];
+    }
+
+    public static function invoiceStatusesForFilter(?string $filter): array
+    {
+        return $filter === 'open' ? self::OPEN_INVOICE_STATUSES : [];
+    }
 
     public function forUser(User $user): array
     {
@@ -53,7 +66,15 @@ class DashboardStatisticsService
                 $query->where('company_user_id', $user->id);
             })
             ->when($user->type === 'TRANSPORTER', function (Builder $query) use ($user) {
-                $query->where('transporter_user_id', $user->id);
+                $query->where(function (Builder $query) use ($user) {
+                    $query->whereHas('matchedTransportars', function (Builder $relation) use ($user) {
+                        $relation->where('transporter_user_id', $user->id)
+                            ->whereIn('status', ['PENDING_RESPONSE', 'ACCEPTED']);
+                    })->orWhereHas('rfqs', function (Builder $relation) use ($user) {
+                        $relation->where('transporter_user_id', $user->id)
+                            ->whereIn('status', ['PENDING_RESPONSE', 'PENDING_ACCEPTANCE', 'ACCEPTED']);
+                    });
+                });
             });
     }
 
@@ -70,7 +91,7 @@ class DashboardStatisticsService
 
     private function contractsFor(User $user): Builder
     {
-        return TransporterContractInstance::query()
+        return TransporterContract::query()
             ->when($user->type === 'DEFAULT', function (Builder $query) use ($user) {
                 $query->where('company_user_id', $user->id);
             })

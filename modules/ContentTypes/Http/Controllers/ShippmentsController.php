@@ -11,6 +11,7 @@ use Modules\ContentTypes\Exports\ShippmentImportExport;
 use Modules\ContentTypes\Exports\ShippmentImportTemplate;
 use Modules\ContentTypes\Imports\ShippmentImportDefinition;
 use Modules\ContentTypes\Services\DestinationCityVerifier;
+use Modules\ContentTypes\Services\DashboardStatisticsService;
 use Modules\ContentTypes\Services\PreviousDeliveryAddressService;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
@@ -58,6 +59,9 @@ class ShippmentsController extends SystemCoreHttpController
     public function index(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
     {
         $this->data['Service'] = $ShippmentService;
+        $this->data['dashboardShippmentStatuses'] = DashboardStatisticsService::shippmentStatusesForFilter(
+            $Request->query('dashboard_filter')
+        );
         return view($this->viewsFolderPath . '.index', $this->data);
     }
 
@@ -470,9 +474,9 @@ class ShippmentsController extends SystemCoreHttpController
             return redirect()->route('ShippmentsController@read', ['model' => $this->data['model']->id]);
         }
 
-        // if($this->data['model']->sys_status == 'MATCHING') {
-        //     return redirect()->route('ShippmentsController@read', ['model' => $this->data['model']->id]);
-        // }
+        if($Request->duplicate != 'Y' && $this->data['model']->sys_status !== 'DRAFT') {
+            return $this->draftOnlyEditResponse($Response, $this->data['model']);
+        }
 
         $this->data['model']->load([
             'loadingLocation' => function($query) {
@@ -729,6 +733,9 @@ class ShippmentsController extends SystemCoreHttpController
         if($Request->duplicate == 'Y') {
             return $this->postCreate($Request, $Response, $ShippmentService);
         }
+        if($this->data['model']->sys_status !== 'DRAFT') {
+            return $this->draftOnlyEditResponse($Response, $this->data['model']);
+        }
         $this->data['Validator'] = $ShippmentService->validator('update', $Request->all());
         $this->data['Validator']->validate();
         $shippment = DB::transaction(function() use($Request, $ShippmentService) {
@@ -752,6 +759,18 @@ class ShippmentsController extends SystemCoreHttpController
                 'description' => __('ui::strings.messages.saved.description'),
             ],
             'redirect' => route('ShippmentsController@read', ['model' => $this->data['model']->id]),
+        ]);
+    }
+
+    private function draftOnlyEditResponse(ActionResponse $Response, Shippment $shippment): ActionResponse
+    {
+        return $Response->module('ContentTypes')->code('403')->fail()->withOnlyToAjaxWeb([
+            'redirect' => route('ShippmentsController@read', ['model' => $shippment->id]),
+            'toastr' => [
+                'type'        => 'error',
+                'title'       => __('contenttypes::strings.messages.shippment_edit_draft_only.title'),
+                'description' => __('contenttypes::strings.messages.shippment_edit_draft_only.description'),
+            ],
         ]);
     }
 

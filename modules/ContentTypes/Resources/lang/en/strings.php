@@ -245,7 +245,7 @@ return [
             'data_rows'          => 'Enter data starting from row 3, and keep the template column order and structure unchanged.',
             'import_key'         => 'Give each shipment a unique key such as SHP-001. Use the same key in the Delivery Addresses sheet to link addresses to the shipment.',
             'shipment_id'        => 'Leave Shipment ID blank when adding a new shipment. An export of existing shipments uses this field to identify the shipment to update.',
-            'update_statuses'    => 'To protect requests already sent to transporters, imports may update shipments only in DRAFT, NO_MATCHING_CONTRACTS, or RFQ_PENDING_TRANSPORTER_SELECTION status.',
+            'update_statuses'    => 'Existing shipments may be updated through import only while they are in DRAFT status.',
             'addresses'          => 'Every shipment requires at least one delivery address. CITY_TO_CITY accepts one address; CITY_TO_CITY_MULTIPLE_LOCATIONS accepts multiple addresses.',
             'references'         => 'Use the IDs listed in Reference Values for cities, commodities, load sizes, load types, and truck types.',
             'commodities'        => 'For multiple commodities, separate IDs with commas, for example: 12,18,25.',
@@ -308,6 +308,10 @@ return [
         'delivery_confirmation_saved' => [
             'title'       => 'Proof of Delivery Saved',
             'description' => 'The delivery status and proof of delivery details were updated successfully',
+        ],
+        'shippment_edit_draft_only' => [
+            'title'       => 'Shipment Cannot Be Edited',
+            'description' => 'A shipment can be edited only while it is in Draft status.',
         ],
         'select_one_transportar_at_least' => [
             'title'       => 'Select At Least One Transporter',
