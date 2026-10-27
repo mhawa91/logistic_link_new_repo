@@ -47,6 +47,7 @@ return [
     'actions'                  => 'Actions',
     'select_all'               => 'Select All',
     'deselect_all'             => 'Deselect All',
+    'preview_file'             => 'Preview file',
 
     'datatable'                => [
         'sProcessing'   => 'Loading...',

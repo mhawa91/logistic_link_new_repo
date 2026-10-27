@@ -44,6 +44,165 @@
 
 @push('head')
     <style>
+        .dashboard-overview__heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .dashboard-overview__heading h4 {
+            margin-bottom: 4px;
+            color: #25396f;
+            font-size: 20px;
+        }
+        .dashboard-overview__heading p {
+            margin: 0;
+            color: #8094ae;
+            font-size: 13px;
+        }
+        .dashboard-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 14px;
+        }
+        .dashboard-metric {
+            --metric-color: #6576ff;
+            --metric-soft: rgba(101, 118, 255, .12);
+            position: relative;
+            min-width: 0;
+            overflow: hidden;
+            border: 1px solid #e5e9f2;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 5px 18px rgba(31, 43, 74, .05);
+            color: #364a63;
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+        .dashboard-metric::before {
+            position: absolute;
+            inset-block: 0;
+            inset-inline-start: 0;
+            width: 3px;
+            background: var(--metric-color);
+            content: '';
+        }
+        .dashboard-metric:hover {
+            border-color: var(--metric-color);
+            box-shadow: 0 9px 24px rgba(31, 43, 74, .1);
+            color: #364a63;
+            transform: translateY(-2px);
+        }
+        .dashboard-metric__inner {
+            padding: 18px;
+        }
+        .dashboard-metric__top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .dashboard-metric__icon {
+            display: inline-flex;
+            flex: 0 0 42px;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: var(--metric-soft);
+            color: var(--metric-color);
+            font-size: 21px;
+        }
+        .dashboard-metric__value {
+            overflow: hidden;
+            color: #25396f;
+            font-size: 29px;
+            font-weight: 700;
+            line-height: 1;
+            text-overflow: ellipsis;
+        }
+        .dashboard-metric__label {
+            display: block;
+            min-height: 40px;
+            margin-top: 14px;
+            color: #526484;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .dashboard-metric__link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+            color: var(--metric-color);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .dashboard-metric--contracts { --metric-color: #6576ff; --metric-soft: rgba(101, 118, 255, .12); }
+        .dashboard-metric--shipments { --metric-color: #3b82f6; --metric-soft: rgba(59, 130, 246, .11); }
+        .dashboard-metric--delivered { --metric-color: #1c9a83; --metric-soft: rgba(28, 154, 131, .11); }
+        .dashboard-metric--progress { --metric-color: #d99a00; --metric-soft: rgba(217, 154, 0, .12); }
+        .dashboard-metric--invoices { --metric-color: #e85347; --metric-soft: rgba(232, 83, 71, .11); }
+        .dashboard-activity-card {
+            border-radius: 10px;
+            box-shadow: 0 5px 18px rgba(31, 43, 74, .05);
+        }
+        .dashboard-activity-card__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+        }
+        .dashboard-activity-card__header h5 {
+            margin-bottom: 4px;
+            color: #25396f;
+        }
+        .dashboard-activity-card__header p {
+            margin: 0;
+            color: #8094ae;
+            font-size: 12px;
+        }
+        .dashboard-period-switch {
+            display: inline-flex;
+            flex: 0 0 auto;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid #e5e9f2;
+            border-radius: 8px;
+            background: #f5f6fa;
+        }
+        .dashboard-period-switch button {
+            padding: 7px 12px;
+            border: 0;
+            border-radius: 6px;
+            background: transparent;
+            color: #8094ae;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .dashboard-period-switch button.is-active {
+            background: #fff;
+            box-shadow: 0 2px 7px rgba(31, 43, 74, .1);
+            color: #1c9a83;
+        }
+        .dashboard-period-total {
+            display: flex;
+            align-items: baseline;
+            gap: 7px;
+            margin-top: 18px;
+            color: #8094ae;
+            font-size: 12px;
+        }
+        .dashboard-period-total strong {
+            color: #25396f;
+            font-size: 22px;
+        }
+        .dashboard-chart-wrap {
+            position: relative;
+            height: 285px;
+            margin-top: 8px;
+        }
         .pending-request-alert {
             position: relative;
             overflow: hidden;
@@ -139,7 +298,35 @@
         body.dark-mode .pending-request-alert__description {
             color: #b6c6e3;
         }
+        body.dark-mode .dashboard-metric,
+        body.dark-mode .dashboard-activity-card,
+        body.dark-mode .dashboard-period-switch button.is-active {
+            background: #18212d;
+        }
+        body.dark-mode .dashboard-overview__heading h4,
+        body.dark-mode .dashboard-metric__value,
+        body.dark-mode .dashboard-activity-card__header h5,
+        body.dark-mode .dashboard-period-total strong {
+            color: #e5e9f2;
+        }
+        body.dark-mode .dashboard-metric__label {
+            color: #b6c6e3;
+        }
+        body.dark-mode .dashboard-period-switch {
+            background: #101924;
+        }
+        @media (max-width: 1199px) {
+            .dashboard-metrics-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
         @media (max-width: 767px) {
+            .dashboard-metrics-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .dashboard-activity-card__header {
+                flex-direction: column;
+            }
             .pending-request-alert__content {
                 align-items: flex-start;
                 flex-wrap: wrap;
@@ -158,6 +345,15 @@
             }
         }
         @media (max-width: 420px) {
+            .dashboard-metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-period-switch {
+                width: 100%;
+            }
+            .dashboard-period-switch button {
+                flex: 1 1 50%;
+            }
             .pending-request-alert__action {
                 margin-inline-start: 0;
             }
@@ -196,6 +392,105 @@
             </div>
         @endif
 
+        @php
+            $showLegacyDashboardCards = (int) $dashboardStatistics['total_contracts'] === 0
+                && (int) $dashboardStatistics['total_shippments'] === 0;
+
+            $dashboardMetricCards = [
+                [
+                    'key'   => 'total_contracts',
+                    'label' => __('contenttypes::dashboard.total_contracts'),
+                    'icon'  => 'ni-file-docs',
+                    'class' => 'contracts',
+                    'link'  => route('TransportersController@index'),
+                ],
+                [
+                    'key'   => 'total_shippments',
+                    'label' => __('contenttypes::dashboard.total_shippments'),
+                    'icon'  => 'ni-truck',
+                    'class' => 'shipments',
+                    'link'  => route('ShippmentsController@index'),
+                ],
+                [
+                    'key'   => 'delivered_shippments',
+                    'label' => __('contenttypes::dashboard.delivered_shippments'),
+                    'icon'  => 'ni-check-circle',
+                    'class' => 'delivered',
+                    'link'  => route('ShippmentsController@index', ['dashboard_filter' => 'delivered']),
+                ],
+                [
+                    'key'   => 'in_progress',
+                    'label' => __('contenttypes::dashboard.in_progress_shippments'),
+                    'icon'  => 'ni-loader',
+                    'class' => 'progress',
+                    'link'  => route('ShippmentsController@index', ['dashboard_filter' => 'in_progress']),
+                ],
+                [
+                    'key'   => 'open_invoices',
+                    'label' => __('contenttypes::dashboard.open_invoices'),
+                    'icon'  => 'ni-reports-alt',
+                    'class' => 'invoices',
+                    'link'  => route('InvoicesController@index', ['dashboard_filter' => 'open']),
+                ],
+            ];
+        @endphp
+
+        <section class="dashboard-overview mb-4" aria-labelledby="dashboard-statistics-title">
+            <div class="dashboard-overview__heading">
+                <div>
+                    <h4 id="dashboard-statistics-title">{{ __('contenttypes::dashboard.statistics_title') }}</h4>
+                    <p>{{ __('contenttypes::dashboard.statistics_description') }}</p>
+                </div>
+            </div>
+
+            <div class="dashboard-metrics-grid">
+                @foreach($dashboardMetricCards as $metric)
+                    <a href="{{ $metric['link'] }}" class="dashboard-metric dashboard-metric--{{ $metric['class'] }}">
+                        <div class="dashboard-metric__inner">
+                            <div class="dashboard-metric__top">
+                                <span class="dashboard-metric__icon" aria-hidden="true">
+                                    <em class="icon ni {{ $metric['icon'] }}"></em>
+                                </span>
+                                <strong class="dashboard-metric__value">{{ number_format($dashboardStatistics[$metric['key']]) }}</strong>
+                            </div>
+                            <span class="dashboard-metric__label">{{ $metric['label'] }}</span>
+                            <span class="dashboard-metric__link">
+                                {{ __('contenttypes::dashboard.view_details') }}
+                                <em class="icon ni ni-arrow-long-left"></em>
+                            </span>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+
+            <div class="card card-bordered dashboard-activity-card mt-3">
+                <div class="card-inner">
+                    <div class="dashboard-activity-card__header">
+                        <div>
+                            <h5>{{ __('contenttypes::dashboard.shippments_activity') }}</h5>
+                            <p>{{ __('contenttypes::dashboard.shippments_activity_description') }}</p>
+                        </div>
+                        <div class="dashboard-period-switch" role="group" aria-label="{{ __('contenttypes::dashboard.shippments_activity') }}">
+                            <button type="button" class="is-active" data-dashboard-period="last_7_days" aria-pressed="true">
+                                {{ __('contenttypes::dashboard.last_7_days') }}
+                            </button>
+                            <button type="button" data-dashboard-period="last_30_days" aria-pressed="false">
+                                {{ __('contenttypes::dashboard.last_30_days') }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dashboard-period-total">
+                        <span>{{ __('contenttypes::dashboard.period_total') }}</span>
+                        <strong id="dashboard-period-total">{{ number_format($dashboardStatistics['chart']['last_7_days']['total']) }}</strong>
+                    </div>
+                    <div class="dashboard-chart-wrap">
+                        <canvas id="shippmentsActivityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @if($showLegacyDashboardCards)
         <div class="row g-gs">
             <div class="col-lg-4">
                 <div class="card card-bordered h-100">
@@ -303,6 +598,7 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 
     <div class="card card-full mt-4 how-it-works">
@@ -361,10 +657,97 @@
     </script>
 
     <script>
-        const ctx = document.getElementById('progressChart').getContext('2d');
+        const dashboardShippmentSeries = @json($dashboardStatistics['chart']);
+        const shippmentsActivityCanvas = document.getElementById('shippmentsActivityChart');
+        const dashboardPeriodTotal = document.getElementById('dashboard-period-total');
+
+        if (shippmentsActivityCanvas && typeof Chart !== 'undefined') {
+            const initialSeries = dashboardShippmentSeries.last_7_days;
+            const shippmentsActivityChart = new Chart(shippmentsActivityCanvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: initialSeries.labels,
+                    datasets: [{
+                        label: @json(__('contenttypes::dashboard.shippments_count')),
+                        data: initialSeries.values,
+                        borderColor: '#24bda6',
+                        backgroundColor: 'rgba(36, 189, 166, .12)',
+                        pointBackgroundColor: '#24bda6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 5,
+                        borderWidth: 2,
+                        tension: .35,
+                        fill: true,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                            },
+                            ticks: {
+                                color: '#8094ae',
+                                maxTicksLimit: 10,
+                            },
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(128, 148, 174, .14)',
+                            },
+                            ticks: {
+                                color: '#8094ae',
+                                precision: 0,
+                            },
+                        },
+                    },
+                },
+            });
+
+            document.querySelectorAll('[data-dashboard-period]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const period = button.getAttribute('data-dashboard-period');
+                    const series = dashboardShippmentSeries[period];
+
+                    if (! series) {
+                        return;
+                    }
+
+                    document.querySelectorAll('[data-dashboard-period]').forEach(function (periodButton) {
+                        const isActive = periodButton === button;
+                        periodButton.classList.toggle('is-active', isActive);
+                        periodButton.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                    });
+
+                    shippmentsActivityChart.data.labels = series.labels;
+                    shippmentsActivityChart.data.datasets[0].data = series.values;
+                    shippmentsActivityChart.update();
+                    dashboardPeriodTotal.textContent = Number(series.total).toLocaleString(document.documentElement.lang || undefined);
+                });
+            });
+        }
+    </script>
+
+    <script>
+        const progressChartCanvas = document.getElementById('progressChart');
         const progressValue = Number('{{ $progress }}');
 
-        new Chart(ctx, {
+        if (progressChartCanvas && typeof Chart !== 'undefined') {
+        new Chart(progressChartCanvas.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: ['Progress', 'Remaining'],
@@ -406,6 +789,7 @@
                 }
             }]
         });
+        }
     </script>
 
 @endpush

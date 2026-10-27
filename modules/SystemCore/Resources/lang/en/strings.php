@@ -2,18 +2,18 @@
 
 return [
     'countries' => [
-        'header' => 'Countries / Provinces',
+        'header' => 'Countries & Cities',
         'menu'   => 'Countries',
         'list'   => 'All Countries',
         'create' => 'Add New Country',
         'update' => 'Edit Country Information',
     ],
     'cities' => [
-        'header' => 'Countries / Provinces',
-        'menu'   => 'Provinces',
-        'list'   => 'All Provinces',
-        'create' => 'Add New Province',
-        'update' => 'Edit Province Information',
+        'header' => 'Countries & Cities',
+        'menu'   => 'Cities',
+        'list'   => 'All Cities',
+        'create' => 'Add New City',
+        'update' => 'Edit City Information',
     ],
     'municipalities' => [
         'header' => 'Cities / Neighbourhoods',

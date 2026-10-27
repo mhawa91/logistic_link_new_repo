@@ -441,15 +441,10 @@
                                     'view'        => 'DEFAULT',
                                     'type'        => 'file',
                                     'name'        => 'ATTACHMENT_1',
-                                    'label'       => __('contenttypes::inputs.attachment_1.label')
-                                    . (
-                                        $model->ATTACHMENT_1 
-                                        ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->ATTACHMENT_1->file_path) .'" target="_blank">
-                                                <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
-                                                '. __('contenttypes::inputs.files.options.view') .'
-                                            </a>' 
-                                        : ''
-                                    ),
+                                    'file_preview' => true,
+                                    'existing_file_url' => $model->ATTACHMENT_1 ? app('GraphManager')->src('original', 'files', $model->ATTACHMENT_1->file_path) : null,
+                                    'existing_file_name' => optional($model->ATTACHMENT_1)->file_name,
+                                    'label'       => __('contenttypes::inputs.attachment_1.label'),
                                     'description' => __('contenttypes::inputs.attachment_1.description'),
                                     'placeholder' => null,
                                     'value'       => null,
@@ -460,15 +455,10 @@
                                     'view'        => 'DEFAULT',
                                     'type'        => 'file',
                                     'name'        => 'ATTACHMENT_2',
-                                    'label'       => __('contenttypes::inputs.attachment_2.label')
-                                    . (
-                                        $model->ATTACHMENT_2 
-                                        ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->ATTACHMENT_2->file_path) .'" target="_blank">
-                                                <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
-                                                '. __('contenttypes::inputs.files.options.view') .'
-                                            </a>' 
-                                        : ''
-                                    ),
+                                    'file_preview' => true,
+                                    'existing_file_url' => $model->ATTACHMENT_2 ? app('GraphManager')->src('original', 'files', $model->ATTACHMENT_2->file_path) : null,
+                                    'existing_file_name' => optional($model->ATTACHMENT_2)->file_name,
+                                    'label'       => __('contenttypes::inputs.attachment_2.label'),
                                     'description' => __('contenttypes::inputs.attachment_2.description'),
                                     'placeholder' => null,
                                     'value'       => null,
@@ -479,15 +469,10 @@
                                     'view'        => 'DEFAULT',
                                     'type'        => 'file',
                                     'name'        => 'ATTACHMENT_3',
-                                    'label'       => __('contenttypes::inputs.attachment_3.label')
-                                    . (
-                                        $model->ATTACHMENT_3 
-                                        ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->ATTACHMENT_3->file_path) .'" target="_blank">
-                                                <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
-                                                '. __('contenttypes::inputs.files.options.view') .'
-                                            </a>' 
-                                        : ''
-                                    ),
+                                    'file_preview' => true,
+                                    'existing_file_url' => $model->ATTACHMENT_3 ? app('GraphManager')->src('original', 'files', $model->ATTACHMENT_3->file_path) : null,
+                                    'existing_file_name' => optional($model->ATTACHMENT_3)->file_name,
+                                    'label'       => __('contenttypes::inputs.attachment_3.label'),
                                     'description' => __('contenttypes::inputs.attachment_3.description'),
                                     'placeholder' => null,
                                     'value'       => null,
@@ -498,15 +483,10 @@
                                     'view'        => 'DEFAULT',
                                     'type'        => 'file',
                                     'name'        => 'ATTACHMENT_4',
-                                    'label'       => __('contenttypes::inputs.attachment_4.label')
-                                    . (
-                                        $model->ATTACHMENT_4 
-                                        ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->ATTACHMENT_4->file_path) .'" target="_blank">
-                                                <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
-                                                '. __('contenttypes::inputs.files.options.view') .'
-                                            </a>' 
-                                        : ''
-                                    ),
+                                    'file_preview' => true,
+                                    'existing_file_url' => $model->ATTACHMENT_4 ? app('GraphManager')->src('original', 'files', $model->ATTACHMENT_4->file_path) : null,
+                                    'existing_file_name' => optional($model->ATTACHMENT_4)->file_name,
+                                    'label'       => __('contenttypes::inputs.attachment_4.label'),
                                     'description' => __('contenttypes::inputs.attachment_4.description'),
                                     'placeholder' => null,
                                     'value'       => null,

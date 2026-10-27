@@ -138,11 +138,6 @@ class DriverService extends ModelService
 
     public function ajaxSelect($filter = null, array $Options = [], int $page = 1, int $limit = 30)
     {
-        // $this->model()->whereNull('id');
-        // $this->model()->with([
-        //    'translations' => fn($rel) => $rel,
-        // ]);
-
         $this->model()->when(auth()->check() && auth()->user()->type == 'DEFAULT', function($query) {
             $query->whereNull('lgl_drivers.id');
         })

@@ -9,6 +9,7 @@ use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\Clients\Entities\ClientService;
 use Modules\Admin\Entities\RoleService;
 use Carbon\Carbon;
+use Throwable;
 
 class ClientsController extends SystemCoreHttpController
 {
@@ -88,7 +89,7 @@ class ClientsController extends SystemCoreHttpController
         $model = DB::transaction(function() use($Request, $ClientService) {
             return $ClientService->create($Request->all());
         });
-        $ClientService->apiSendCreatePasswordEmail($model->id);
+        $this->sendCreatePasswordEmailWithoutBlocking($ClientService, $model->id);
 
         return $Response->module('Admin')->code('200')->success()->withOnlyToAjaxWeb([
             'redirect' => route('ClientsController@index')
@@ -103,9 +104,7 @@ class ClientsController extends SystemCoreHttpController
         $model = DB::transaction(function() use($Request, $ClientService) {
             return $ClientService->update($Request->all());
         });
-        // if ($Request->email != $model->email) {
-            $ClientService->apiSendCreatePasswordEmail($model->id);
-        // }
+        $this->sendCreatePasswordEmailWithoutBlocking($ClientService, $model->id);
 
         return $Response->module('Admin')->code('200')->success()->withOnlyToAjaxWeb([
             'toastr' => [
@@ -208,5 +207,18 @@ class ClientsController extends SystemCoreHttpController
                 'description' => __('ui::strings.messages.permaDeleted.description'),
             ],
         ]);
+    }
+
+    private function sendCreatePasswordEmailWithoutBlocking(ClientService $ClientService, int $clientId): void
+    {
+        if (! method_exists($ClientService, 'apiSendCreatePasswordEmail')) {
+            return;
+        }
+
+        try {
+            $ClientService->apiSendCreatePasswordEmail($clientId);
+        } catch (Throwable $exception) {
+            report($exception);
+        }
     }
 }

@@ -64,6 +64,29 @@
             ]
         ])
             <hr class="preview-hr">
+
+            @include('ui::components.select', [
+                'options' => [
+                    'view'              => 'INLINE',
+                    'name'              => 'sys_statuses',
+                    'label'             => __('contenttypes::inputs.invoice_status.label'),
+                    'placeholder'       => __('contenttypes::inputs.invoice_status.placeholder'),
+                    'description'       => __('contenttypes::inputs.invoice_status.description'),
+                    'attributes'        => [],
+                    'value'             => $dashboardInvoiceStatuses ?? [],
+                    'search'            => true,
+                    'multiple'          => true,
+                    'nullable'          => true,
+                    'nullable_value'    => '0',
+                    'options'           => __('contenttypes::inputs.invoice_status.options'),
+                    'option_text'       => function($key, $option)                   { return $option; },
+                    'option_value'      => function($key, $option)                   { return $key; },
+                    'option_attributes' => function($key, $option)                   { return []; },
+                    'selected'          => function($options, $key, $option, $value) { return in_array($key, (array) $value, true); },
+                    'disabled'          => function($options, $key, $option, $value) { return false; },
+                ],
+            ])
+
             <x-slot name="footer">
                 <button type="submit" class="btn btn-sm btn-success">
                     <span>{{ __('ui::strings.search') }}</span>

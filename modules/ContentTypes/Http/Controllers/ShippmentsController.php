@@ -11,6 +11,7 @@ use Modules\ContentTypes\Exports\ShippmentImportExport;
 use Modules\ContentTypes\Exports\ShippmentImportTemplate;
 use Modules\ContentTypes\Imports\ShippmentImportDefinition;
 use Modules\ContentTypes\Services\DestinationCityVerifier;
+use Modules\ContentTypes\Services\DashboardStatisticsService;
 use Modules\ContentTypes\Services\PreviousDeliveryAddressService;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
@@ -58,6 +59,9 @@ class ShippmentsController extends SystemCoreHttpController
     public function index(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
     {
         $this->data['Service'] = $ShippmentService;
+        $this->data['dashboardShippmentStatuses'] = DashboardStatisticsService::shippmentStatusesForFilter(
+            $Request->query('dashboard_filter')
+        );
         return view($this->viewsFolderPath . '.index', $this->data);
     }
 
@@ -470,9 +474,9 @@ class ShippmentsController extends SystemCoreHttpController
             return redirect()->route('ShippmentsController@read', ['model' => $this->data['model']->id]);
         }
 
-        // if($this->data['model']->sys_status == 'MATCHING') {
-        //     return redirect()->route('ShippmentsController@read', ['model' => $this->data['model']->id]);
-        // }
+        if($Request->duplicate != 'Y' && $this->data['model']->sys_status !== 'DRAFT') {
+            return $this->draftOnlyEditResponse($Response, $this->data['model']);
+        }
 
         $this->data['model']->load([
             'loadingLocation' => function($query) {
@@ -607,6 +611,9 @@ class ShippmentsController extends SystemCoreHttpController
                     'city' => function($query) {
                         $query->withTrashed();
                     },
+                    'DELIVERY_CONFIRMATION' => function($query) {
+                        $query->withTrashed();
+                    },
                 ]);
             },
             'commodities' => function($query) {
@@ -726,6 +733,9 @@ class ShippmentsController extends SystemCoreHttpController
         if($Request->duplicate == 'Y') {
             return $this->postCreate($Request, $Response, $ShippmentService);
         }
+        if($this->data['model']->sys_status !== 'DRAFT') {
+            return $this->draftOnlyEditResponse($Response, $this->data['model']);
+        }
         $this->data['Validator'] = $ShippmentService->validator('update', $Request->all());
         $this->data['Validator']->validate();
         $shippment = DB::transaction(function() use($Request, $ShippmentService) {
@@ -749,6 +759,18 @@ class ShippmentsController extends SystemCoreHttpController
                 'description' => __('ui::strings.messages.saved.description'),
             ],
             'redirect' => route('ShippmentsController@read', ['model' => $this->data['model']->id]),
+        ]);
+    }
+
+    private function draftOnlyEditResponse(ActionResponse $Response, Shippment $shippment): ActionResponse
+    {
+        return $Response->module('ContentTypes')->code('403')->fail()->withOnlyToAjaxWeb([
+            'redirect' => route('ShippmentsController@read', ['model' => $shippment->id]),
+            'toastr' => [
+                'type'        => 'error',
+                'title'       => __('contenttypes::strings.messages.shippment_edit_draft_only.title'),
+                'description' => __('contenttypes::strings.messages.shippment_edit_draft_only.description'),
+            ],
         ]);
     }
 
@@ -1068,17 +1090,11 @@ class ShippmentsController extends SystemCoreHttpController
             },
         ]);
 
-        if(auth()->check() && auth()->user()->type == 'TRANSPORTER' && $this->data['model']->transporter_user_id != auth()->id()) {
-            return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
-                'toastr' => [
-                    'type'        => 'error',
-                    'title'       => __('contenttypes::strings.messages.shippment_not_available.title'),
-                    'description' => __('contenttypes::strings.messages.shippment_not_available.description'),
-                ],
-            ]);
-        }
-
-        if(auth()->check() && auth()->user()->type == 'DEFAULT' && $this->data['model']->company_user_id != auth()->id()) {
+        if (
+            ! auth()->check()
+            || auth()->user()->type != 'TRANSPORTER'
+            || (int) $this->data['model']->transporter_user_id !== (int) auth()->id()
+        ) {
             return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
                 'toastr' => [
                     'type'        => 'error',
@@ -1112,18 +1128,105 @@ class ShippmentsController extends SystemCoreHttpController
             ]);
         }
 
-        DB::transaction(function() use($Request, $ShippmentService) {
-            $this->data['address'] = $this->data['model']->allAddressess()->where('id', $Request->address_id)->first();
+        $this->data['address'] = $this->data['model']->pickupAddress()
+            ->where('lgl_addressess.id', $Request->address_id)
+            ->first();
+
+        if (! $this->data['address']) {
+            return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
+                'toastr' => [
+                    'type'        => 'error',
+                    'title'       => __('contenttypes::strings.messages.shippment_not_available.title'),
+                    'description' => __('contenttypes::strings.messages.shippment_not_available.description'),
+                ],
+            ]);
+        }
+
+        DB::transaction(function() {
             $this->data['address']->delivered_at = now()->format('Y-m-d H:i:s');
             $this->data['address']->save();
 
-            if($this->data['address']->address_tag == 'SHIPPMENT_LOADING_POINT') {
-                $this->data['model']->sys_status = 'PENDING_DELIVERY';
-                $this->data['model']->save();
+            $this->data['model']->sys_status = 'PENDING_DELIVERY';
+            $this->data['model']->save();
+        });
+
+        return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
+            'toastr' => [
+                'type'        => 'success',
+                'title'       => __('contenttypes::strings.messages.shippment_delivered_to_location.title'),
+                'description' => __('contenttypes::strings.messages.shippment_delivered_to_location.description'),
+            ],
+            'redirect' => route('ShippmentsController@read', ['model' => $this->data['model']->id]),
+        ]);
+    }
+
+    public function postDeliveryConfirmation(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
+    {
+        $data = Validator::make($Request->all(), [
+            'model'                       => 'required|integer',
+            'address_id'                  => 'required|integer',
+            'delivery_confirmation_file'  => 'nullable|file',
+            'delivery_confirmation_notes' => 'nullable|string|max:2000',
+        ])->validate();
+
+        $this->data['model'] = $ShippmentService->withTrashed()->findOrFail($data['model'])->data();
+
+        if (
+            ! auth()->check()
+            || auth()->user()->type != 'TRANSPORTER'
+            || (int) $this->data['model']->transporter_user_id !== (int) auth()->id()
+        ) {
+            return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
+                'toastr' => [
+                    'type'        => 'error',
+                    'title'       => __('contenttypes::strings.messages.shippment_not_available.title'),
+                    'description' => __('contenttypes::strings.messages.shippment_not_available.description'),
+                ],
+            ]);
+        }
+
+        $address = $this->data['model']->offloadingLocations()
+            ->where('lgl_addressess.id', $data['address_id'])
+            ->first();
+
+        if (! $address || (! $address->delivered_at && ! $this->data['model']->pickupAddress()->whereNotNull('delivered_at')->exists())) {
+            return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
+                'toastr' => [
+                    'type'        => 'error',
+                    'title'       => __('contenttypes::strings.messages.shippment_not_available.title'),
+                    'description' => __('contenttypes::strings.messages.shippment_not_available.description'),
+                ],
+            ]);
+        }
+
+        DB::transaction(function() use($Request, $address, $data) {
+            $address->delivered_at                = $address->delivered_at ?: now()->format('Y-m-d H:i:s');
+            $address->delivery_confirmation_notes = $data['delivery_confirmation_notes'] ?? null;
+            $address->updated_by_user_id           = auth()->id();
+            $address->save();
+
+            if ($Request->hasFile('delivery_confirmation_file')) {
+                $uploadedFile = $Request->file('delivery_confirmation_file');
+                $file = UploadedFile::firstOrNew([
+                    'file_tag'     => 'DELIVERY_CONFIRMATION',
+                    'related_type' => 'address',
+                    'related_id'   => $address->id,
+                ]);
+                $file->file_name          = $uploadedFile->getClientOriginalName();
+                $file->file_extension     = $uploadedFile->getClientOriginalExtension();
+                $file->file_size          = $uploadedFile->getSize();
+                $file->created_by_user_id = $file->exists ? $file->created_by_user_id : auth()->id();
+                $file->updated_by_user_id = auth()->id();
+                $file->sys_status         = 'ACTIVE';
+                $file->file_path          = app('GraphManager')->process('files', $uploadedFile);
+                $file->save();
             }
 
-            $check = $this->data['model']->allAddressess()->whereNull('delivered_at')->count();
-            if($check == 0 && $this->data['model']->sys_status == 'PENDING_DELIVERY') {
+            $pendingLocations = $this->data['model']->offloadingLocations()
+                ->whereNull('delivered_at')
+                ->count();
+
+            if ($pendingLocations == 0 && $this->data['model']->sys_status == 'PENDING_DELIVERY') {
                 $this->data['model']->sys_status = 'DELIVERED_PENDING_PAYMENT';
                 $this->data['model']->save();
             }
@@ -1132,8 +1235,8 @@ class ShippmentsController extends SystemCoreHttpController
         return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
             'toastr' => [
                 'type'        => 'success',
-                'title'       => __('contenttypes::strings.messages.shippment_delivered_to_location.title'),
-                'description' => __('contenttypes::strings.messages.shippment_delivered_to_location.description'),
+                'title'       => __('contenttypes::strings.messages.delivery_confirmation_saved.title'),
+                'description' => __('contenttypes::strings.messages.delivery_confirmation_saved.description'),
             ],
             'redirect' => route('ShippmentsController@read', ['model' => $this->data['model']->id]),
         ]);
@@ -1369,6 +1472,7 @@ class ShippmentsController extends SystemCoreHttpController
         $rules = [
             'driver_mode'          => 'required|string|in:new,existing',
             'car_plate'            => 'required|string|max:255',
+            'car_information'      => 'nullable|string|max:2000',
             'WAYBILL_ATTACHMENT_1' => 'nullable|file'
         ];
 
@@ -1395,6 +1499,8 @@ class ShippmentsController extends SystemCoreHttpController
                 $driver->transporter_user_id    = auth()->id();
                 $driver->name                   = $Request->driver_name;
                 $driver->id_number              = $Request->driver_id_number;
+                $driver->car_plate              = $Request->car_plate;
+                $driver->car_information        = $Request->car_information;
                 $driver->nationality_country_id = $Request->driver_nationality_country_id;
                 $driver->sys_status             = 'ACTIVE';
                 $driver->created_by_user_id     = auth()->id();
@@ -1410,6 +1516,10 @@ class ShippmentsController extends SystemCoreHttpController
                         'driver_id' => __('contenttypes::strings.shippments.driver_not_available'),
                     ]);
                 }
+                $driver->car_plate          = $Request->car_plate;
+                $driver->car_information    = $Request->car_information;
+                $driver->updated_by_user_id = auth()->id();
+                $driver->save();
             }
 
             $this->data['model']->driver_id = $driver->id;

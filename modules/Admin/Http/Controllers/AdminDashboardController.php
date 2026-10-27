@@ -9,6 +9,7 @@ use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\ContentTypes\Entities\Shippment;
 use Modules\ContentTypes\Entities\TransporterContractInstance;
+use Modules\ContentTypes\Services\DashboardStatisticsService;
 
 use Modules\SystemCore\Entities\Contracts\SystemConfigInterface;
 use Modules\ContentManager\Entities\Contracts\SectionInterface;
@@ -29,9 +30,10 @@ class AdminDashboardController extends SystemCoreHttpController
         $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
     }
 
-    public function index(Request $Request, ActionResponse $Response)
+    public function index(Request $Request, ActionResponse $Response, DashboardStatisticsService $DashboardStatisticsService)
     {
         $this->data['HelpersCLass'] = app(\Modules\SystemCore\System\Classes\Helpers::class);
+        $this->data['dashboardStatistics'] = $DashboardStatisticsService->forUser($Request->user());
 
         $this->data['progress'] = 10;
         if ( $Request->user()->company()->exists() ) {
