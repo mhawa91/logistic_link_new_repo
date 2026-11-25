@@ -93,6 +93,13 @@ class TransporterContract extends Model
         ->where('file_tag', 'TRANSPORTER_TRANSPORTATION_LICENCE');
     }
 
+    public function TRANSPORTER_CONTRACT()
+    {
+        return $this->hasOne(UploadedFile::class, 'related_id', 'id')
+        ->where('related_type', 'contract')
+        ->where('file_tag', 'TRANSPORTER_CONTRACT');
+    }
+
     public function scopeWithSelectMeta($query)
     {
         $query->addSelect([
@@ -221,6 +228,7 @@ class TransporterContract extends Model
             'TRANSPORTER_REGISTAION_LICENCE' => function($rel) {},
             'TRANSPORTER_INSURANCE_CERTIFICATE' => function($rel) {},
             'TRANSPORTER_TRANSPORTATION_LICENCE' => function($rel) {},
+            'TRANSPORTER_CONTRACT' => function($rel) {},
         ]);
         
         return $query;

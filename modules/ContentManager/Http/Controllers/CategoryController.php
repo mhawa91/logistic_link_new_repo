@@ -110,12 +110,14 @@ class CategoryController extends SystemCoreHttpController
 
     public function select(Request $Request, ActionResponse $Response)
     {
+        $limit = min(max((int) ($Request->limit ?? 200), 1), 200);
+
         $Data = $this->service->ofType($Request->type)
         ->when(! empty($Request->exclude_ids), function($service) use($Request) {
             $service->excludeIds($Request->exclude_ids);
         })
         ->search($Request->search ?? null)
-        ->paginate(50);
+        ->paginate($limit);
         return $this->service->toSelect2($Data, [
             'nullable' => $Request->nullable == 'N' ? false : true,
         ]);

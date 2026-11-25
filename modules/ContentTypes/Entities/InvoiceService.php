@@ -111,8 +111,15 @@ class InvoiceService extends ModelService
 
     protected function advancedFilter($query, array $filter = [])
     {
-        if (! empty($filter['title'])) {
-            
+        if (! empty($filter['sys_statuses'])) {
+            $statuses = array_intersect(
+                (array) $filter['sys_statuses'],
+                ['PENDING', 'PENDING_SUPPLIER_REVIEW', 'PAID']
+            );
+
+            if (! empty($statuses)) {
+                $query->whereIn('lgl_invoices.sys_status', $statuses);
+            }
         }
     }
 

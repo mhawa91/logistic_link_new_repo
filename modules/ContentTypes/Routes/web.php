@@ -35,6 +35,7 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::post('restore'                 , 'TransportersController@postRestore')->name('TransportersController@postRestore');     
         Route::post('perma-delete'            , 'TransportersController@postPermaDelete')->name('TransportersController@postPermaDelete');
         Route::post('status-update'           , 'TransportersController@postStatus')->name('TransportersController@postStatus');       
+        Route::get('company-accounts/select', 'TransportersController@companyAccountsSelect')->name('TransportersController@companyAccountsSelect');
         Route::get('select'                   , 'TransportersController@select')->name('TransportersController@select');
         Route::post('export'                  , 'TransportersController@postExport')->name('TransportersController@postExport');       
         Route::get('{model}'                  , 'TransportersController@read')->name('TransportersController@read');
@@ -51,8 +52,18 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::post('list'                              , 'ShippmentsController@postIndex')->name('ShippmentsController@postIndex');
         Route::get('create'                             , 'ShippmentsController@create')->name('ShippmentsController@create');
         Route::post('create'                            , 'ShippmentsController@postCreate')->name('ShippmentsController@postCreate');
+        Route::get('import-template'                    , 'ShippmentsController@downloadImportTemplate')->name('ShippmentsController@downloadImportTemplate');
+        Route::get('export-for-import'                  , 'ShippmentsController@downloadImportExport')->name('ShippmentsController@downloadImportExport');
+        Route::get('imports'                            , 'ShippmentsController@imports')->name('ShippmentsController@imports');
+        Route::post('imports'                           , 'ShippmentsController@postImport')->name('ShippmentsController@postImport');
+        Route::get('imports/{import}/status'            , 'ShippmentsController@importStatus')->name('ShippmentsController@importStatus');
+        Route::get('imports/{import}'                   , 'ShippmentsController@readImport')->name('ShippmentsController@readImport');
         Route::get('update/{model}'                     , 'ShippmentsController@update')->name('ShippmentsController@update');
         Route::post('update'                            , 'ShippmentsController@postUpdate')->name('ShippmentsController@postUpdate');
+        Route::get('resolve-google-maps-url'            , 'ShippmentsController@resolveGoogleMapsUrl')->name('ShippmentsController@resolveGoogleMapsUrl');
+        Route::get('previous-delivery-addresses'        , 'ShippmentsController@previousDeliveryAddresses')->name('ShippmentsController@previousDeliveryAddresses');
+        Route::post('destination-city-location'         , 'ShippmentsController@destinationCityLocation')->name('ShippmentsController@destinationCityLocation');
+        Route::post('verify-destination-city'           , 'ShippmentsController@verifyDestinationCity')->name('ShippmentsController@verifyDestinationCity');
         Route::post('bulk-send'                         , 'ShippmentsController@postBulkSend')->name('ShippmentsController@postBulkSend');
         Route::post('delete'                            , 'ShippmentsController@postDelete')->name('ShippmentsController@postDelete');
         Route::post('restore'                           , 'ShippmentsController@postRestore')->name('ShippmentsController@postRestore');
@@ -72,7 +83,8 @@ Route::prefix(config('systemcore.adminPanelRoutePath'))->group(function() {
         Route::get('transportar-waybill-and-driver'     , 'ShippmentsController@driverAndWaybill')->name('ShippmentsController@driverAndWaybill');
         Route::post('transportar-waybill-and-driver'    , 'ShippmentsController@postDriverAndWaybill')->name('ShippmentsController@postDriverAndWaybill');
         Route::get('transportar-drivers-select'         , 'ShippmentsController@driversSelect')->name('ShippmentsController@driversSelect');
-        Route::get('location-delivery'                  , 'ShippmentsController@locationDelivery')->name('ShippmentsController@locationDelivery');
+        Route::post('location-delivery'                 , 'ShippmentsController@locationDelivery')->name('ShippmentsController@locationDelivery');
+        Route::post('delivery-confirmation'             , 'ShippmentsController@postDeliveryConfirmation')->name('ShippmentsController@postDeliveryConfirmation');
 
         Route::post('transportar-rfq-approve'           , 'ShippmentsController@transportarRfqApprove')->name('ShippmentsController@transportarRfqApprove');
         Route::get('transportar-rfq-reject'             , 'ShippmentsController@transportarRfqReject')->name('ShippmentsController@transportarRfqReject');

@@ -251,6 +251,11 @@ return [
         'placeholder' => 'Enter transportation license',
         'description' => 'Transportation license',
     ],
+    'contract_file' => [
+        'label'       => 'Contract',
+        'placeholder' => 'Select contract file',
+        'description' => 'Contract file (optional)',
+    ],
     'transportar_name' => [
         'label'       => 'Transport Company Name',
         'placeholder' => 'Enter transport company name',
@@ -265,6 +270,11 @@ return [
         'label'       => 'Transport Company Phone Number',
         'placeholder' => 'Enter transport company phone number',
         'description' => 'Transport company phone number',
+    ],
+    'transporter_account' => [
+        'label'       => 'Search Transport Company Accounts',
+        'placeholder' => 'Search by name, email, or phone number',
+        'description' => 'Selecting a company fills its details automatically and locks its name until the selection is cleared.',
     ],
     'contract_status' => [
         'label'       => 'Contract Status',
@@ -475,6 +485,20 @@ return [
         'back_to_view'   => 'Back to view',
         'view_file'      => 'View waybill',
     ],
+    'delivery_confirmation' => [
+        'title'             => 'Confirm Shipment Receipt',
+        'section_title'     => 'Proof of Delivery',
+        'file_label'        => 'Signed proof of delivery',
+        'file_description'  => 'You can upload the document now or add it later',
+        'notes_label'       => 'Delivery notes',
+        'notes_placeholder' => 'Enter delivery notes',
+        'confirm_delivery'  => 'Confirm delivery',
+        'save'              => 'Save details',
+        'add'               => 'Add proof of delivery',
+        'edit'              => 'Edit proof of delivery',
+        'view_file'         => 'View proof of delivery',
+        'no_notes'          => 'No delivery notes have been added',
+    ],
     'attachments' => [
         'label'          => 'Attachments',
         'view_file'      => 'View file',
@@ -583,6 +607,11 @@ return [
         'label'       => 'Car Plate Number',
         'placeholder' => 'Enter car plate number',
         'description' => 'Car plate number',
+    ],
+    'car_information' => [
+        'label'       => 'Car Information',
+        'placeholder' => 'Enter additional car information',
+        'description' => 'Additional car information',
     ],
     'source' => [
         'label'       => 'Loading Points',

@@ -265,6 +265,10 @@ class SystemCoreServiceProvider extends ServiceProvider
     {
         $this->app->booted(function () {
 
+            $isRootOrAdmin = function() {
+                return auth()->check() && (auth()->user()->isAn('ROOT') || auth()->user()->isAn('SYSTEM_ADMIN'));
+            };
+
             app('Ui')->registerMainMenuItem([
                 'id'        => 'CountriesController@all',
                 'parent_id' => 'Settings',
@@ -273,7 +277,7 @@ class SystemCoreServiceProvider extends ServiceProvider
                 'link'      => route('CountriesController@index'),
                 'text'      => __('systemcore::strings.countries.header'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ])
             ->registerMainMenuItem([
                 'id'        => 'CountriesController@index',
@@ -283,28 +287,18 @@ class SystemCoreServiceProvider extends ServiceProvider
                 'link'      => route('CountriesController@index'),
                 'text'      => __('systemcore::strings.countries.list'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ])
             ->registerMainMenuItem([
                 'id'        => 'CitiesController@index',
                 'parent_id' => 'CountriesController@all',
-                'ordering'  => 0,
+                'ordering'  => 1,
                 'type'      => 'MENU', //MENU | HEADER
                 'link'      => route('CitiesController@index'),
                 'text'      => __('systemcore::strings.cities.list'),
                 'icon'      => app('Ui')->defaultIcon(),
-                'show'      => function() { return true; },
+                'show'      => $isRootOrAdmin,
             ]);
-            // ->registerMainMenuItem([
-            //     'id'        => 'MunicipalitiesController@index',
-            //     'parent_id' => 'CountriesController@all',
-            //     'ordering'  => 0,
-            //     'type'      => 'MENU', //MENU | HEADER
-            //     'link'      => route('MunicipalitiesController@index'),
-            //     'text'      => __('systemcore::strings.municipalities.list'),
-            //     'icon'      => app('Ui')->defaultIcon(),
-            //     'show'      => function() { return true; },
-            // ])
             // ->registerMainMenuItem([
             //     'id'        => 'NeighbourhoodsController@index',
             //     'parent_id' => 'CountriesController@all',

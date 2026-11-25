@@ -8,6 +8,7 @@ use Modules\SystemCore\Entities\Role;
 use Modules\SystemCore\Entities\AbilityGroup;
 use Modules\SystemCore\Entities\Ability;
 use Modules\SystemCore\System\Services\ModelService;
+use Illuminate\Validation\Rule;
 
 class CitiesService extends ModelService
 {
@@ -34,12 +35,28 @@ class CitiesService extends ModelService
 
     public function validator($type = 'create', array $data = [])
     {
-        if ($type == 'create') {
-            return Validator::make($data, []);
-        }
-        if ($type == 'update') {
-            return Validator::make($data, []);
-        }
+        $cityId = $type === 'update' ? ($data['model'] ?? null) : null;
+        $countryId = $data['country_id'] ?? null;
+        $uniqueName = function (string $column) use ($cityId, $countryId) {
+            $rule = Rule::unique('cities', $column)
+                ->where(function ($query) use ($countryId) {
+                    $query->where('country_id', $countryId)->whereNull('deleted_at');
+                });
+
+            return $cityId ? $rule->ignore($cityId) : $rule;
+        };
+
+        return Validator::make($data, [
+            'country_id' => 'required|exists:countries,id',
+            'sys_status' => 'nullable|in:DISABLED,ACTIVE',
+            'name_ar'    => ['required', 'string', 'max:100', $uniqueName('name_ar')],
+            'name_en'    => ['required', 'string', 'max:100', $uniqueName('name_en')],
+        ], [], [
+            'country_id' => __('systemcore::inputs.country.label'),
+            'sys_status' => __('admin::inputs.status.label'),
+            'name_ar'    => __('systemcore::inputs.name_ar.label'),
+            'name_en'    => __('systemcore::inputs.name_en.label'),
+        ]);
     }
 
     protected function keywordFilter($query, string $keyword = null)

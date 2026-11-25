@@ -45,6 +45,9 @@ return [
     'available'                => 'المتوفر',
     'search_for_somthing'      => 'اكتب كلمة للبحث',
     'actions'                  => 'عمليات',
+    'select_all'               => 'تحديد الكل',
+    'deselect_all'             => 'إلغاء تحديد الكل',
+    'preview_file'             => 'استعراض الملف',
 
     'datatable'                => [
         'sProcessing'   => 'جارٍ التحميل...',
@@ -83,6 +86,12 @@ return [
             'text'    => 'هل انت متأكد من انك تود حذف هذا المدخل <br><strong class="text-danger">(لن تستطيع التراجع عن هذا الأمر فيما بعد)</strong>',
             'confirm' => 'حذف',
             'cancel'  => 'الغاء الامر',
+        ],
+        'language_change' => [
+            'title'   => 'تغيير اللغة؟',
+            'text'    => 'سيتم تحديث الصفحة، وستفقد أي بيانات لم يتم حفظها.',
+            'confirm' => 'تغيير اللغة',
+            'cancel'  => 'إلغاء',
         ],
     ],
     'messages' => [

@@ -45,6 +45,9 @@ return [
     'available'                => 'Available',
     'search_for_somthing'      => 'Type to search',
     'actions'                  => 'Actions',
+    'select_all'               => 'Select All',
+    'deselect_all'             => 'Deselect All',
+    'preview_file'             => 'Preview file',
 
     'datatable'                => [
         'sProcessing'   => 'Loading...',
@@ -82,6 +85,12 @@ return [
             'title'   => 'Are you sure',
             'text'    => 'Are you sure you want to permanently delete this entry <br><strong class="text-danger">(You cannot undo this action)</strong>',
             'confirm' => 'Delete',
+            'cancel'  => 'Cancel',
+        ],
+        'language_change' => [
+            'title'   => 'Change language?',
+            'text'    => 'The page will reload and any unsaved data will be lost.',
+            'confirm' => 'Change language',
             'cancel'  => 'Cancel',
         ],
     ],

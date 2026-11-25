@@ -9,6 +9,7 @@ use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\ContentTypes\Entities\Shippment;
 use Modules\ContentTypes\Entities\TransporterContractInstance;
+use Modules\ContentTypes\Services\DashboardStatisticsService;
 
 use Modules\SystemCore\Entities\Contracts\SystemConfigInterface;
 use Modules\ContentManager\Entities\Contracts\SectionInterface;
@@ -29,9 +30,10 @@ class AdminDashboardController extends SystemCoreHttpController
         $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
     }
 
-    public function index(Request $Request, ActionResponse $Response)
+    public function index(Request $Request, ActionResponse $Response, DashboardStatisticsService $DashboardStatisticsService)
     {
         $this->data['HelpersCLass'] = app(\Modules\SystemCore\System\Classes\Helpers::class);
+        $this->data['dashboardStatistics'] = $DashboardStatisticsService->forUser($Request->user());
 
         $this->data['progress'] = 10;
         if ( $Request->user()->company()->exists() ) {
@@ -81,6 +83,26 @@ class AdminDashboardController extends SystemCoreHttpController
 
         if ($Request->user()->type == 'TRANSPORTER' &&  $this->data['transportarContracts'] > 0) {
             $this->data['progress'] = 100;
+        }
+
+        $this->data['pendingTransporterRequestsCount'] = 0;
+        if ($Request->user()->type == 'TRANSPORTER') {
+            $this->data['pendingTransporterRequestsCount'] = Shippment::where(function($query) use($Request) {
+                $query->where(function($query) use($Request) {
+                    $query->where('sys_status', 'PENDING_TRANSPORTER_APPROVAL')
+                    ->whereHas('matchedTransportars', function($relation) use($Request) {
+                        $relation->where('transporter_user_id', $Request->user()->id)
+                        ->where('status', 'PENDING_RESPONSE');
+                    });
+                })
+                ->orWhere(function($query) use($Request) {
+                    $query->where('sys_status', 'RFQ_PENDING_TRANSPORTER_OFFER')
+                    ->whereHas('rfqs', function($relation) use($Request) {
+                        $relation->where('transporter_user_id', $Request->user()->id)
+                        ->where('status', 'PENDING_RESPONSE');
+                    });
+                });
+            })->count();
         }
 
         return view('admin::dashboard', $this->data);

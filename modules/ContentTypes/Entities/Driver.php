@@ -23,7 +23,9 @@ class Driver extends Model
     protected $fillable = [
         'transporter_user_id',
         'id_number',
+        'car_plate',
         'name',
+        'car_information',
         'nationality_country_id',
         'sys_status',
         'created_by_user_id',
@@ -38,6 +40,11 @@ class Driver extends Model
     public function nationality()
     {
         return $this->belongsTo(Country::class, 'nationality_country_id', 'id');
+    }
+
+    public function shippments()
+    {
+        return $this->hasMany(Shippment::class, 'driver_id', 'id');
     }
 
     public function ATTACHMENT_1()

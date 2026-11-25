@@ -8,6 +8,7 @@ use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
 use Modules\ContentTypes\Entities\InvoiceService;
 use Modules\ContentTypes\Entities\ClientSelectService;
+use Modules\ContentTypes\Services\DashboardStatisticsService;
 
 class InvoicesController extends SystemCoreHttpController
 {
@@ -28,6 +29,9 @@ class InvoicesController extends SystemCoreHttpController
     public function index(Request $Request, ActionResponse $Response, InvoiceService $InvoiceService)
     {
         $this->data['Service'] = $InvoiceService;
+        $this->data['dashboardInvoiceStatuses'] = DashboardStatisticsService::invoiceStatusesForFilter(
+            $Request->query('dashboard_filter')
+        );
         return view($this->viewsFolderPath . '.index', $this->data);
     }
 

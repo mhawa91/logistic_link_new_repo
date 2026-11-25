@@ -17,7 +17,7 @@ class TransportersController extends SystemCoreHttpController
     {
         $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
         $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'read'))->only(['index', 'postIndex', 'read', 'postRead']);
-        $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'create'))->only(['create', 'postCreate']);
+        $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'create'))->only(['create', 'postCreate', 'companyAccountsSelect']);
         $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'update'))->only(['update', 'postUpdate']);
         $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'statusUpdate'))->only(['postStatus']);
         $this->middleware($TransporterService->getPermissionMiddlewareName('HTTP', 'delete'))->only(['postDelete']);
@@ -103,7 +103,7 @@ class TransportersController extends SystemCoreHttpController
 
     public function postCreate(Request $Request, ActionResponse $Response, TransporterService $TransporterService)
     {
-        // dd($Request->all());
+        $this->mergeContractItemsJson($Request);
         $this->data['Validator'] = $TransporterService->validator('create', $Request->all());
         $this->data['Validator']->validate();
         DB::transaction(function() use($Request, $TransporterService) {
@@ -116,7 +116,7 @@ class TransportersController extends SystemCoreHttpController
 
     public function postCreateByUserId(Request $Request, ActionResponse $Response, TransporterService $TransporterService)
     {
-        // dd($Request->all());
+        $this->mergeContractItemsJson($Request);
         $this->data['Validator'] = $TransporterService->validator('createByUserId', $Request->all());
         $this->data['Validator']->validate();
         DB::transaction(function() use($Request, $TransporterService) {
@@ -129,6 +129,7 @@ class TransportersController extends SystemCoreHttpController
 
     public function postUpdate(Request $Request, ActionResponse $Response, TransporterService $TransporterService)
     {
+        $this->mergeContractItemsJson($Request);
         $this->data['model']     = $TransporterService->withTrashed()->findOrFail($Request->model)->data();
         $this->data['Validator'] = $TransporterService->validator('update', $Request->all());
         $this->data['Validator']->validate();
@@ -144,6 +145,18 @@ class TransportersController extends SystemCoreHttpController
         ]);
     }
 
+    private function mergeContractItemsJson(Request $Request): void
+    {
+        if (! $Request->filled('items_json')) {
+            return;
+        }
+
+        $items = json_decode((string) $Request->input('items_json'), true);
+        if (is_array($items)) {
+            $Request->merge(['items' => $items]);
+        }
+    }
+
     public function postRead(Request $Request, ActionResponse $Response, TransporterService $TransporterService)
     {
     }
@@ -153,6 +166,14 @@ class TransportersController extends SystemCoreHttpController
         return $TransporterService->ajaxSelect($Request->search ?? null, [
             'nullable' => $Request->nullable ?? true,
         ], $Request->page);
+    }
+
+    public function companyAccountsSelect(Request $Request, ActionResponse $Response, TransporterService $TransporterService)
+    {
+        return $TransporterService->companyAccountsSelect(
+            $Request->search ?? null,
+            $Request->page ?? 1
+        );
     }
 
     public function postStatus(Request $Request, ActionResponse $Response, TransporterService $TransporterService)

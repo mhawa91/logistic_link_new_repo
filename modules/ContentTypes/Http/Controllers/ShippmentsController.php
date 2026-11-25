@@ -4,15 +4,27 @@ namespace Modules\ContentTypes\Http\Controllers;
 
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Modules\Address\Entities\OpenStreetMapService;
+use Modules\ContentTypes\Exports\ShippmentImportExport;
+use Modules\ContentTypes\Exports\ShippmentImportTemplate;
+use Modules\ContentTypes\Imports\ShippmentImportDefinition;
+use Modules\ContentTypes\Services\DestinationCityVerifier;
+use Modules\ContentTypes\Services\DashboardStatisticsService;
+use Modules\ContentTypes\Services\PreviousDeliveryAddressService;
 use Modules\SystemCore\Http\Controllers\SystemCoreHttpController;
 use Modules\SystemCore\Http\Responses\ActionResponse;
+use Modules\SystemCore\Entities\City;
 use Modules\ContentTypes\Entities\ShippmentService;
 use Modules\ContentTypes\Entities\Shippment;
+use Modules\ContentTypes\Entities\ShippmentImport;
 use Modules\ContentTypes\Entities\DriverService;
 use Modules\ContentTypes\Entities\Driver;
 use Modules\ContentTypes\Entities\UploadedFile;
 use Modules\ContentManager\Entities\Content;
 use Validator;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 use Modules\ContentTypes\Jobs;
 
@@ -23,9 +35,18 @@ class ShippmentsController extends SystemCoreHttpController
     public function __construct(ShippmentService $ShippmentService)
     {
         $this->middleware(config('systemcore.auth.HTTP_AUTH_MIDDLEWARE'));
-        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'read'))->only(['index', 'postIndex', 'read', 'postRead']);
-        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'create'))->only(['create', 'postCreate']);
-        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'update'))->only(['update', 'postUpdate']);
+        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'read'))->only(['index', 'postIndex', 'read', 'postRead', 'downloadImportExport']);
+        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'create'))->only([
+            'create',
+            'postCreate',
+            'downloadImportTemplate',
+            'downloadImportExport',
+            'imports',
+            'postImport',
+            'readImport',
+            'importStatus',
+        ]);
+        $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'update'))->only(['update', 'postUpdate', 'downloadImportExport']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'statusUpdate'))->only(['postStatus']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'delete'))->only(['postDelete']);
         $this->middleware($ShippmentService->getPermissionMiddlewareName('HTTP', 'restore'))->only(['postRestore']);
@@ -38,6 +59,9 @@ class ShippmentsController extends SystemCoreHttpController
     public function index(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
     {
         $this->data['Service'] = $ShippmentService;
+        $this->data['dashboardShippmentStatuses'] = DashboardStatisticsService::shippmentStatusesForFilter(
+            $Request->query('dashboard_filter')
+        );
         return view($this->viewsFolderPath . '.index', $this->data);
     }
 
@@ -55,7 +79,375 @@ class ShippmentsController extends SystemCoreHttpController
         ->where('sys_status', 'ACTIVE')
         ->get();
 
+        $user = auth()->user();
+        if ($user && $user->type === 'DEFAULT') {
+            $user->loadMissing('company.address.city.country');
+        }
+        $this->data['loadingAddressDefaults'] = $this->loadingAddressDefaults($user);
+
         return view($this->viewsFolderPath . '.create', $this->data);
+    }
+
+    public function downloadImportTemplate(
+        ShippmentService $ShippmentService,
+        ShippmentImportTemplate $ShippmentImportTemplate
+    ) {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $spreadsheet = $ShippmentImportTemplate->build();
+        $filename = 'shipment-import-template-' . app()->getLocale() . '.xlsx';
+
+        return response()->streamDownload(function() use($spreadsheet) {
+            (new Xlsx($spreadsheet))->save('php://output');
+            $spreadsheet->disconnectWorksheets();
+        }, $filename, [
+            'Content-Type'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0, no-cache, no-store, must-revalidate',
+        ]);
+    }
+
+    public function downloadImportExport(
+        ShippmentService $ShippmentService,
+        ShippmentImportExport $ShippmentImportExport
+    ) {
+        if (auth()->user()->type !== 'DEFAULT') {
+            abort(403, __('contenttypes::strings.shipment_import.errors.client_account_required'));
+        }
+        if (! $ShippmentService->can('read') || ! $ShippmentService->can('create') || ! $ShippmentService->can('update')) {
+            $ShippmentService->throwPermissionException('update');
+        }
+
+        $shipments = Shippment::where('company_user_id', auth()->id())
+            ->whereIn('sys_status', ShippmentImportDefinition::EDITABLE_STATUSES)
+            ->with([
+                'loadingLocation',
+                'offloadingLocations' => function ($query) {
+                    $query->orderBy('id');
+                },
+                'commodities',
+                'ATTACHMENT_1',
+                'ATTACHMENT_2',
+                'ATTACHMENT_3',
+                'ATTACHMENT_4',
+            ])
+            ->orderBy('id')
+            ->limit(501)
+            ->get();
+
+        if ($shipments->isEmpty()) {
+            return redirect()->back()->withErrors([
+                'export' => __('contenttypes::strings.shipment_import.errors.no_exportable_shipments'),
+            ]);
+        }
+
+        try {
+            $spreadsheet = $ShippmentImportExport->build($shipments);
+        } catch (\LengthException $exception) {
+            return redirect()->back()->withErrors(['export' => $exception->getMessage()]);
+        }
+
+        $filename = 'shipment-export-for-import-' . now()->format('Y-m-d') . '.xlsx';
+
+        return response()->streamDownload(function() use($spreadsheet) {
+            (new Xlsx($spreadsheet))->save('php://output');
+            $spreadsheet->disconnectWorksheets();
+        }, $filename, [
+            'Content-Type'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0, no-cache, no-store, must-revalidate',
+        ]);
+    }
+
+    public function imports(Request $Request, ShippmentService $ShippmentService)
+    {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $query = ShippmentImport::with('user')->latest();
+        if (! auth()->user()->isAn('ROOT') && auth()->user()->type !== 'SYSTEM_ADMIN') {
+            $query->where('user_id', auth()->id());
+        }
+        $this->data['imports'] = $query->paginate(20);
+
+        return view($this->viewsFolderPath . '.imports.index', $this->data);
+    }
+
+    public function postImport(Request $Request, ShippmentService $ShippmentService)
+    {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+        if (auth()->user()->type !== 'DEFAULT') {
+            abort(403, __('contenttypes::strings.shipment_import.errors.client_account_required'));
+        }
+
+        $Request->validate([
+            'file' => 'required|file|mimes:xlsx|max:10240',
+        ]);
+
+        $file = $Request->file('file');
+        $path = $file->storeAs(
+            'shippment-imports/' . auth()->id(),
+            now()->format('Ymd-His') . '-' . \Str::uuid() . '.xlsx',
+            'local'
+        );
+
+        $import = ShippmentImport::create([
+            'user_id' => auth()->id(),
+            'original_filename' => $file->getClientOriginalName(),
+            'disk' => 'local',
+            'file_path' => $path,
+            'locale' => in_array(app()->getLocale(), ['ar', 'en']) ? app()->getLocale() : 'en',
+            'status' => 'PENDING',
+        ]);
+
+        Jobs\ProcessShippmentImport::dispatch($import->id)
+            ->onConnection('database')
+            ->onQueue(config('queue.shippment_import_queue', 'default'));
+
+        return redirect()->route('ShippmentsController@readImport', ['import' => $import->id])
+            ->with('success', __('contenttypes::strings.shipment_import.queued'));
+    }
+
+    public function readImport(Request $Request, ShippmentService $ShippmentService, $import)
+    {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $query = ShippmentImport::with(['user', 'rows']);
+        if (! auth()->user()->isAn('ROOT') && auth()->user()->type !== 'SYSTEM_ADMIN') {
+            $query->where('user_id', auth()->id());
+        }
+        $this->data['import'] = $query->findOrFail($import);
+
+        return view($this->viewsFolderPath . '.imports.read', $this->data);
+    }
+
+    public function importStatus(Request $Request, ShippmentService $ShippmentService, $import)
+    {
+        if (! $ShippmentService->can('create')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $query = ShippmentImport::query();
+        if (! auth()->user()->isAn('ROOT') && auth()->user()->type !== 'SYSTEM_ADMIN') {
+            $query->where('user_id', auth()->id());
+        }
+        $model = $query->findOrFail($import);
+
+        return response()->json([
+            'status' => $model->status,
+            'total_rows' => (int) $model->total_rows,
+            'processed_rows' => (int) $model->processed_rows,
+            'created_count' => (int) $model->created_count,
+            'updated_count' => (int) $model->updated_count,
+            'failed_count' => (int) $model->failed_count,
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+
+    private function loadingAddressDefaults($user): array
+    {
+        $company = $user && $user->type === 'DEFAULT' ? $user->company : null;
+        $address = $company ? $company->address : null;
+        $city = $address ? $address->city : null;
+        $locale = in_array(app()->getLocale(), ['ar', 'en']) ? app()->getLocale() : 'ar';
+        $countryId = $address ? ($address->country_id ?: ($city ? $city->country_id : null)) : null;
+
+        $cityOption = null;
+        if ($city && (int) $countryId === 191) {
+            $cityName = $city->{'name_' . $locale};
+            $countryName = $city->country ? $city->country->{'name_' . $locale} : null;
+            $cityOption = [
+                'id'   => $city->id,
+                'text' => $countryName ? $cityName . ' - [' . $countryName . ']' : $cityName,
+                'data' => $city->toArray(),
+            ];
+        }
+
+        $lat = $address && ! is_null($address->lat) ? (float) $address->lat : null;
+        $lng = $address && ! is_null($address->lng) ? (float) $address->lng : null;
+
+        return [
+            'primary_contact_company_name' => $company ? $company->company_name : null,
+            'primary_contact_name'         => $address && $address->primary_contact_name
+                ? $address->primary_contact_name
+                : ($company ? ($company->contact_name ?: $user->name) : null),
+            'primary_contact_email'        => $address && $address->primary_contact_email
+                ? $address->primary_contact_email
+                : ($company ? ($company->company_email ?: $user->email) : null),
+            'primary_contact_phone_number' => $address && $address->primary_contact_phone_number
+                ? $address->primary_contact_phone_number
+                : ($company ? ($company->company_phone_number ?: $user->phone_number) : null),
+            'full_address'                 => $address ? $address->full_address : null,
+            'lat'                          => $lat,
+            'lng'                          => $lng,
+            'latlng'                       => ! is_null($lat) && ! is_null($lng) ? $lat . ',' . $lng : null,
+            'city'                         => $cityOption,
+            'map_selected'                 => ! is_null($lat) && ! is_null($lng) ? ['lat' => $lat, 'lng' => $lng] : null,
+        ];
+    }
+
+    public function resolveGoogleMapsUrl(Request $Request, ShippmentService $ShippmentService)
+    {
+        if (! $ShippmentService->can('create') && ! $ShippmentService->can('update')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $url = (string) $Request->query('url');
+        if (! $this->isAllowedGoogleMapsUrl($url)) {
+            return response()->json(['message' => __('contenttypes::strings.shippments.invalid_google_maps_link')], 422);
+        }
+
+        try {
+            $resolvedUrl = $url;
+            for ($redirect = 0; $redirect < 5 && parse_url($resolvedUrl, PHP_URL_HOST) === 'maps.app.goo.gl'; $redirect++) {
+                $response = Http::timeout(6)->withOptions(['allow_redirects' => false])->head($resolvedUrl);
+                $location = $response->header('Location');
+
+                if (! $location || ! $this->isAllowedGoogleMapsUrl($location)) {
+                    break;
+                }
+                $resolvedUrl = $location;
+            }
+
+            return response()->json(['url' => $resolvedUrl]);
+        } catch (\Throwable $exception) {
+            return response()->json(['message' => __('contenttypes::strings.shippments.invalid_google_maps_link')], 422);
+        }
+    }
+
+    public function verifyDestinationCity(
+        Request $Request,
+        ShippmentService $ShippmentService,
+        DestinationCityVerifier $DestinationCityVerifier
+    ) {
+        if (! $ShippmentService->can('create') && ! $ShippmentService->can('update')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $validator = Validator::make($Request->all(), [
+            'city_id' => 'required|numeric',
+            'lat'     => 'required|numeric|between:-90,90',
+            'lng'     => 'required|numeric|between:-180,180',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
+
+        try {
+            $valid = $DestinationCityVerifier->verify((int) $Request->city_id, $Request->lat, $Request->lng);
+        } catch (\Throwable $exception) {
+            report($exception);
+            return response()->json([
+                'message' => __('contenttypes::strings.shippments.address_city_check_failed'),
+            ], 503);
+        }
+
+        return response()->json([
+            'valid' => $valid,
+            'token' => $valid ? ShippmentService::destinationCityVerificationToken(
+                $city->id,
+                $Request->lat,
+                $Request->lng
+            ) : null,
+        ]);
+    }
+
+    public function destinationCityLocation(
+        Request $Request,
+        ShippmentService $ShippmentService,
+        OpenStreetMapService $OpenStreetMapService
+    ) {
+        if (! $ShippmentService->can('create') && ! $ShippmentService->can('update')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+
+        $validator = Validator::make($Request->all(), [
+            'city_id' => 'required|numeric',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
+
+        try {
+            $location = Cache::remember(
+                'shippment_destination_city_location:' . $city->id,
+                now()->addDays(30),
+                function() use($city, $OpenStreetMapService) {
+                    $response = $OpenStreetMapService
+                        ->searchLocale($city->name_ar . '، السعودية', 'ar')
+                        ->response('ar');
+
+                    if (empty($response['lat']) || empty($response['lon'])) {
+                        throw new \RuntimeException('OpenStreetMap returned no city location.');
+                    }
+
+                    return [
+                        'lat' => (float) $response['lat'],
+                        'lng' => (float) $response['lon'],
+                    ];
+                }
+            );
+        } catch (\Throwable $exception) {
+            report($exception);
+            return response()->json([
+                'message' => __('contenttypes::strings.shippments.address_city_check_failed'),
+            ], 503);
+        }
+
+        return response()->json($location);
+    }
+
+    public function previousDeliveryAddresses(
+        Request $Request,
+        ShippmentService $ShippmentService,
+        PreviousDeliveryAddressService $PreviousDeliveryAddressService
+    ) {
+        if (! $ShippmentService->can('create') && ! $ShippmentService->can('update')) {
+            $ShippmentService->throwPermissionException('create');
+        }
+        if (auth()->user()->type !== 'DEFAULT') {
+            abort(403);
+        }
+
+        $validator = Validator::make($Request->all(), [
+            'city_id' => 'required|integer|exists:cities,id',
+            'search'  => 'nullable|string|max:100',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $city = City::where('country_id', 191)->findOrFail($Request->city_id);
+
+        return response()->json([
+            'results' => $PreviousDeliveryAddressService->search(
+                auth()->id(),
+                (int) $city->id,
+                $Request->search
+            ),
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+
+    private function isAllowedGoogleMapsUrl(string $url): bool
+    {
+        if (! filter_var($url, FILTER_VALIDATE_URL) || parse_url($url, PHP_URL_SCHEME) !== 'https') {
+            return false;
+        }
+
+        return in_array(strtolower((string) parse_url($url, PHP_URL_HOST)), [
+            'maps.app.goo.gl',
+            'google.com',
+            'www.google.com',
+            'maps.google.com',
+        ], true);
     }
 
     public function update(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
@@ -82,9 +474,9 @@ class ShippmentsController extends SystemCoreHttpController
             return redirect()->route('ShippmentsController@read', ['model' => $this->data['model']->id]);
         }
 
-        // if($this->data['model']->sys_status == 'MATCHING') {
-        //     return redirect()->route('ShippmentsController@read', ['model' => $this->data['model']->id]);
-        // }
+        if($Request->duplicate != 'Y' && $this->data['model']->sys_status !== 'DRAFT') {
+            return $this->draftOnlyEditResponse($Response, $this->data['model']);
+        }
 
         $this->data['model']->load([
             'loadingLocation' => function($query) {
@@ -157,6 +549,9 @@ class ShippmentsController extends SystemCoreHttpController
                 'public_notes'                 => $location->public_notes,
                 'private_notes'                => $location->private_notes,
                 'removed'                      => 'N',
+                'destination_city_token'       => null,
+                'city_validation_status'       => 'pending',
+                'city_validation_request_id'   => 0,
                 'map'                          => null,
             ];
         });
@@ -214,6 +609,9 @@ class ShippmentsController extends SystemCoreHttpController
                 $query->withTrashed();
                 $query->with([
                     'city' => function($query) {
+                        $query->withTrashed();
+                    },
+                    'DELIVERY_CONFIRMATION' => function($query) {
                         $query->withTrashed();
                     },
                 ]);
@@ -335,6 +733,9 @@ class ShippmentsController extends SystemCoreHttpController
         if($Request->duplicate == 'Y') {
             return $this->postCreate($Request, $Response, $ShippmentService);
         }
+        if($this->data['model']->sys_status !== 'DRAFT') {
+            return $this->draftOnlyEditResponse($Response, $this->data['model']);
+        }
         $this->data['Validator'] = $ShippmentService->validator('update', $Request->all());
         $this->data['Validator']->validate();
         $shippment = DB::transaction(function() use($Request, $ShippmentService) {
@@ -358,6 +759,18 @@ class ShippmentsController extends SystemCoreHttpController
                 'description' => __('ui::strings.messages.saved.description'),
             ],
             'redirect' => route('ShippmentsController@read', ['model' => $this->data['model']->id]),
+        ]);
+    }
+
+    private function draftOnlyEditResponse(ActionResponse $Response, Shippment $shippment): ActionResponse
+    {
+        return $Response->module('ContentTypes')->code('403')->fail()->withOnlyToAjaxWeb([
+            'redirect' => route('ShippmentsController@read', ['model' => $shippment->id]),
+            'toastr' => [
+                'type'        => 'error',
+                'title'       => __('contenttypes::strings.messages.shippment_edit_draft_only.title'),
+                'description' => __('contenttypes::strings.messages.shippment_edit_draft_only.description'),
+            ],
         ]);
     }
 
@@ -677,17 +1090,11 @@ class ShippmentsController extends SystemCoreHttpController
             },
         ]);
 
-        if(auth()->check() && auth()->user()->type == 'TRANSPORTER' && $this->data['model']->transporter_user_id != auth()->id()) {
-            return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
-                'toastr' => [
-                    'type'        => 'error',
-                    'title'       => __('contenttypes::strings.messages.shippment_not_available.title'),
-                    'description' => __('contenttypes::strings.messages.shippment_not_available.description'),
-                ],
-            ]);
-        }
-
-        if(auth()->check() && auth()->user()->type == 'DEFAULT' && $this->data['model']->company_user_id != auth()->id()) {
+        if (
+            ! auth()->check()
+            || auth()->user()->type != 'TRANSPORTER'
+            || (int) $this->data['model']->transporter_user_id !== (int) auth()->id()
+        ) {
             return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
                 'toastr' => [
                     'type'        => 'error',
@@ -721,18 +1128,105 @@ class ShippmentsController extends SystemCoreHttpController
             ]);
         }
 
-        DB::transaction(function() use($Request, $ShippmentService) {
-            $this->data['address'] = $this->data['model']->allAddressess()->where('id', $Request->address_id)->first();
+        $this->data['address'] = $this->data['model']->pickupAddress()
+            ->where('lgl_addressess.id', $Request->address_id)
+            ->first();
+
+        if (! $this->data['address']) {
+            return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
+                'toastr' => [
+                    'type'        => 'error',
+                    'title'       => __('contenttypes::strings.messages.shippment_not_available.title'),
+                    'description' => __('contenttypes::strings.messages.shippment_not_available.description'),
+                ],
+            ]);
+        }
+
+        DB::transaction(function() {
             $this->data['address']->delivered_at = now()->format('Y-m-d H:i:s');
             $this->data['address']->save();
 
-            if($this->data['address']->address_tag == 'SHIPPMENT_LOADING_POINT') {
-                $this->data['model']->sys_status = 'PENDING_DELIVERY';
-                $this->data['model']->save();
+            $this->data['model']->sys_status = 'PENDING_DELIVERY';
+            $this->data['model']->save();
+        });
+
+        return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
+            'toastr' => [
+                'type'        => 'success',
+                'title'       => __('contenttypes::strings.messages.shippment_delivered_to_location.title'),
+                'description' => __('contenttypes::strings.messages.shippment_delivered_to_location.description'),
+            ],
+            'redirect' => route('ShippmentsController@read', ['model' => $this->data['model']->id]),
+        ]);
+    }
+
+    public function postDeliveryConfirmation(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
+    {
+        $data = Validator::make($Request->all(), [
+            'model'                       => 'required|integer',
+            'address_id'                  => 'required|integer',
+            'delivery_confirmation_file'  => 'nullable|file',
+            'delivery_confirmation_notes' => 'nullable|string|max:2000',
+        ])->validate();
+
+        $this->data['model'] = $ShippmentService->withTrashed()->findOrFail($data['model'])->data();
+
+        if (
+            ! auth()->check()
+            || auth()->user()->type != 'TRANSPORTER'
+            || (int) $this->data['model']->transporter_user_id !== (int) auth()->id()
+        ) {
+            return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
+                'toastr' => [
+                    'type'        => 'error',
+                    'title'       => __('contenttypes::strings.messages.shippment_not_available.title'),
+                    'description' => __('contenttypes::strings.messages.shippment_not_available.description'),
+                ],
+            ]);
+        }
+
+        $address = $this->data['model']->offloadingLocations()
+            ->where('lgl_addressess.id', $data['address_id'])
+            ->first();
+
+        if (! $address || (! $address->delivered_at && ! $this->data['model']->pickupAddress()->whereNotNull('delivered_at')->exists())) {
+            return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
+                'toastr' => [
+                    'type'        => 'error',
+                    'title'       => __('contenttypes::strings.messages.shippment_not_available.title'),
+                    'description' => __('contenttypes::strings.messages.shippment_not_available.description'),
+                ],
+            ]);
+        }
+
+        DB::transaction(function() use($Request, $address, $data) {
+            $address->delivered_at                = $address->delivered_at ?: now()->format('Y-m-d H:i:s');
+            $address->delivery_confirmation_notes = $data['delivery_confirmation_notes'] ?? null;
+            $address->updated_by_user_id           = auth()->id();
+            $address->save();
+
+            if ($Request->hasFile('delivery_confirmation_file')) {
+                $uploadedFile = $Request->file('delivery_confirmation_file');
+                $file = UploadedFile::firstOrNew([
+                    'file_tag'     => 'DELIVERY_CONFIRMATION',
+                    'related_type' => 'address',
+                    'related_id'   => $address->id,
+                ]);
+                $file->file_name          = $uploadedFile->getClientOriginalName();
+                $file->file_extension     = $uploadedFile->getClientOriginalExtension();
+                $file->file_size          = $uploadedFile->getSize();
+                $file->created_by_user_id = $file->exists ? $file->created_by_user_id : auth()->id();
+                $file->updated_by_user_id = auth()->id();
+                $file->sys_status         = 'ACTIVE';
+                $file->file_path          = app('GraphManager')->process('files', $uploadedFile);
+                $file->save();
             }
 
-            $check = $this->data['model']->allAddressess()->whereNull('delivered_at')->count();
-            if($check == 0 && $this->data['model']->sys_status == 'PENDING_DELIVERY') {
+            $pendingLocations = $this->data['model']->offloadingLocations()
+                ->whereNull('delivered_at')
+                ->count();
+
+            if ($pendingLocations == 0 && $this->data['model']->sys_status == 'PENDING_DELIVERY') {
                 $this->data['model']->sys_status = 'DELIVERED_PENDING_PAYMENT';
                 $this->data['model']->save();
             }
@@ -741,8 +1235,8 @@ class ShippmentsController extends SystemCoreHttpController
         return $Response->module('ContentTypes')->code('200')->success()->withOnlyToAjaxWeb([
             'toastr' => [
                 'type'        => 'success',
-                'title'       => __('contenttypes::strings.messages.shippment_delivered_to_location.title'),
-                'description' => __('contenttypes::strings.messages.shippment_delivered_to_location.description'),
+                'title'       => __('contenttypes::strings.messages.delivery_confirmation_saved.title'),
+                'description' => __('contenttypes::strings.messages.delivery_confirmation_saved.description'),
             ],
             'redirect' => route('ShippmentsController@read', ['model' => $this->data['model']->id]),
         ]);
@@ -882,9 +1376,23 @@ class ShippmentsController extends SystemCoreHttpController
         ]);
     }
 
-    public function driversSelect(Request $Request, ActionResponse $Response, DriverService $DriverService)
+    public function driversSelect(
+        Request $Request,
+        ActionResponse $Response,
+        DriverService $DriverService,
+        ShippmentService $ShippmentService
+    )
     {
-        return $DriverService->ajaxSelect($Request->search ?? null, [
+        $Request->validate([
+            'model' => 'required|integer',
+        ]);
+
+        $shippment = $ShippmentService->findOrFail($Request->model)->data();
+        if (auth()->user()->type === 'TRANSPORTER' && (int) $shippment->transporter_user_id !== (int) auth()->id()) {
+            abort(403);
+        }
+
+        return $DriverService->availableForShippment($shippment)->ajaxSelect($Request->search ?? null, [
             'nullable' => $Request->nullable ?? true,
         ], $Request->page);
     }
@@ -937,7 +1445,12 @@ class ShippmentsController extends SystemCoreHttpController
         ]);
     }
 
-    public function postDriverAndWaybill(Request $Request, ActionResponse $Response, ShippmentService $ShippmentService)
+    public function postDriverAndWaybill(
+        Request $Request,
+        ActionResponse $Response,
+        ShippmentService $ShippmentService,
+        DriverService $DriverService
+    )
     {
         $this->data['model'] = $ShippmentService->withTrashed()->findOrFail($Request->model)->data();
         $this->data['model']->load([
@@ -959,6 +1472,7 @@ class ShippmentsController extends SystemCoreHttpController
         $rules = [
             'driver_mode'          => 'required|string|in:new,existing',
             'car_plate'            => 'required|string|max:255',
+            'car_information'      => 'nullable|string|max:2000',
             'WAYBILL_ATTACHMENT_1' => 'nullable|file'
         ];
 
@@ -977,7 +1491,7 @@ class ShippmentsController extends SystemCoreHttpController
         }
         $this->data['Validator'] = Validator::make($Request->all(), $rules)->validate();
 
-        DB::transaction(function() use($Request, $ShippmentService) {
+        DB::transaction(function() use($Request, $ShippmentService, $DriverService) {
             $driver = null;
 
             if($Request->driver_mode == 'new') {
@@ -985,6 +1499,8 @@ class ShippmentsController extends SystemCoreHttpController
                 $driver->transporter_user_id    = auth()->id();
                 $driver->name                   = $Request->driver_name;
                 $driver->id_number              = $Request->driver_id_number;
+                $driver->car_plate              = $Request->car_plate;
+                $driver->car_information        = $Request->car_information;
                 $driver->nationality_country_id = $Request->driver_nationality_country_id;
                 $driver->sys_status             = 'ACTIVE';
                 $driver->created_by_user_id     = auth()->id();
@@ -992,7 +1508,18 @@ class ShippmentsController extends SystemCoreHttpController
                 $driver->save();
             }
             else {
-                $driver = Driver::where('transporter_user_id', auth()->id())->findOrFail($Request->driver_id);
+                $driver = Driver::where('transporter_user_id', auth()->id())
+                    ->lockForUpdate()
+                    ->findOrFail($Request->driver_id);
+                if (! $DriverService->isAvailableForShippment($driver->id, $this->data['model'])) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'driver_id' => __('contenttypes::strings.shippments.driver_not_available'),
+                    ]);
+                }
+                $driver->car_plate          = $Request->car_plate;
+                $driver->car_information    = $Request->car_information;
+                $driver->updated_by_user_id = auth()->id();
+                $driver->save();
             }
 
             $this->data['model']->driver_id = $driver->id;

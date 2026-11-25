@@ -313,6 +313,13 @@
                                                         {{__('contenttypes::orders.pallets')}}
                                                     </p>
                                                 </div>
+                                                <div class="col-lg-6 mb-4">
+                                                    <img src="{{ asset('images/icons/date.svg') }}" alt="">
+                                                    <span class="name">{{ __('contenttypes::inputs.delivery_required_at.label') }}</span>
+                                                    <p class="value">
+                                                        {{ $model->delivery_required_at ? \Carbon\Carbon::parse($model->delivery_required_at)->format('Y-m-d') : '—' }}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -488,7 +495,7 @@
                                         <h4>
                                             {{__('contenttypes::orders.offloading_points_section')}}
                                         </h4>
-                                        <div class="box">
+                                        <div class="box offloading-points-box">
                                             <div class="row">
                                                 <div class="col-lg-12 mb-4">
                                                     <div class="card-title-group align-start gx-3 mb-3 main-title">
@@ -534,7 +541,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-4">
+                                <div class="row mb-4 mt-4">
                                     <div class="col-lg-6">
                                         <h4>
                                             {{__('contenttypes::inputs.driver_details.label')}}
@@ -1138,6 +1145,9 @@
                                 'disabled'          => function($options, $key, $option, $value) { return false; },
                             ],
                         ])
+                        <span class="form-note mt-2">
+                            {{ __('contenttypes::strings.shippments.driver_availability_hint') }}
+                        </span>
                     </div>
 
                     <div class="col-lg-6">
@@ -1155,12 +1165,29 @@
                         ])
                     </div>
 
+                    <div class="col-lg-12">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'textarea',
+                                'name'        => 'car_information',
+                                'label'       => __('contenttypes::inputs.car_information.label'),
+                                'placeholder' => __('contenttypes::inputs.car_information.placeholder'),
+                                'rows'        => 3,
+                                'attributes'  => [
+                                    'v-model' => 'car_information',
+                                ],
+                            ],
+                        ])
+                    </div>
+
                     <div class="col-lg-6">
                         @include('ui::components.input', [
                             'options' => [
                                 'view'        => 'DEFAULT',
                                 'type'        => 'file',
                                 'name'        => 'WAYBILL',
+                                'file_preview' => true,
                                 'label'       => __('contenttypes::inputs.waybill.label'),
                                 'description' => __('contenttypes::inputs.attachment_1.description'),
                                 'placeholder' => null,
@@ -1313,6 +1340,23 @@
                         ])
                     </div>
 
+                    <div class="col-lg-12">
+                        @include('ui::components.input', [
+                            'options' => [
+                                'view'        => 'DEFAULT',
+                                'type'        => 'textarea',
+                                'name'        => 'car_information_view',
+                                'label'       => __('contenttypes::inputs.car_information.label'),
+                                'placeholder' => __('contenttypes::inputs.car_information.placeholder'),
+                                'rows'        => 3,
+                                'attributes'  => [
+                                    ':value'   => 'driver ? driver.car_information : null',
+                                    'disabled' => 'true',
+                                ],
+                            ],
+                        ])
+                    </div>
+
                     <div class="col-lg-6" v-if="waybill">
                         <div class="form-group">
                             <label>{{ __('contenttypes::inputs.waybill.label') }}</label>
@@ -1428,6 +1472,7 @@
                     driver     : null,
                     waybill    : null,
                     car_plate  : null,
+                    car_information : null,
                 },
                 methods: {
                     changeMode: function(mode) {
@@ -1436,6 +1481,7 @@
                     resetForm: function() {
                         this.mode = 'existing';
                         this.model = null;
+                        this.car_information = null;
                     },
                     fetchWaybillAndDriver: function(model) {
                         const vm = this;
@@ -1451,15 +1497,10 @@
                             if (data['toastr']) {
                                 NioApp.Toast('<h5>'+ data['toastr']['title'] +'</h5><p>'+ data['toastr']['description'] +'</p>', data['toastr']['type'], {ui: 'is-dark'});
                             }
-                            if(data['driver']) {
-                                vm.driver  = data['driver'];
-                            }
-                            if(data['waybill']) {
-                                vm.waybill = data['waybill'];
-                            }
-                            if(data['car_plate']) {
-                                vm.car_plate = data['car_plate'];
-                            }
+                            vm.driver          = data['driver'] || null;
+                            vm.waybill         = data['waybill'] || null;
+                            vm.car_plate       = data['car_plate'] || null;
+                            vm.car_information = data['driver'] ? (data['driver']['car_information'] || null) : null;
                             vm.is_loading = false;
                         })
                     },
@@ -1468,7 +1509,14 @@
                             this.fetchWaybillAndDriver(this.model);
                         }
                     },
-                }
+                },
+                watch: {
+                    mode: function(mode) {
+                        this.car_information = mode === 'existing' && this.driver
+                            ? (this.driver.car_information || null)
+                            : null;
+                    },
+                },
             });
 
             const fetchWaybillAndDriver = function(model) {
@@ -1567,7 +1615,8 @@
                     data: function (params) {
                         var query = {
                             search   : params.term,
-                            page     : params.page || 1
+                            page     : params.page || 1,
+                            model    : @json($model->id)
                         }
                         return query;
                     },
@@ -1578,6 +1627,18 @@
             })
             .on("select2:select", function() {
                 let _data = $(this).select2('data')[0];
+                supplierWaybillAndDriverApp.driver = _data && _data.data ? _data.data : null;
+                supplierWaybillAndDriverApp.car_plate = _data && _data.data
+                    ? (_data.data.car_plate || null)
+                    : null;
+                supplierWaybillAndDriverApp.car_information = _data && _data.data
+                    ? (_data.data.car_information || null)
+                    : null;
+            })
+            .on("select2:clear", function() {
+                supplierWaybillAndDriverApp.driver = null;
+                supplierWaybillAndDriverApp.car_plate = null;
+                supplierWaybillAndDriverApp.car_information = null;
             });
 
             const postDriverAndWaybill = function(event) {

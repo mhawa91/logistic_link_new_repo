@@ -31,12 +31,18 @@
                         <div class="stepper">
                             <div class="step" :class="{'active': step == 1}">
                                 <div class="circle" :class="{'inactive': step == 2}">1</div>
-                                <div class="label" :class="{'text-muted': step == 2}">{{ __('contenttypes::strings.shippments.steps.step1') }}</div>
+                                <div class="label" :class="{'text-muted': step == 2}">
+                                    {{ __('contenttypes::strings.shippments.steps.step1') }}
+                                    <span v-if="stepErrors[1]" class="badge badge-danger ml-1">@{{ stepErrors[1] }}</span>
+                                </div>
                             </div>
                             <div class="arrow">›</div>
                             <div class="step" :class="{'active': step == 2}">
                                 <div class="circle" :class="{'inactive': step == 1}">2</div>
-                                <div class="label" :class="{'text-muted': step == 1}">{{ __('contenttypes::strings.shippments.steps.step2') }}</div>
+                                <div class="label" :class="{'text-muted': step == 1}">
+                                    {{ __('contenttypes::strings.shippments.steps.step2') }}
+                                    <span v-if="stepErrors[2]" class="badge badge-danger ml-1">@{{ stepErrors[2] }}</span>
+                                </div>
                             </div>
                         </div>
                     </li>
@@ -85,7 +91,7 @@
                     ])
                 @endif
 
-                <div :style="{ 'display': step == 2 ? 'none' : 'block' }">
+                <div data-shippment-step="1" :style="{ 'display': step == 2 ? 'none' : 'block' }">
                     <div class="nk-block-head">
                         <div class="nk-block-head-content">
                             <h4 class="nk-block-title">{{ __('contenttypes::strings.shippments.steps.step1') }}</h4>
@@ -331,7 +337,7 @@
                                     'label'       => __('contenttypes::inputs.equipment_length.label'),
                                     'placeholder' => __('contenttypes::inputs.equipment_length.placeholder'),
                                     'description' => __('contenttypes::inputs.equipment_length.description'),
-                                    'attributes'  => [],
+                                    'attributes'  => ['min' => 0],
                                     'value'       => $model->equipment_length,
                                 ],
                             ])
@@ -351,7 +357,7 @@
                                     'label'       => __('contenttypes::inputs.equipment_width.label'),
                                     'placeholder' => __('contenttypes::inputs.equipment_width.placeholder'),
                                     'description' => __('contenttypes::inputs.equipment_width.description'),
-                                    'attributes'  => [],
+                                    'attributes'  => ['min' => 0],
                                     'value'       => $model->equipment_width,
                                 ],
                             ])
@@ -435,15 +441,10 @@
                                     'view'        => 'DEFAULT',
                                     'type'        => 'file',
                                     'name'        => 'ATTACHMENT_1',
-                                    'label'       => __('contenttypes::inputs.attachment_1.label')
-                                    . (
-                                        $model->ATTACHMENT_1 
-                                        ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->ATTACHMENT_1->file_path) .'" target="_blank">
-                                                <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
-                                                '. __('contenttypes::inputs.files.options.view') .'
-                                            </a>' 
-                                        : ''
-                                    ),
+                                    'file_preview' => true,
+                                    'existing_file_url' => $model->ATTACHMENT_1 ? app('GraphManager')->src('original', 'files', $model->ATTACHMENT_1->file_path) : null,
+                                    'existing_file_name' => optional($model->ATTACHMENT_1)->file_name,
+                                    'label'       => __('contenttypes::inputs.attachment_1.label'),
                                     'description' => __('contenttypes::inputs.attachment_1.description'),
                                     'placeholder' => null,
                                     'value'       => null,
@@ -454,15 +455,10 @@
                                     'view'        => 'DEFAULT',
                                     'type'        => 'file',
                                     'name'        => 'ATTACHMENT_2',
-                                    'label'       => __('contenttypes::inputs.attachment_2.label')
-                                    . (
-                                        $model->ATTACHMENT_2 
-                                        ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->ATTACHMENT_2->file_path) .'" target="_blank">
-                                                <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
-                                                '. __('contenttypes::inputs.files.options.view') .'
-                                            </a>' 
-                                        : ''
-                                    ),
+                                    'file_preview' => true,
+                                    'existing_file_url' => $model->ATTACHMENT_2 ? app('GraphManager')->src('original', 'files', $model->ATTACHMENT_2->file_path) : null,
+                                    'existing_file_name' => optional($model->ATTACHMENT_2)->file_name,
+                                    'label'       => __('contenttypes::inputs.attachment_2.label'),
                                     'description' => __('contenttypes::inputs.attachment_2.description'),
                                     'placeholder' => null,
                                     'value'       => null,
@@ -473,15 +469,10 @@
                                     'view'        => 'DEFAULT',
                                     'type'        => 'file',
                                     'name'        => 'ATTACHMENT_3',
-                                    'label'       => __('contenttypes::inputs.attachment_3.label')
-                                    . (
-                                        $model->ATTACHMENT_3 
-                                        ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->ATTACHMENT_3->file_path) .'" target="_blank">
-                                                <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
-                                                '. __('contenttypes::inputs.files.options.view') .'
-                                            </a>' 
-                                        : ''
-                                    ),
+                                    'file_preview' => true,
+                                    'existing_file_url' => $model->ATTACHMENT_3 ? app('GraphManager')->src('original', 'files', $model->ATTACHMENT_3->file_path) : null,
+                                    'existing_file_name' => optional($model->ATTACHMENT_3)->file_name,
+                                    'label'       => __('contenttypes::inputs.attachment_3.label'),
                                     'description' => __('contenttypes::inputs.attachment_3.description'),
                                     'placeholder' => null,
                                     'value'       => null,
@@ -492,15 +483,10 @@
                                     'view'        => 'DEFAULT',
                                     'type'        => 'file',
                                     'name'        => 'ATTACHMENT_4',
-                                    'label'       => __('contenttypes::inputs.attachment_4.label')
-                                    . (
-                                        $model->ATTACHMENT_4 
-                                        ? ' <a class="link link-primary link-sm" style="margin-left: 10px; margin-right: 10px;" tabindex="-1" href="'. app('GraphManager')->src('original', 'files', $model->ATTACHMENT_4->file_path) .'" target="_blank">
-                                                <i class="fas fa-external-link-alt" style="margin-left: 5px; margin-right: 5px;"></i>
-                                                '. __('contenttypes::inputs.files.options.view') .'
-                                            </a>' 
-                                        : ''
-                                    ),
+                                    'file_preview' => true,
+                                    'existing_file_url' => $model->ATTACHMENT_4 ? app('GraphManager')->src('original', 'files', $model->ATTACHMENT_4->file_path) : null,
+                                    'existing_file_name' => optional($model->ATTACHMENT_4)->file_name,
+                                    'label'       => __('contenttypes::inputs.attachment_4.label'),
                                     'description' => __('contenttypes::inputs.attachment_4.description'),
                                     'placeholder' => null,
                                     'value'       => null,
@@ -520,7 +506,7 @@
                         </div>
                     </div>
                 </div>
-                <div :style="{ 'display': step == 2 ? 'block' : 'none' }">
+                <div data-shippment-step="2" :style="{ 'display': step == 2 ? 'block' : 'none' }">
                     <div class="nk-block-head">
                         <div class="nk-block-head-content">
                             <h4 class="nk-block-title">{{ __('contenttypes::strings.shippments.steps.step2') }}</h4>
@@ -689,6 +675,10 @@
                                             ],
                                         ],
                                     ])
+                                    <span class="form-note text-primary mt-1">
+                                        <em class="icon ni ni-link mr-1"></em>
+                                        {{ __('contenttypes::strings.shippments.google_maps_link_hint') }}
+                                    </span>
                                     @include('ui::components.input', [
                                         'options' => [
                                             'view'        => 'INLINE',
@@ -774,6 +764,12 @@
                     <br>
 
                     <div class="row gy-4" v-for="(address, address_index) in to_addresses" :style="{ 'display': address.removed == 'Y' ? 'none' : 'flex' }">
+                        <div class="col-md-12">
+                            <previous-delivery-address-search
+                                :city-id="to_address.city ? to_address.city.id : null"
+                                v-on:selected="applyPreviousDeliveryAddress(address, $event)">
+                            </previous-delivery-address-search>
+                        </div>
                         <div class="col-md-4">
                             <div class="row gy-4">
                                 <div class="col-md-12">
@@ -880,6 +876,26 @@
                                             ],
                                         ],
                                     ])
+                                    <span class="form-note text-primary mt-1">
+                                        <em class="icon ni ni-link mr-1"></em>
+                                        {{ __('contenttypes::strings.shippments.google_maps_link_hint') }}
+                                    </span>
+                                    <span v-if="address.city_validation_status === 'pending'" class="form-note text-warning mt-1">
+                                        <span class="spinner-border spinner-border-sm mr-1" role="status"></span>
+                                        {{ __('contenttypes::strings.shippments.checking_destination_city') }}
+                                    </span>
+                                    <span v-else-if="address.city_validation_status === 'valid'" class="form-note text-success mt-1">
+                                        <em class="icon ni ni-check-circle mr-1"></em>
+                                        {{ __('contenttypes::strings.shippments.address_inside_destination_city') }}
+                                    </span>
+                                    <span v-else-if="address.city_validation_status === 'invalid'" class="form-note text-danger mt-1">
+                                        <em class="icon ni ni-cross-circle mr-1"></em>
+                                        {{ __('contenttypes::strings.shippments.address_outside_destination_city') }}
+                                    </span>
+                                    <span v-else-if="address.city_validation_status === 'error'" class="form-note text-danger mt-1">
+                                        <em class="icon ni ni-alert-circle mr-1"></em>
+                                        {{ __('contenttypes::strings.shippments.address_city_check_failed') }}
+                                    </span>
                                     @include('ui::components.input', [
                                         'options' => [
                                             'view'        => 'INLINE',
@@ -901,6 +917,18 @@
                                             'attributes'  => [
                                                 'v-model' => 'address.lng',
                                                 ':name'   => "'offloading_address[' + address_index + '][lng]'",
+                                            ]
+                                        ],
+                                    ])
+                                    @include('ui::components.input', [
+                                        'options' => [
+                                            'view'        => 'INLINE',
+                                            'type'        => 'hidden',
+                                            'name'        => 'destination_city_token',
+                                            'value'       => null,
+                                            'attributes'  => [
+                                                'v-model' => 'address.destination_city_token',
+                                                ':name'   => "'offloading_address[' + address_index + '][destination_city_token]'",
                                             ]
                                         ],
                                     ])
@@ -1015,10 +1043,19 @@
                         </div>
                     </div>
 
-                    <a class="link link-primary link-sm" tabindex="-1" href="javascript:;" style="color: #FB4F28 !important;" v-on:click="addToAddress()">
+                    <button type="button" class="btn btn-link link link-primary link-sm p-0" style="color: #FB4F28 !important;"
+                        :disabled="!hasDestinationCity() || loading_type !== 'CITY_TO_CITY_MULTIPLE_LOCATIONS'"
+                        v-on:click="addToAddress()">
                         <i class="fas fa-plus" style="margin-left: 5px; margin-right: 5px;"></i>
                         {{ __('contenttypes::strings.shippments.add_offloading_address') }}
-                    </a>
+                    </button>
+                    <span v-if="!hasDestinationCity()" class="form-note text-warning mt-1">
+                        {{ __('contenttypes::strings.shippments.select_destination_city_first') }}
+                    </span>
+                    <span v-else-if="loading_type !== 'CITY_TO_CITY_MULTIPLE_LOCATIONS'" class="form-note text-muted mt-1">
+                        <em class="icon ni ni-info mr-1"></em>
+                        {{ __('contenttypes::strings.shippments.multiple_locations_type_required') }}
+                    </span>
                 </div>
 
                 @include('ui::components.input', [
@@ -1101,17 +1138,24 @@
 @endsection
 
 @push('script')
+    @include('contenttypes::shippments.partials.previous-delivery-address-search')
     <script>
         var companyMap = null;
+        var destinationCityValidationQueue = Promise.resolve();
+        var destinationCityValidationLastRequestAt = 0;
 
         const HeaderApp = new Vue({
             el: '#vue-header',
             data: {
                 step: 1,
+                stepErrors: { 1: 0, 2: 0 },
             },
             methods: {
                 switchStep: function(step) {
                     this.step = step
+                },
+                setStepErrors: function(stepErrors) {
+                    this.stepErrors = stepErrors;
                 }
             }
         });
@@ -1140,26 +1184,186 @@
                         'text' => $model->toCity->{'name_' . app()->getLocale()} ?? null,
                     ]),
                 },
+                destination_city_center: null,
+                destination_city_location_request_id: 0,
                 to_addresses : {!! $addresses->toJson() !!},
             },
             methods: {
-                setLatlng: function(value, item = undefined) {
-                    let _latlng = value.split(',');
-                    if (_latlng.length != 2) {
+                hasDestinationCity: function() {
+                    return this.to_address.city && this.to_address.city.id && this.to_address.city.id != 0;
+                },
+                focusDestinationCity: function() {
+                    const requestId = ++this.destination_city_location_request_id;
+                    this.destination_city_center = null;
+                    if (!this.hasDestinationCity()) {
                         return;
                     }
 
-                    if (item) {
-                        item.lat    = _latlng[0];
-                        item.lng    = _latlng[1];
-                        item.latlng = value;
-                        item.map.placeMarker(new google.maps.LatLng(item.lat, item.lng));
-                    } else {
-                        this.loading_address.lat    = _latlng[0];
-                        this.loading_address.lng    = _latlng[1];
-                        this.loading_address.latlng = value;
-                        companyMap.placeMarker(new google.maps.LatLng(this.loading_address.lat, this.loading_address.lng));
+                    const selectedCityId = String(this.to_address.city.id);
+                    $.ajax({
+                        url: @json(route('ShippmentsController@destinationCityLocation')),
+                        method: 'POST',
+                        data: {
+                            _token : @json(csrf_token()),
+                            city_id: selectedCityId,
+                        },
+                    }).done((response) => {
+                        if (requestId !== this.destination_city_location_request_id
+                            || !this.hasDestinationCity()
+                            || String(this.to_address.city.id) !== selectedCityId) {
+                            return;
+                        }
+
+                        const center = {
+                            lat: Number(response.lat),
+                            lng: Number(response.lng),
+                        };
+                        if (!Number.isFinite(center.lat) || !Number.isFinite(center.lng)) {
+                            return;
+                        }
+
+                        this.destination_city_center = center;
+                        this.to_addresses
+                            .filter((address) => address.removed === 'N'
+                                && address.map
+                                && typeof address.map.focusMap === 'function')
+                            .forEach((address) => address.map.focusMap(center.lat, center.lng, 10));
+                    }).fail(() => {
+                        if (requestId === this.destination_city_location_request_id) {
+                            NioApp.Toast(
+                                @json(__('contenttypes::strings.shippments.destination_city_location_failed')),
+                                'error',
+                                {ui: 'is-dark'}
+                            );
+                        }
+                    });
+                },
+                verifyAddressDestinationCity: function(address) {
+                    address.destination_city_token = null;
+                    if (address.removed === 'Y' || address.lat === null || address.lng === null) {
+                        address.city_validation_status = 'idle';
+                        return;
                     }
+                    if (!this.hasDestinationCity()) {
+                        address.city_validation_status = 'invalid';
+                        return;
+                    }
+
+                    const validationId = ++address.city_validation_request_id;
+                    const selectedCityId = String(this.to_address.city.id);
+                    address.city_validation_status = 'pending';
+
+                    destinationCityValidationQueue = destinationCityValidationQueue.then(() => new Promise((resolve) => {
+                        if (validationId !== address.city_validation_request_id
+                            || address.removed === 'Y'
+                            || !this.hasDestinationCity()
+                            || String(this.to_address.city.id) !== selectedCityId) {
+                            resolve();
+                            return;
+                        }
+
+                        const wait = Math.max(0, 1100 - (Date.now() - destinationCityValidationLastRequestAt));
+                        window.setTimeout(() => {
+                            if (validationId !== address.city_validation_request_id
+                                || !this.hasDestinationCity()
+                                || String(this.to_address.city.id) !== selectedCityId) {
+                                resolve();
+                                return;
+                            }
+
+                            destinationCityValidationLastRequestAt = Date.now();
+                            $.ajax({
+                                url: @json(route('ShippmentsController@verifyDestinationCity')),
+                                method: 'POST',
+                                data: {
+                                    _token : @json(csrf_token()),
+                                    city_id: selectedCityId,
+                                    lat    : address.lat,
+                                    lng    : address.lng,
+                                },
+                            }).done((response) => {
+                                if (validationId !== address.city_validation_request_id
+                                    || !this.hasDestinationCity()
+                                    || String(this.to_address.city.id) !== selectedCityId) {
+                                    return;
+                                }
+
+                                address.city_validation_status = response.valid ? 'valid' : 'invalid';
+                                address.destination_city_token = response.valid ? response.token : null;
+                            }).fail(() => {
+                                if (validationId === address.city_validation_request_id) {
+                                    address.city_validation_status = 'error';
+                                }
+                            }).always(resolve);
+                        }, wait);
+                    }));
+                },
+                extractMapCoordinates: function(value) {
+                    let decodedValue = String(value || '').trim();
+                    try {
+                        decodedValue = decodeURIComponent(decodedValue);
+                    } catch (error) {}
+
+                    const patterns = [
+                        /^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/,
+                        /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+                        /\/maps\/(?:search|place)\/(-?\d+(?:\.\d+)?),\+?(-?\d+(?:\.\d+)?)/,
+                        /[?&](?:q|query|ll)=(-?\d+(?:\.\d+)?),\+?(-?\d+(?:\.\d+)?)/,
+                        /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+                    ];
+
+                    for (const pattern of patterns) {
+                        const match = decodedValue.match(pattern);
+                        if (match) {
+                            const lat = Number(match[1]);
+                            const lng = Number(match[2]);
+                            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                                return { lat: lat, lng: lng };
+                            }
+                        }
+                    }
+                    return null;
+                },
+                applyMapCoordinates: function(coordinates, item = undefined) {
+                    const latlng = `${coordinates.lat},${coordinates.lng}`;
+                    if (item) {
+                        item.lat = coordinates.lat;
+                        item.lng = coordinates.lng;
+                        item.latlng = latlng;
+                        item.map.placeMarker(new google.maps.LatLng(coordinates.lat, coordinates.lng));
+                        this.verifyAddressDestinationCity(item);
+                    } else {
+                        this.loading_address.lat = coordinates.lat;
+                        this.loading_address.lng = coordinates.lng;
+                        this.loading_address.latlng = latlng;
+                        companyMap.placeMarker(new google.maps.LatLng(coordinates.lat, coordinates.lng));
+                    }
+                },
+                setLatlng: function(value, item = undefined) {
+                    const coordinates = this.extractMapCoordinates(value);
+                    if (coordinates) {
+                        this.applyMapCoordinates(coordinates, item);
+                        return;
+                    }
+
+                    if (!/^https:\/\//i.test(String(value || '').trim())) {
+                        return;
+                    }
+
+                    $.ajax({
+                        url: @json(route('ShippmentsController@resolveGoogleMapsUrl')),
+                        method: 'GET',
+                        data: { url: String(value).trim() }
+                    }).done((response) => {
+                        const resolvedCoordinates = this.extractMapCoordinates(response.url);
+                        if (resolvedCoordinates) {
+                            this.applyMapCoordinates(resolvedCoordinates, item);
+                            return;
+                        }
+                        NioApp.Toast(@json(__('contenttypes::strings.shippments.invalid_google_maps_link')), 'error', {ui: 'is-dark'});
+                    }).fail(() => {
+                        NioApp.Toast(@json(__('contenttypes::strings.shippments.invalid_google_maps_link')), 'error', {ui: 'is-dark'});
+                    });
                 },
                 switchStep: function(step) {
                     this.step = step
@@ -1178,6 +1382,27 @@
                 },
                 toCitySelected: function(selected, item = undefined) {
                     this.to_address.city = selected || null;
+                    this.to_addresses.forEach((address) => {
+                        address.destination_city_token = null;
+                        address.city_validation_status = address.lat !== null && address.lng !== null ? 'pending' : 'idle';
+                    });
+
+                    if (!this.hasDestinationCity()) {
+                        this.destination_city_center = null;
+                        this.destination_city_location_request_id++;
+                        this.to_addresses.forEach((address) => {
+                            address.city_validation_request_id++;
+                            if (address.lat !== null && address.lng !== null) {
+                                address.city_validation_status = 'invalid';
+                            }
+                        });
+                        return;
+                    }
+
+                    this.focusDestinationCity();
+                    this.to_addresses
+                        .filter((address) => address.removed === 'N' && address.lat !== null && address.lng !== null)
+                        .forEach((address) => this.verifyAddressDestinationCity(address));
                 },
                 citySelectOptions: function(options) {
                     options.ajax = {
@@ -1198,7 +1423,14 @@
                         }
                     };
                 },
+                applyPreviousDeliveryAddress: function(address, selected) {
+                    window.fillPreviousDeliveryAddress(this, address, selected);
+                },
                 addToAddress: function() {
+                    if (!this.hasDestinationCity()) {
+                        NioApp.Toast(@json(__('contenttypes::strings.shippments.select_destination_city_first')), 'warning', {ui: 'is-dark'});
+                        return;
+                    }
                     const notRemoved = this.to_addresses.filter(address => address.removed == 'N');
                     if (this.loading_type == 'CITY_TO_CITY' && notRemoved.length >= 1) {
                         return;
@@ -1219,20 +1451,35 @@
                         public_notes                 : null,
                         private_notes                : null,
                         removed                      : 'N',
+                        destination_city_token       : null,
+                        city_validation_status       : 'idle',
+                        city_validation_request_id   : 0,
                         map: () => {
                             address.map = createGeoMap({
                                 el      : el,
-                                lat     : Number('{{ config("address.map.lat") }}'),
-                                lng     : Number('{{ config("address.map.lng") }}'),
+                                lat     : this.destination_city_center
+                                    ? this.destination_city_center.lat
+                                    : Number('{{ config("address.map.lat") }}'),
+                                lng     : this.destination_city_center
+                                    ? this.destination_city_center.lng
+                                    : Number('{{ config("address.map.lng") }}'),
                                 zoom    : Number('{{ config("address.map.zoom") }}'),
                                 selected: null,
                                 onMapReady: () => {
+                                    if (this.destination_city_center) {
+                                        address.map.focusMap(
+                                            this.destination_city_center.lat,
+                                            this.destination_city_center.lng,
+                                            10
+                                        );
+                                    }
                                     console.log('mapReady');
                                 },
                                 onReverseGeocode: (lat, lng, state) => {
                                     address.lat    = lat;
                                     address.lng    = lng;
                                     address.latlng = `${lat},${lng}`
+                                    this.verifyAddressDestinationCity(address);
                                     console.log('deliveryAddress: onReverseGeocode', `${lat},${lng}`);
                                 }
                             })
@@ -1253,6 +1500,8 @@
                         return;
                     }
                     this.to_addresses[index].removed = 'Y';
+                    this.to_addresses[index].destination_city_token = null;
+                    this.to_addresses[index].city_validation_request_id++;
                 },
                 leaveOnlyTheFirstAddress: function() {
                     this.to_addresses.filter(address => address.removed == 'N').forEach((address, index) => {
@@ -1264,6 +1513,31 @@
                     });
                 },
                 submit: function() {
+                    if (!this.hasDestinationCity()) {
+                        this.switchStep(2);
+                        NioApp.Toast(@json(__('contenttypes::strings.shippments.select_destination_city_first')), 'warning', {ui: 'is-dark'});
+                        return;
+                    }
+
+                    const locatedAddresses = this.to_addresses.filter((address) =>
+                        address.removed === 'N' && address.lat !== null && address.lng !== null
+                    );
+                    if (locatedAddresses.some((address) => address.city_validation_status === 'pending')) {
+                        this.switchStep(2);
+                        NioApp.Toast(@json(__('contenttypes::strings.shippments.wait_for_address_city_check')), 'warning', {ui: 'is-dark'});
+                        return;
+                    }
+                    const invalidAddress = locatedAddresses.find((address) => address.city_validation_status !== 'valid');
+                    if (invalidAddress) {
+                        this.switchStep(2);
+                        const message = invalidAddress.city_validation_status === 'error'
+                            ? @json(__('contenttypes::strings.shippments.address_city_check_failed'))
+                            : @json(__('contenttypes::strings.shippments.address_outside_destination_city'));
+                        NioApp.Toast(message, 'error', {ui: 'is-dark'});
+                        return;
+                    }
+
+                    HeaderApp.setStepErrors({ 1: 0, 2: 0 });
                     this.$nextTick(() => {
                         $('#shippment_form').submit();
                     });
@@ -1286,15 +1560,47 @@
                                 address.lat    = lat;
                                 address.lng    = lng;
                                 address.latlng = `${lat},${lng}`
+                                this.verifyAddressDestinationCity(address);
                                 console.log('deliveryAddress: onReverseGeocode', `${lat},${lng}`);
                             }
                         });
                         this.$nextTick(() => {
                             address.map.init();
                         })
+                        this.verifyAddressDestinationCity(address);
                     });
                 }
             },
+        });
+
+        $('#shippment_form').on('bs:validation-errors', function(event, errors) {
+            const $form = $(this);
+            const stepErrors = { 1: 0, 2: 0 };
+            let $firstStepOneError = null;
+            let $firstStepTwoError = null;
+
+            errors.forEach(function(error) {
+                const inputName = error.field.replace(/\.(.+?)(?=\.|$)/g, (match, name) => `[${name}]`);
+                const $input = $form.find("[name^='" + inputName + "']").first();
+                const step = Number($input.closest('[data-shippment-step]').data('shippment-step'));
+
+                if (step === 1 || step === 2) {
+                    stepErrors[step]++;
+                    if (step === 1 && ! $firstStepOneError) $firstStepOneError = $input;
+                    if (step === 2 && ! $firstStepTwoError) $firstStepTwoError = $input;
+                }
+            });
+
+            HeaderApp.setStepErrors(stepErrors);
+            const targetStep = stepErrors[1] > 0 ? 1 : (stepErrors[2] > 0 ? 2 : CrudApp.step);
+            const $targetInput = targetStep === 1 ? $firstStepOneError : $firstStepTwoError;
+            CrudApp.switchStep(targetStep);
+            CrudApp.$nextTick(function() {
+                if ($targetInput && $targetInput.length) {
+                    $targetInput[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    $targetInput.focus();
+                }
+            });
         });
 
         const slider = document.getElementById('weightRange');
@@ -1388,6 +1694,90 @@
                         center: { lat: state.lat, lng: state.lng },
                         zoom  : state.zoom,
                     });
+
+                    const locationButton = document.createElement('button');
+                    locationButton.type = 'button';
+                    locationButton.className = 'btn btn-white btn-icon shadow-sm m-2';
+                    locationButton.title = @json(__('contenttypes::strings.shippments.current_location'));
+                    locationButton.setAttribute('aria-label', @json(__('contenttypes::strings.shippments.current_location')));
+                    locationButton.innerHTML = '<em class="icon ni ni-location"></em>';
+                    locationButton.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        if (!navigator.geolocation) {
+                            NioApp.Toast(@json(__('contenttypes::strings.shippments.location_unavailable')), 'error', {ui: 'is-dark'});
+                            return;
+                        }
+
+                        let locationWatchId = null;
+                        let locationWatchTimeout = null;
+                        let locationRequestFinished = false;
+                        const finishLocationRequest = function() {
+                            if (locationRequestFinished) {
+                                return false;
+                            }
+
+                            locationRequestFinished = true;
+                            if (locationWatchId !== null) {
+                                navigator.geolocation.clearWatch(locationWatchId);
+                            }
+                            if (locationWatchTimeout !== null) {
+                                window.clearTimeout(locationWatchTimeout);
+                            }
+                            locationButton.disabled = false;
+                            locationButton.removeAttribute('aria-busy');
+                            return true;
+                        };
+                        const usePosition = function(position) {
+                            if (!finishLocationRequest()) {
+                                return;
+                            }
+
+                            methods.placeMarker(new google.maps.LatLng(
+                                position.coords.latitude,
+                                position.coords.longitude
+                            ), true);
+                        };
+                        const showLocationError = function(error) {
+                            if (!finishLocationRequest()) {
+                                return;
+                            }
+
+                            const message = error && error.code === 1
+                                ? @json(__('contenttypes::strings.shippments.location_permission_denied'))
+                                : @json(__('contenttypes::strings.shippments.location_unavailable'));
+                            NioApp.Toast(message, 'error', {ui: 'is-dark'});
+                        };
+                        const watchForPosition = function() {
+                            locationWatchId = navigator.geolocation.watchPosition(usePosition, function(error) {
+                                if (error.code === 1) {
+                                    showLocationError(error);
+                                }
+                            }, {
+                                enableHighAccuracy: true,
+                                timeout: 10000,
+                                maximumAge: 0,
+                            });
+                            locationWatchTimeout = window.setTimeout(function() {
+                                showLocationError(null);
+                            }, 30000);
+                        };
+
+                        locationButton.disabled = true;
+                        locationButton.setAttribute('aria-busy', 'true');
+                        navigator.geolocation.getCurrentPosition(usePosition, function(error) {
+                            if (error.code === 1) {
+                                showLocationError(error);
+                                return;
+                            }
+
+                            watchForPosition();
+                        }, {
+                            enableHighAccuracy: false,
+                            timeout: 15000,
+                            maximumAge: 300000,
+                        });
+                    });
+                    state.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(locationButton);
 
                     state.map.addListener("click", (e) => {
                         methods.placeMarker(e.latLng, true);
